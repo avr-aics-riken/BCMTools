@@ -48,7 +48,7 @@ public:
   void addPoint(const Vec3r& p) {
     min.x = std::min(min.x, p.x);
     min.y = std::min(min.y, p.y);
-    min.y = std::min(min.y, p.y);
+    min.z = std::min(min.z, p.z);
     max.x = std::max(max.x, p.x);
     max.y = std::max(max.y, p.y);
     max.z = std::max(max.z, p.z);
@@ -85,6 +85,23 @@ public:
         max.z < bbox.min.z || bbox.max.z < min.z) return false;
     return true;
   }
+
+  bool inside(const BoundingBox& bbox) const {
+    if (min.x < bbox.min.x && bbox.max.x < max.x &&
+        min.y < bbox.min.y && bbox.max.y < max.y &&
+        min.z < bbox.min.z && bbox.max.z < max.z) return true;
+    return false;
+	}
+
+  bool outside(const BoundingBox& bbox) const {
+		if( inside(bbox) ){
+			return false;
+		}
+		if( intersects(bbox) ) {
+			return false;
+		}
+		return true;
+	}
 
   /// バウンディングボックス情報をストリームに出力.
   friend std::ostream& operator<<(std::ostream& os, const BoundingBox& bb) {

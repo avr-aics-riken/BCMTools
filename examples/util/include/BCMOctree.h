@@ -23,9 +23,10 @@ public:
 
   /// オーダリングタイプ.
   enum Ordering {
-    Z,        ///< Z(Morton)オーダリング
-    HILBERT,  ///< ヒルベルトオーダリング
-    RANDOM,   ///< ランダムシャッフル
+    Z,             ///< Z(Morton)オーダリング
+    HILBERT,       ///< ヒルベルトオーダリング
+    RANDOM,        ///< ランダムシャッフル
+    PEDIGREELIST,  ///< Pedigreeリスト順(ファイルロード用)
   };
 
 private:
@@ -55,6 +56,16 @@ public:
   ///
   BCMOctree(RootGrid* rootGrid, Divider* divider, Ordering ordering);
 
+
+  /// コンストラクタ.
+  ///
+  ///  @param[in] rootGrid ルートノード配置情報
+  ///  @param[in] pedigrees ペディグリリスト
+  ///
+  ///  @note rootGridは、デストラクタにより解放される．
+  ///
+  BCMOctree(RootGrid* rootGrid, const std::vector<Pedigree>& pedigrees);
+
   /// デストラクタ.
   ~BCMOctree();
 
@@ -74,6 +85,9 @@ public:
   ///  @note rank0からは呼ばないこと
   ///
   static BCMOctree* ReceiveFromMaster(MPI::Intracomm& comm = MPI::COMM_WORLD);
+
+  /// ルートグリッドを取得
+  const RootGrid* getRootGrid() const { return rootGrid; }
 
   /// リーフノード総数を取得.
   int getNumLeafNode() const { return leafNodeArray.size(); }

@@ -4,6 +4,7 @@
 namespace BCMT_NAMESPACE {
 #endif
 
+/*
 #define USE_PRIVATE_METHODS
 
 
@@ -151,7 +152,7 @@ template class Scalar3D<long>;
 #ifdef USE_DATACLASS_SCALAR_UNSIGNED_LONG
 template class Scalar3D<unsigned long>;
 #endif
-
+*/
 
 #ifdef BCMT_NAMESPACE
 } // namespace BCMT_NAMESPACE

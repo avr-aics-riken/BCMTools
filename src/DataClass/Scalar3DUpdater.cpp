@@ -4,7 +4,7 @@
 namespace BCMT_NAMESPACE {
 #endif
 
-
+/*
 /// 隣接データクラスから仮想セルデータをコピー(同レベル間).
 template <typename T>
 void Scalar3DUpdater<T>::copyFromNeighbor(Face face)
@@ -599,15 +599,15 @@ template class Scalar3DUpdater<float>;
 #endif
 
 #ifdef USE_UPDATER_SCALAR_INT
-#error Scalar3DUpdater not implemented for integer type yet.
-//template class Scalar3DUpdater<int>;
+//#error Scalar3DUpdater not implemented for integer type yet.
+template class Scalar3DUpdater<int>;
 #endif
 
 #if (defined USE_UPDATER_SCALAR_UNSIGNED_INT || defined USE_UPDATER_SCALAR_UNSIGNED)
 #error Scalar3DUpdater not implemented for integer type yet.
 //template class Scalar3DUpdater<unsigned int>;
 #endif
-
+*/
 
 #ifdef BCMT_NAMESPACE
 } // namespace BCMT_NAMESPACE

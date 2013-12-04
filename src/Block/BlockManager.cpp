@@ -42,40 +42,56 @@ void BlockManager::endRegisterBlock()
 
 
 /// 仮想セル同期の準備.
-void BlockManager::prepareForVCUpdate(int dataClassID, int tag, bool separate)
+void BlockManager::prepareForVCUpdate(int dataClassID, int tag, VCUpdateMethod::Type method)
 {
-  if (separate) {
-    if (!separateFaceListPrepared) setSeparateFaceLists();
-
-    for (int xyz = 0; xyz < 3; xyz++) {
-      setDataClassNeighbor(dataClassID, xyz);
-
-      assert(commBufferSeparateTableMap[xyz].find(dataClassID)
-             == commBufferSeparateTableMap[xyz].end());
-      commBufferSeparateTableMap[xyz][dataClassID] = new CommBufferTable(tag);
-
-      setSendBufferPointers(commBufferSeparateTableMap[xyz][dataClassID]->sendBuffer,
-                            dataClassID, xyz);
-      setRecvBufferPointers(commBufferSeparateTableMap[xyz][dataClassID]->recvBuffer,
-                            dataClassID, xyz);
-
-      commBufferSeparateTableMap[xyz][dataClassID]->sendBuffer->allocateBuffer();
-      commBufferSeparateTableMap[xyz][dataClassID]->recvBuffer->allocateBuffer();
-    }
-  }
-  else {
-    if (!faceListPrepared) setFaceLists();
-
-    setDataClassNeighbor(dataClassID);
-
-    assert(commBufferTableMap.find(dataClassID) == commBufferTableMap.end());
-    commBufferTableMap[dataClassID] = new CommBufferTable(tag);
-
-    setSendBufferPointers(commBufferTableMap[dataClassID]->sendBuffer, dataClassID);
-    setRecvBufferPointers(commBufferTableMap[dataClassID]->recvBuffer, dataClassID);
-
-    commBufferTableMap[dataClassID]->sendBuffer->allocateBuffer();
-    commBufferTableMap[dataClassID]->recvBuffer->allocateBuffer();
+  switch (method) {
+    case VCUpdateMethod::AtOnce:
+      if (!faceListPrepared) setFaceLists();
+      setDataClassNeighbor(dataClassID, localFaceList);
+      assert(commBufferTableMap.find(dataClassID) == commBufferTableMap.end());
+      commBufferTableMap[dataClassID] = new CommBufferTable(tag);
+      setSendBufferPointers(commBufferTableMap[dataClassID]->sendBuffer,
+                            dataClassID, sendFaceList);
+      setRecvBufferPointers(commBufferTableMap[dataClassID]->recvBuffer,
+                            dataClassID, recvFaceList);
+      commBufferTableMap[dataClassID]->sendBuffer->allocateBuffer();
+      commBufferTableMap[dataClassID]->recvBuffer->allocateBuffer();
+      break;
+    case VCUpdateMethod::SeparateXYZ:
+      if (!separateFaceListPrepared) setSeparateFaceLists();
+      for (int xyz = 0; xyz < 3; xyz++) {
+        setDataClassNeighbor(dataClassID, localSeparateFaceList[xyz]);
+        assert(commBufferSeparateTableMap[xyz].find(dataClassID)
+               == commBufferSeparateTableMap[xyz].end());
+        commBufferSeparateTableMap[xyz][dataClassID] = new CommBufferTable(tag);
+        setSendBufferPointers(commBufferSeparateTableMap[xyz][dataClassID]->sendBuffer,
+                              dataClassID, sendSeparateFaceList[xyz]);
+        setRecvBufferPointers(commBufferSeparateTableMap[xyz][dataClassID]->recvBuffer,
+                              dataClassID, recvSeparateFaceList[xyz]);
+        commBufferSeparateTableMap[xyz][dataClassID]->sendBuffer->allocateBuffer();
+        commBufferSeparateTableMap[xyz][dataClassID]->recvBuffer->allocateBuffer();
+      }
+      break;
+    case VCUpdateMethod::SeparateXYZ_SeparateLevelDiff:
+      if (!separateLevelDiffFaceListPrepared) setSeparateLevelDiffFaceLists();
+      for (int xyz = 0; xyz < 3; xyz++) {
+        for (int ld = 0; ld < 3; ld++) {
+          setDataClassNeighbor(dataClassID, localSeparateLevelDiffFaceList[xyz][ld]);
+          assert(commBufferSeparateLevelDiffTableMap[xyz][ld].find(dataClassID)
+                 == commBufferSeparateLevelDiffTableMap[xyz][ld].end());
+          commBufferSeparateLevelDiffTableMap[xyz][ld][dataClassID] = new CommBufferTable(tag);
+          setSendBufferPointers(commBufferSeparateLevelDiffTableMap[xyz][ld][dataClassID]->sendBuffer,
+                                dataClassID, sendSeparateLevelDiffFaceList[xyz][ld]);
+          setRecvBufferPointers(commBufferSeparateLevelDiffTableMap[xyz][ld][dataClassID]->recvBuffer,
+                                dataClassID, recvSeparateLevelDiffFaceList[xyz][ld]);
+          commBufferSeparateLevelDiffTableMap[xyz][ld][dataClassID]->sendBuffer->allocateBuffer();
+          commBufferSeparateLevelDiffTableMap[xyz][ld][dataClassID]->recvBuffer->allocateBuffer();
+        }
+      }
+      break;
+    default:
+      assert(0);
+      break;
   }
 }
 
@@ -94,7 +110,7 @@ void BlockManager::printBlockLayoutInfo()
 
   int levelMin = INT_MAX;
   int levelMax = 0;
-  for (int localID = 0; localID < numBlock; ++localID) {
+  for (int localID = 0; localID < numBlock; localID++) {
     int level = blockList[localID]->getLevel();
     levelMin = std::min(level, levelMin);
     levelMax = std::max(level, levelMax);
@@ -102,8 +118,8 @@ void BlockManager::printBlockLayoutInfo()
 
 //std::cout << myrank << ": Lmin=" << levelMin << " Lmax=" << levelMax << std::endl;
   
-  comm.Allreduce(MPI_IN_PLACE, &levelMin, 1, MPI::INTEGER, MPI::MIN);
-  comm.Allreduce(MPI_IN_PLACE, &levelMax, 1, MPI::INTEGER, MPI::MAX);
+  comm.Allreduce(MPI_IN_PLACE, &levelMin, 1, MPI::INT, MPI::MIN);
+  comm.Allreduce(MPI_IN_PLACE, &levelMax, 1, MPI::INT, MPI::MAX);
 
   if (myrank == 0) {
     std::cout << "  Min level: " << levelMin << std::endl;
@@ -117,18 +133,18 @@ void BlockManager::printBlockLayoutInfo()
   int* nBlock = new int[nLevel];
   for (int i = 0; i < nLevel; i++) nBlock[i] = 0;
 
-  for (int localID = 0; localID < numBlock; ++localID) {
+  for (int localID = 0; localID < numBlock; localID++) {
     BlockBase* block = blockList[localID];
     int level = block->getLevel();
     nBlock[level-levelMin]++;
   }
 
   int numBlockSum;
-  comm.Reduce(&numBlock, &numBlockSum, 1, MPI::INTEGER, MPI::SUM, 0);
+  comm.Reduce(&numBlock, &numBlockSum, 1, MPI::INT, MPI::SUM, 0);
   if (myrank == 0) {
-    comm.Reduce(MPI_IN_PLACE, nBlock, nLevel, MPI::INTEGER, MPI::SUM, 0);
+    comm.Reduce(MPI_IN_PLACE, nBlock, nLevel, MPI::INT, MPI::SUM, 0);
   } else {
-    comm.Reduce(nBlock, nBlock, nLevel, MPI::INTEGER, MPI::SUM, 0);
+    comm.Reduce(nBlock, nBlock, nLevel, MPI::INT, MPI::SUM, 0);
   }
 
   if (myrank == 0) {
@@ -142,13 +158,13 @@ void BlockManager::printBlockLayoutInfo()
   delete[] nBlock;
 
   int numBlockMin, numBlockMax;
-  comm.Reduce(&numBlock, &numBlockMin, 1, MPI::INTEGER, MPI::MIN, 0);
-  comm.Reduce(&numBlock, &numBlockMax, 1, MPI::INTEGER, MPI::MAX, 0);
+  comm.Reduce(&numBlock, &numBlockMin, 1, MPI::INT, MPI::MIN, 0);
+  comm.Reduce(&numBlock, &numBlockMax, 1, MPI::INT, MPI::MAX, 0);
   int numBlock2Sum = numBlock * numBlock;
   if (myrank == 0) {
-    comm.Reduce(MPI_IN_PLACE, &numBlock2Sum, 1, MPI::INTEGER, MPI::SUM, 0);
+    comm.Reduce(MPI_IN_PLACE, &numBlock2Sum, 1, MPI::INT, MPI::SUM, 0);
   } else {
-    comm.Reduce(&numBlock2Sum, &numBlock2Sum, 1, MPI::INTEGER, MPI::SUM, 0);
+    comm.Reduce(&numBlock2Sum, &numBlock2Sum, 1, MPI::INT, MPI::SUM, 0);
   }
 
   if (myrank == 0) {
@@ -163,11 +179,10 @@ void BlockManager::printBlockLayoutInfo()
 
   // count faces
 
-  enum LevelDiff { L_M1, L_0, L_P1 };
   int nFaceInter[3] = { 0, 0, 0 };
   int nFaceIntra[3] = { 0, 0, 0 };
 
-  for (int localID = 0; localID < numBlock; ++localID) {
+  for (int localID = 0; localID < numBlock; localID++) {
     BlockBase* block = blockList[localID];
     const NeighborInfo* neighborInfo = block->getNeighborInfo();
     for (int i = 0; i < NUM_FACE; i++) {
@@ -176,26 +191,26 @@ void BlockManager::printBlockLayoutInfo()
         int levelDiff = neighborInfo[face].getLevelDifference();
         if (levelDiff == 0) {
           if (neighborInfo[face].getRank() == myrank) {
-            nFaceIntra[L_0]++;
+            nFaceIntra[LD_0]++;
           } else {
-            nFaceInter[L_0]++;
+            nFaceInter[LD_0]++;
           }
         }
         else if (levelDiff == 1) {
           for (int j = 0; j < NUM_SUBFACE; j++) {
             Subface subface = Subface(j);
             if (neighborInfo[face].getRank(subface) == myrank) {
-              nFaceIntra[L_P1]++;
+              nFaceIntra[LD_P1]++;
             } else {
-              nFaceInter[L_P1]++;
+              nFaceInter[LD_P1]++;
             }
           }
         }
         else if (levelDiff == -1) {
           if (neighborInfo[face].getRank() == myrank) {
-            nFaceIntra[L_M1]++;
+            nFaceIntra[LD_M1]++;
           } else {
-            nFaceInter[L_M1]++;
+            nFaceInter[LD_M1]++;
           }
         }
         else {
@@ -208,44 +223,44 @@ void BlockManager::printBlockLayoutInfo()
   int nFaceInterSum[3] = { 0, 0, 0 };
   int nFaceIntraSum[3] = { 0, 0, 0 };
 
-  comm.Reduce(nFaceInter, nFaceInterSum, 3, MPI::INTEGER, MPI::SUM, 0);
-  comm.Reduce(nFaceIntra, nFaceIntraSum, 3, MPI::INTEGER, MPI::SUM, 0);
+  comm.Reduce(nFaceInter, nFaceInterSum, 3, MPI::INT, MPI::SUM, 0);
+  comm.Reduce(nFaceIntra, nFaceIntraSum, 3, MPI::INT, MPI::SUM, 0);
 
   if (myrank == 0) {
     std::cout << "  Number of faces" << std::endl;
     std::cout << "    intra-node " << std::endl;
-    std::cout << "        dLevel=-1: " << nFaceIntraSum[L_M1] << std::endl;
-    std::cout << "        dLevel= 0: " << nFaceIntraSum[L_0] << std::endl;
-    std::cout << "        dLevel=+1: " << nFaceIntraSum[L_P1] << std::endl;
+    std::cout << "        dLevel=-1: " << nFaceIntraSum[LD_M1] << std::endl;
+    std::cout << "        dLevel= 0: " << nFaceIntraSum[LD_0] << std::endl;
+    std::cout << "        dLevel=+1: " << nFaceIntraSum[LD_P1] << std::endl;
     std::cout << "            total: "
-           << nFaceIntraSum[L_M1] + nFaceIntraSum[L_0] + nFaceIntraSum[L_P1] 
+           << nFaceIntraSum[LD_M1] + nFaceIntraSum[LD_0] + nFaceIntraSum[LD_P1] 
            << std::endl;
     std::cout << "    inter-node " << std::endl;
-    std::cout << "        dLevel=-1: " << nFaceInterSum[L_M1] << std::endl;
-    std::cout << "        dLevel= 0: " << nFaceInterSum[L_0] << std::endl;
-    std::cout << "        dLevel=+1: " << nFaceInterSum[L_P1] << std::endl;
+    std::cout << "        dLevel=-1: " << nFaceInterSum[LD_M1] << std::endl;
+    std::cout << "        dLevel= 0: " << nFaceInterSum[LD_0] << std::endl;
+    std::cout << "        dLevel=+1: " << nFaceInterSum[LD_P1] << std::endl;
     std::cout << "            total: "
-           << nFaceInterSum[L_M1] + nFaceInterSum[L_0] + nFaceInterSum[L_P1] 
+           << nFaceInterSum[LD_M1] + nFaceInterSum[LD_0] + nFaceInterSum[LD_P1] 
            << std::endl;
   }
 
-  int nFaceInterTotal = nFaceInter[L_M1] + nFaceInter[L_0] + nFaceInter[L_P1];
+  int nFaceInterTotal = nFaceInter[LD_M1] + nFaceInter[LD_0] + nFaceInter[LD_P1];
 
   int nFaceInterTotalMin, nFaceInterTotalMax;
-  comm.Reduce(&nFaceInterTotal, &nFaceInterTotalMin, 1, MPI::INTEGER, MPI::MIN, 0);
-  comm.Reduce(&nFaceInterTotal, &nFaceInterTotalMax, 1, MPI::INTEGER, MPI::MAX, 0);
+  comm.Reduce(&nFaceInterTotal, &nFaceInterTotalMin, 1, MPI::INT, MPI::MIN, 0);
+  comm.Reduce(&nFaceInterTotal, &nFaceInterTotalMax, 1, MPI::INT, MPI::MAX, 0);
 
   int nFaceInterTotal2Sum = nFaceInterTotal * nFaceInterTotal;
   if (myrank == 0) {
-    comm.Reduce(MPI_IN_PLACE, &nFaceInterTotal2Sum, 1, MPI::INTEGER, MPI::SUM, 0);
+    comm.Reduce(MPI_IN_PLACE, &nFaceInterTotal2Sum, 1, MPI::INT, MPI::SUM, 0);
   } else {
-    comm.Reduce(&nFaceInterTotal2Sum, &nFaceInterTotal2Sum, 1, MPI::INTEGER, MPI::SUM, 0);
+    comm.Reduce(&nFaceInterTotal2Sum, &nFaceInterTotal2Sum, 1, MPI::INT, MPI::SUM, 0);
   }
 
   if (myrank == 0) {
     std::cout << "  Number of total inter-node faces / node" << std::endl;
     double ave
-      = (double)(nFaceInterSum[L_M1] + nFaceInterSum[L_0] + nFaceInterSum[L_P1]) / nprocs;
+      = (double)(nFaceInterSum[LD_M1] + nFaceInterSum[LD_0] + nFaceInterSum[LD_P1]) / nprocs;
     std::cout << "    ave: " << ave << std::endl;
     std::cout << "    min: " << nFaceInterTotalMin << std::endl;
     std::cout << "    max: " << nFaceInterTotalMax << std::endl;
@@ -261,11 +276,11 @@ void BlockManager::setFaceLists()
 
   int myrank = comm.Get_rank();
 
-  for (int localID = 0; localID < numBlock; ++localID) {
+  for (int localID = 0; localID < numBlock; localID++) {
     BlockBase* block = blockList[localID];
     const NeighborInfo* neighborInfo = block->getNeighborInfo();
 
-    for (int i = 0; i < NUM_FACE; ++i) {
+    for (int i = 0; i < NUM_FACE; i++) {
       Face face = Face(i);
 
       if (neighborInfo[face].getLevelDifference() == 0 ||
@@ -323,11 +338,11 @@ void BlockManager::setSeparateFaceLists() {
 
   int myrank = comm.Get_rank();
 
-  for (int localID = 0; localID < numBlock; ++localID) {
+  for (int localID = 0; localID < numBlock; localID++) {
     BlockBase* block = blockList[localID];
     const NeighborInfo* neighborInfo = block->getNeighborInfo();
 
-    for (int i = 0; i < NUM_FACE; ++i) {
+    for (int i = 0; i < NUM_FACE; i++) {
       Face face = Face(i);
       int xyz = faceToXYZ(face);
 
@@ -371,73 +386,94 @@ void BlockManager::setSeparateFaceLists() {
 }
 
 
-/// 各ブロックで，指定したデータクラスの隣接データクラス情報を設定.
-void BlockManager::setDataClassNeighbor(int dataClassID) {
-  FaceList::const_iterator it = localFaceList.begin();
-  for (; it != localFaceList.end(); ++it) {
-    int id = it->id;
-    Face face = it->face;
-    Subface subface = it->subface;
-    BlockBase* block = blockList[id];
-    UpdatableDataClass* dataClass
-      = dynamic_cast<UpdatableDataClass*>(block->getDataClass(dataClassID));
-    assert(dataClass);
-    int neighborBlockID = (block->getNeighborInfo())[face].getID(subface)
-                            - startID;
-    dataClass->setNeighbor(face, subface, 
-                           blockList[neighborBlockID]->getDataClass(dataClassID));
-  }
-}
+/// フェイスリスト(3方向別・レベル差別)の設定.
+void BlockManager::setSeparateLevelDiffFaceLists() {
+  if (separateLevelDiffFaceListPrepared) return;
 
+  int myrank = comm.Get_rank();
 
-/// 各ブロックで，指定したデータクラスの隣接データクラス情報(3方向別)を設定.
-void BlockManager::setDataClassNeighbor(int dataClassID, int xyz) {
-  assert(0 <= xyz && xyz < 3);
-  FaceList::const_iterator it = localSeparateFaceList[xyz].begin();
-  for (; it != localSeparateFaceList[xyz].end(); ++it) {
-    int id = it->id;
-    Face face = it->face;
-    Subface subface = it->subface;
-    BlockBase* block = blockList[id];
-    UpdatableDataClass* dataClass
-      = dynamic_cast<UpdatableDataClass*>(block->getDataClass(dataClassID));
-    assert(dataClass);
-    int neighborBlockID = (block->getNeighborInfo())[face].getID(subface)
-                            - startID;
-    dataClass->setNeighbor(face, subface, 
-                           blockList[neighborBlockID]->getDataClass(dataClassID));
-  }
-}
+  for (int localID = 0; localID < numBlock; localID++) {
+    BlockBase* block = blockList[localID];
+    const NeighborInfo* neighborInfo = block->getNeighborInfo();
 
-  
-/// 各ブロックで，指定したデータクラスの送信バッファポインタを設定.
-void BlockManager::setSendBufferPointers(SendBuffer* sendBuffer, int dataClassID)
-{
-  FaceListMap::const_iterator it_map = sendFaceList.begin();
-  for (; it_map != sendFaceList.end(); ++it_map) {
-    int rank = it_map->first;
-    FaceList::const_iterator it = it_map->second.begin();
-    for (; it != it_map->second.end(); ++it) {
-      int id = it->id;
-      Face face = it->face;
-      Subface subface = it->subface;
-      UpdatableDataClass* dataClass
-        = dynamic_cast<UpdatableDataClass*>(
-                          blockList[id]->getDataClass(dataClassID));
-      sendBuffer->setData(rank, 
-                          dataClass->getSendBufferByteSize(face, subface),
-                          dataClass->getSendBufferPointerSetter(face, subface));
+    for (int i = 0; i < NUM_FACE; i++) {
+      Face face = Face(i);
+      int xyz = faceToXYZ(face);
+
+      if (neighborInfo[face].getLevelDifference() == 0) {
+        int rank = neighborInfo[face].getRank();
+        if (rank == myrank) {
+          localSeparateLevelDiffFaceList[xyz][LD_0].push_back(FaceID(localID, face));
+        }
+        else if (rank != MPI::PROC_NULL) {
+          sendSeparateLevelDiffFaceList[xyz][LD_0][rank].push_back(FaceID(localID, face));
+          recvSeparateLevelDiffFaceList[xyz][LD_0][rank].push_back(FaceID(localID, face));
+        }
+      }
+      else if (neighborInfo[face].getLevelDifference() == -1) {
+        int rank = neighborInfo[face].getRank();
+        if (rank == myrank) {
+          localSeparateLevelDiffFaceList[xyz][LD_M1].push_back(FaceID(localID, face));
+        }
+        else if (rank != MPI::PROC_NULL) {
+          sendSeparateLevelDiffFaceList[xyz][LD_M1][rank].push_back(FaceID(localID, face));
+          recvSeparateLevelDiffFaceList[xyz][LD_M1][rank].push_back(FaceID(localID, face));
+        }
+      }
+      else if (neighborInfo[face].getLevelDifference() == 1) {
+        for (int j = 0; j < NUM_SUBFACE; j++) {
+          Subface subface = Subface(j);
+          int rank = neighborInfo[face].getRank(subface);
+          if (rank == myrank) {
+            localSeparateLevelDiffFaceList[xyz][LD_P1].push_back(FaceID(localID, face, subface));
+          }
+          else if (rank != MPI::PROC_NULL) {
+            sendSeparateLevelDiffFaceList[xyz][LD_P1][rank].push_back(FaceID(localID, face, subface));
+            recvSeparateLevelDiffFaceList[xyz][LD_P1][rank].push_back(FaceID(localID, face, subface));
+          }
+        }
+      }
     }
   }
+
+  // 送信側のFaceIDオーダーに合わせるため，RecvFaceListをソートする
+  for (int xyz = 0; xyz < 3; xyz++) {
+    for (int ld = 0; ld < 3; ld++) {
+      FaceListMap::iterator it = recvSeparateLevelDiffFaceList[xyz][ld].begin();
+      for (; it != recvSeparateLevelDiffFaceList[xyz][ld].end(); ++it) {
+        std::sort(it->second.begin(), it->second.end(), RecvFaceComp(blockList));
+      }
+    }
+  }
+
+  separateLevelDiffFaceListPrepared = true;
 }
 
 
-/// 各ブロックで，指定したデータクラスの送信バッファポインタ(3方向別)を設定.
-void BlockManager::setSendBufferPointers(SendBuffer* sendBuffer, int dataClassID, int xyz)
+/// 各ブロックで，指定したデータクラスの隣接データクラス情報を設定.
+void BlockManager::setDataClassNeighbor(int dataClassID, const FaceList& faceList) {
+  FaceList::const_iterator it = faceList.begin();
+  for (; it != faceList.end(); ++it) {
+    int id = it->id;
+    Face face = it->face;
+    Subface subface = it->subface;
+    BlockBase* block = blockList[id];
+    UpdatableDataClass* dataClass
+      = dynamic_cast<UpdatableDataClass*>(block->getDataClass(dataClassID));
+    assert(dataClass);
+    int neighborBlockID = (block->getNeighborInfo())[face].getID(subface)
+                            - startID;
+    dataClass->setNeighbor(face, subface, 
+                           blockList[neighborBlockID]->getDataClass(dataClassID));
+  }
+}
+
+
+/// 各ブロックで，指定したデータクラスの送信バッファポインタを設定.
+void BlockManager::setSendBufferPointers(SendBuffer* sendBuffer, int dataClassID, const FaceListMap& faceListMap)
 {
-  assert(0 <= xyz && xyz < 3);
-  FaceListMap::const_iterator it_map = sendSeparateFaceList[xyz].begin();
-  for (; it_map != sendSeparateFaceList[xyz].end(); ++it_map) {
+  FaceListMap::const_iterator it_map = faceListMap.begin();
+  for (; it_map != faceListMap.end(); ++it_map) {
     int rank = it_map->first;
     FaceList::const_iterator it = it_map->second.begin();
     for (; it != it_map->second.end(); ++it) {
@@ -456,33 +492,10 @@ void BlockManager::setSendBufferPointers(SendBuffer* sendBuffer, int dataClassID
 
 
 /// 各ブロックで，指定したデータクラスの受信バッファポインタを設定.
-void BlockManager::setRecvBufferPointers(RecvBuffer* recvBuffer, int dataClassID)
+void BlockManager::setRecvBufferPointers(RecvBuffer* recvBuffer, int dataClassID, const FaceListMap& faceListMap)
 {
-  FaceListMap::const_iterator it_map = recvFaceList.begin();
-  for (; it_map != recvFaceList.end(); ++it_map) {
-    int rank = it_map->first;
-    FaceList::const_iterator it = it_map->second.begin();
-    for (; it != it_map->second.end(); ++it) {
-      int id = it->id;
-      Face face = it->face;
-      Subface subface = it->subface;
-      UpdatableDataClass* dataClass
-        = dynamic_cast<UpdatableDataClass*>(
-                          blockList[id]->getDataClass(dataClassID));
-      recvBuffer->setData(rank, 
-                          dataClass->getRecvBufferByteSize(face, subface),
-                          dataClass->getRecvBufferPointerSetter(face, subface));
-    }
-  }
-}
-
-
-/// 各ブロックで，指定したデータクラスの受信バッファポインタ(3方向別)を設定.
-void BlockManager::setRecvBufferPointers(RecvBuffer* recvBuffer, int dataClassID, int xyz)
-{
-  assert(0 <= xyz && xyz < 3);
-  FaceListMap::const_iterator it_map = recvSeparateFaceList[xyz].begin();
-  for (; it_map != recvSeparateFaceList[xyz].end(); ++it_map) {
+  FaceListMap::const_iterator it_map = faceListMap.begin();
+  for (; it_map != faceListMap.end(); ++it_map) {
     int rank = it_map->first;
     FaceList::const_iterator it = it_map->second.begin();
     for (; it != it_map->second.end(); ++it) {
@@ -501,10 +514,10 @@ void BlockManager::setRecvBufferPointers(RecvBuffer* recvBuffer, int dataClassID
 
 
 /// 各ブロックで，指定したデータクラスの仮想セルデータを隣接ブロックからコピー.
-void BlockManager::copyVCFromNeighbor(int dataClassID)
+void BlockManager::copyVCFromNeighbor(int dataClassID, const FaceList& faceList)
 {
-  FaceList::const_iterator it = localFaceList.begin();
-  for (; it != localFaceList.end(); ++it) {
+  FaceList::const_iterator it = faceList.begin();
+  for (; it != faceList.end(); ++it) {
     int id = it->id;
     Face face = it->face;
     Subface subface = it->subface;
@@ -514,48 +527,13 @@ void BlockManager::copyVCFromNeighbor(int dataClassID)
     dataClass->copyFromNeighbor(face, subface);
   }
 }
-
-
-/// 各ブロックで，指定したデータクラスの仮想セルデータを隣接ブロックからコピー(3方向別).
-void BlockManager::copyVCFromNeighbor(int dataClassID, int xyz)
-{
-  FaceList::const_iterator it = localSeparateFaceList[xyz].begin();
-  for (; it != localSeparateFaceList[xyz].end(); ++it) {
-    int id = it->id;
-    Face face = it->face;
-    Subface subface = it->subface;
-    UpdatableDataClass* dataClass
-      = dynamic_cast<UpdatableDataClass*>(
-                          blockList[id]->getDataClass(dataClassID));
-    dataClass->copyFromNeighbor(face, subface);
-  }
-}
-
+  
 
 /// 各ブロックで，指定したデータクラスの仮想セルデータを送信バッファにコピー.
-void BlockManager::copyVCToSendBuffer(int dataClassID)
+void BlockManager::copyVCToSendBuffer(int dataClassID, const FaceListMap& faceListMap)
 {
-  FaceListMap::const_iterator it_map = sendFaceList.begin();
-  for (; it_map != sendFaceList.end(); ++it_map) {
-    FaceList::const_iterator it = it_map->second.begin();
-    for (; it != it_map->second.end(); ++it) {
-      int id = it->id;
-      Face face = it->face;
-      Subface subface = it->subface;
-      UpdatableDataClass* dataClass
-        = dynamic_cast<UpdatableDataClass*>(
-                          blockList[id]->getDataClass(dataClassID));
-      dataClass->copyToCommBuffer(face, subface);
-    }
-  }
-}
-
-
-/// 各ブロックで，指定したデータクラスの仮想セルデータを送信バッファにコピー(3方向別).
-void BlockManager::copyVCToSendBuffer(int dataClassID, int xyz)
-{
-  FaceListMap::const_iterator it_map = sendSeparateFaceList[xyz].begin();
-  for (; it_map != sendSeparateFaceList[xyz].end(); ++it_map) {
+  FaceListMap::const_iterator it_map = faceListMap.begin();
+  for (; it_map != faceListMap.end(); ++it_map) {
     FaceList::const_iterator it = it_map->second.begin();
     for (; it != it_map->second.end(); ++it) {
       int id = it->id;
@@ -571,29 +549,10 @@ void BlockManager::copyVCToSendBuffer(int dataClassID, int xyz)
 
 
 /// 各ブロックで，指定したデータクラスの仮想セルデータを受信バッファからコピー.
-void BlockManager::copyVCFromRecvBuffer(int dataClassID)
+void BlockManager::copyVCFromRecvBuffer(int dataClassID, const FaceListMap& faceListMap)
 {
-  FaceListMap::const_iterator it_map = recvFaceList.begin();
-  for (; it_map != recvFaceList.end(); ++it_map) {
-    FaceList::const_iterator it = it_map->second.begin();
-    for (; it != it_map->second.end(); ++it) {
-      int id = it->id;
-      Face face = it->face;
-      Subface subface = it->subface;
-      UpdatableDataClass* dataClass
-        = dynamic_cast<UpdatableDataClass*>(
-                          blockList[id]->getDataClass(dataClassID));
-      dataClass->copyFromCommBuffer(face, subface);
-    }
-  }
-}
-
-
-/// 各ブロックで，指定したデータクラスの仮想セルデータを受信バッファからコピー(3方向別).
-void BlockManager::copyVCFromRecvBuffer(int dataClassID, int xyz)
-{
-  FaceListMap::const_iterator it_map = recvSeparateFaceList[xyz].begin();
-  for (; it_map != recvSeparateFaceList[xyz].end(); ++it_map) {
+  FaceListMap::const_iterator it_map = faceListMap.begin();
+  for (; it_map != faceListMap.end(); ++it_map) {
     FaceList::const_iterator it = it_map->second.begin();
     for (; it != it_map->second.end(); ++it) {
       int id = it->id;

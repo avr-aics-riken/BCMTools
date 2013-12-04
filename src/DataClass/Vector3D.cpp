@@ -4,6 +4,7 @@
 namespace BCMT_NAMESPACE {
 #endif
 
+/*
 #define USE_PRIVATE_METHODS
 
 
@@ -170,7 +171,7 @@ template class Vector3D<long>;
 #ifdef USE_DATACLASS_VECTOR_UNSIGNED_LONG
 template class Vector3D<unsigned long>;
 #endif
-
+*/
 
 #ifdef BCMT_NAMESPACE
 } // namespace BCMT_NAMESPACE

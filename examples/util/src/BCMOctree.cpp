@@ -45,11 +45,44 @@ BCMOctree::BCMOctree(RootGrid* rootGrid, Ordering ordering,
   if (ordering == RANDOM) randomShuffle();
 }
 
+/// コンストラクタ(ファイルロード用)
+BCMOctree::BCMOctree(RootGrid* rootGrid, const std::vector<Pedigree>& pedigrees)
+ : rootGrid(rootGrid), divider(0), ordering(PEDIGREELIST)
+{
+	using namespace std;
+	int nRoot = rootGrid->getSize();
+	rootNodes = new Node*[nRoot];
+	for(int i = 0; i < nRoot; i++){ rootNodes[i] = new Node(i); }
+	
+	leafNodeArray.clear();
+	leafNodeArray.reserve(pedigrees.size());
+
+	// Build Octree form Pedigree List
+	for(vector<Pedigree>::const_iterator ped = pedigrees.begin(); ped != pedigrees.end(); ++ped) {
+		unsigned int rootId = ped->getRootID();
+		Node* node = rootNodes[rootId];
+		for(int l = 1; l <= ped->getLevel(); l++) {
+			if(node->isLeafNode()) {
+				node->makeChildNodes();
+				for(int cid = 0; cid < 8; cid++) {
+					node->getChild(cid)->setActive(false);
+				}
+			}
+			int cid = ped->getChildId(l);
+			node = node->getChild(cid);
+		}
+		node->setActive(true);
+		node->setBlockID(leafNodeArray.size());
+		leafNodeArray.push_back(node);
+	}
+
+}
 
 /// デストラクタ.
 BCMOctree::~BCMOctree()
 {
-  for (int id = 0; id < rootGrid->getSize(); id++) deleteNode(rootNodes[id]);
+  //for (int id = 0; id < rootGrid->getSize(); id++) deleteNode(rootNodes[id]);
+  for (int id = 0; id < rootGrid->getSize(); id++) delete rootNodes[id];
   delete[] rootNodes;
 
   delete divider;
@@ -328,13 +361,13 @@ bool BCMOctree::checkOnOuterBoundary(const Node* node, Face face) const
       if (pedigree.getX() == max0 && rootGrid->isOuterBoundary(rootID, face)) return true;
       else return false;
     case Y_M:
-      if (pedigree.getY() == 0) return true;
+      if (pedigree.getY() == 0 && rootGrid->isOuterBoundary(rootID, face)) return true;
       else return false;
     case Y_P:
       if (pedigree.getY() == max0 && rootGrid->isOuterBoundary(rootID, face)) return true;
       else return false;
     case Z_M:
-      if (pedigree.getZ() == 0) return true;
+      if (pedigree.getZ() == 0 && rootGrid->isOuterBoundary(rootID, face)) return true;
       else return false;
     case Z_P:
       if (pedigree.getZ() == max0 && rootGrid->isOuterBoundary(rootID, face)) return true;
@@ -381,7 +414,9 @@ NeighborInfo* BCMOctree::makeNeighborInfo(const Node* node, const Partition* par
     Face face = Face(i);
     Node* neighbor = findNeighborNode(node, face);
 
-    if (!neighbor) continue;
+    if (!neighbor) {
+      continue;
+    }
 
     int neighborLevel = neighbor->getLevel();
     int levelDiff = neighborLevel - level;

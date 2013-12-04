@@ -1,24 +1,41 @@
-BCMLIB = ../lib/libbcm.a
+# Default environment
+FFVC=intel
 
-DATACLASS_LIST = ./DataClass.list
+### compiler detection
+
+ifeq ($(FFVC),gnu)
+include ../make_setting.gnu
+endif
+
+ifeq ($(FFVC),fx)
+include ../make_setting.fx
+endif
+
+ifeq ($(FFVC),ibm)
+include ../make_setting.ibm
+endif
+
+ifeq ($(FFVC),intel)
+include ../make_setting.intel
+endif
+
+#####
+
+
+BCMLIB = ../lib/libbcm.a
 
 all: $(BCMLIB)
 
 OBJS = CommBuffer/CommBuffer.o Block/BlockManager.o \
   DataClass/Scalar3D.o DataClass/Vector3D.o DataClass/Scalar3DUpdater.o DataClass/Vector3DUpdater.o
 
-include ../Makefile.inc
+#include ../Makefile.inc
+#DATACLASS_OPT = $(shell awk '/^ *[^\#]/{ printf " -DUSE_%s", $$1}' $(DATACLASS_LIST))
+#CFLAGS = -I. -I../include $(OPTIONS) $(DATACLASS_OPT)
 
+CFLAGS += -I. -I../include 
 
-#AR = ar cr
-AR = ar cru
-RANLIB = ranlib
-
-
-DATACLASS_OPT = $(shell awk '/^ *[^\#]/{ printf " -DUSE_%s", $$1}' $(DATACLASS_LIST))
-
-CFLAGS = -I. -I../include $(OPTIONS) $(DATACLASS_OPT)
-
+DATACLASS_LIST = ./DataClass.list
 DataClasss/Scalar3D.o: $(DATACLASS_LIST)
 DataClasss/Vector3D.o: $(DATACLASS_LIST)
 DataClasss/Scalar3DUpdater.o: $(DATACLASS_LIST)

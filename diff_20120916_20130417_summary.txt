@@ -1,0 +1,52 @@
+BCM Tools 20130417作業ログ
+														jonishi@iis.u-tokyo.ac.jp
+
+BCM Tools 20120916からの変更点は以下の通り．
+
+[1] FileIO by SGI の追加
+  関連する追加・変更箇所： A1, M2, M5, M10
+
+[2] SolverTest の追加
+  関連する追加・変更箇所： A2, A3, A4, A5, A6, A7, A8, A9, A10, A11
+
+[3] Makefile.inc -> makesetting.{fx,gnu,ibm,intel} への変更
+  関連する追加・変更箇所： A8, A9, A10, A11, M1, M14
+
+[4] DataClass.list の廃止
+  関連する追加・変更箇所： M7, M8, M9, M11, M12, M13, M14
+
+[5] データ同期方法の追加（全部同時，各軸方向別に加え，レベル差別を追加）
+  関連する追加・変更箇所： M6, M7, M8, M9
+
+[9] その他（バグなど）
+  関連する追加・変更箇所： M3, M4, M5
+
+A1  BCMTools_20130417_Onishi/examples のみに存在: FileIO
+A2  BCMTools_20130417_Onishi/examples のみに存在: SolverTest
+A3  BCMTools_20130417_Onishi/examples/STL_DATA のみに存在: sphere.stl
+A4  BCMTools_20130417_Onishi/examples/util/include のみに存在: BBDivider.h
+A5  BCMTools_20130417_Onishi/examples/util/include のみに存在: RectangleDivider.h
+A6  BCMTools_20130417_Onishi/examples/util/include のみに存在: SphereDivider2.h
+A7  BCMTools_20130417_Onishi/examples/util/include のみに存在: VtkWriter.h
+A8  BCMTools_20130417_Onishi のみに存在: make_setting.fx
+A9  BCMTools_20130417_Onishi のみに存在: make_setting.gnu
+A10 BCMTools_20130417_Onishi のみに存在: make_setting.ibm
+A11 BCMTools_20130417_Onishi のみに存在: make_setting.intel
+
+M1  diff -r BCMTools_20120916/Makefile.inc BCMTools_20130417_Onishi/Makefile.inc
+M2  diff -r BCMTools_20120916/examples/util/include/BCMOctree.h BCMTools_20130417_Onishi/examples/util/include/BCMOctree.h
+M3  diff -r BCMTools_20120916/examples/util/include/BoundingBox.h BCMTools_20130417_Onishi/examples/util/include/BoundingBox.h
+M4  diff -r BCMTools_20120916/examples/util/include/Pedigree.h BCMTools_20130417_Onishi/examples/util/include/Pedigree.h
+M5  diff -r BCMTools_20120916/examples/util/src/BCMOctree.cpp BCMTools_20130417_Onishi/examples/util/src/BCMOctree.cpp
+M6  diff -r BCMTools_20120916/include/BlockManager.h BCMTools_20130417_Onishi/include/BlockManager.h
+M7  diff -r BCMTools_20120916/include/Scalar3D.h BCMTools_20130417_Onishi/include/Scalar3D.h
+M8  diff -r BCMTools_20120916/include/Scalar3DUpdater.h BCMTools_20130417_Onishi/include/Scalar3DUpdater.h
+M9  diff -r BCMTools_20120916/include/Vector3D.h BCMTools_20130417_Onishi/include/Vector3D.h
+M10 diff -r BCMTools_20120916/src/Block/BlockManager.cpp BCMTools_20130417_Onishi/src/Block/BlockManager.cpp
+M11 diff -r BCMTools_20120916/src/DataClass/Scalar3D.cpp BCMTools_20130417_Onishi/src/DataClass/Scalar3D.cpp
+M12 diff -r BCMTools_20120916/src/DataClass/Scalar3DUpdater.cpp BCMTools_20130417_Onishi/src/DataClass/Scalar3DUpdater.cpp
+M13 diff -r BCMTools_20120916/src/DataClass/Vector3D.cpp BCMTools_20130417_Onishi/src/DataClass/Vector3D.cpp
+M14 diff -r BCMTools_20120916/src/Makefile BCMTools_20130417_Onishi/src/Makefile
+
+以上．
+

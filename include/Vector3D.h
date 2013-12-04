@@ -78,6 +78,7 @@ public:
     return data[l + c_i * i + c_j * j + c_k * k + c_0];
   }
 
+/*
   /// 直方体領域からバッファへのデータコピー(シリアライズ).
   ///
   ///  @param[in] i0,j0,k0 コピー元の直方体領域の起点
@@ -105,7 +106,7 @@ public:
   ///
   void copyFromDataClass(int i0, int j0, int k0, int i1, int j1, int k1,
                          int nx, int ny, int nz, const DataClass* dataClass);
-
+*/
 
 private:
 
@@ -116,6 +117,7 @@ private:
   Vector3D& operator=(const Vector3D<T>& rhs);
 
 
+/*
   void copyToBuffer_0(int i0, int j0, int k0, int nx, int ny, int nz,
                       const T* data, const Index3DV& index, T* buffer) const;
 
@@ -126,6 +128,132 @@ private:
                            int nx, int ny, int nz,
                            const T* sData, const Index3DV& sIndex,
                            T* dData, const Index3DV& dIndex);
+*/
+
+
+#define USE_PRIVATE_METHODS
+
+public:
+
+/// 直方体領域からバッファへのデータコピー(シリアライズ).
+void copyToBuffer(int i0, int j0, int k0, int nx, int ny, int nz, T* buffer) const
+{
+#ifdef USE_PRIVATE_METHODS
+  copyToBuffer_0(i0, j0, k0, nx, ny, nz, data, index, buffer);
+#else
+  for (int k = k0; k < k0 + nz; ++k) {
+    for (int j = j0; j < j0 + ny; ++j) {
+      for (int i = i0; i < i0 + nx; ++i) {
+        int ii = 3*(i-i0) + (3*nx)*(j-j0) + (3*nx*ny)*(k-k0);
+        int jj = index(i,j,k);
+        buffer[ii  ] = data[jj  ];
+        buffer[ii+1] = data[jj+1];
+        buffer[ii+2] = data[jj+2];
+      }
+    }
+  }
+#endif
+}
+
+
+/// バッファから直方体領域へのデータコピー(デシリアライズ).
+void copyFromBuffer(int i0, int j0, int k0, int nx, int ny, int nz, const T* buffer)
+{
+#ifdef USE_PRIVATE_METHODS
+  copyFromBuffer_0(i0, j0, k0, nx, ny, nz, buffer, data, index);
+#else
+  for (int k = k0; k < k0 + nz; ++k) {
+    for (int j = j0; j < j0 + ny; ++j) {
+      for (int i = i0; i < i0 + nx; ++i) {
+        int ii = 3*(i-i0) + (3*nx)*(j-j0) + (3*nx*ny)*(k-k0);
+        int jj = index(i,j,k);
+        data[jj  ] = buffer[ii  ];
+        data[jj+1] = buffer[ii+1];
+        data[jj+2] = buffer[ii+2];
+      }
+    }
+  }
+#endif
+}
+
+
+/// 他データクラスの直方体領域から直方体領域へのデータコピー.
+void copyFromDataClass(int i0, int j0, int k0, int i1, int j1, int k1,
+                       int nx, int ny, int nz, const DataClass* dataClass)
+{
+  const Vector3D<T>* s = dynamic_cast<const Vector3D<T>*>(dataClass);
+  T* sData = s->getData();
+  Index3DV sIndex = s->getIndex();
+#ifdef USE_PRIVATE_METHODS
+  copyFromDataClass_0(i0, j0, k0, i1, j1, k1, nx, ny, nz, sData, sIndex, data, index);
+#else
+  for (int k = 0; k < nz; ++k) {
+    for (int j = 0; j < ny; ++j) {
+      for (int i = 0; i < nx; ++i) {
+        int ii = index(i0+i,j0+j,k0+k);
+        int jj = sIndex(i1+i,j1+j,k1+k);
+        data[ii  ] = sData[jj  ];
+        data[ii+1] = sData[jj+1];
+        data[ii+2] = sData[jj+2];
+      }
+    }
+  }
+#endif
+}
+
+
+private:
+void copyToBuffer_0(int i0, int j0, int k0, int nx, int ny, int nz,
+                                 const T* data, const Index3DV& index, T* buffer) const
+{
+  for (int k = k0; k < k0 + nz; ++k) {
+    for (int j = j0; j < j0 + ny; ++j) {
+      for (int i = i0; i < i0 + nx; ++i) {
+        int ii = 3*(i-i0) + (3*nx)*(j-j0) + (3*nx*ny)*(k-k0);
+        int jj = index(i,j,k);
+        buffer[ii  ] = data[jj  ];
+        buffer[ii+1] = data[jj+1];
+        buffer[ii+2] = data[jj+2];
+      }
+    }
+  }
+}
+
+
+void copyFromBuffer_0(int i0, int j0, int k0, int nx, int ny, int nz,
+                                   const T* buffer, T* data, const Index3DV& index)
+{
+  for (int k = k0; k < k0 + nz; ++k) {
+    for (int j = j0; j < j0 + ny; ++j) {
+      for (int i = i0; i < i0 + nx; ++i) {
+        int ii = 3*(i-i0) + (3*nx)*(j-j0) + (3*nx*ny)*(k-k0);
+        int jj = index(i,j,k);
+        data[jj  ] = buffer[ii  ];
+        data[jj+1] = buffer[ii+1];
+        data[jj+2] = buffer[ii+2];
+      }
+    }
+  }
+} 
+
+
+void copyFromDataClass_0(int i0, int j0, int k0, int i1, int j1, int k1,
+                                       int nx, int ny, int nz,
+                                       const T* sData, const Index3DV& sIndex,
+                                       T* dData, const Index3DV& dIndex)
+{
+  for (int k = 0; k < nz; ++k) {
+    for (int j = 0; j < ny; ++j) {
+      for (int i = 0; i < nx; ++i) {
+        int ii = dIndex(i0+i,j0+j,k0+k);
+        int jj = sIndex(i1+i,j1+j,k1+k);
+        dData[ii  ] = sData[jj  ];
+        dData[ii+1] = sData[jj+1];
+        dData[ii+2] = sData[jj+2];
+      }
+    }
+  }
+}
 
 
 };

@@ -15,11 +15,15 @@ OPTIONS = $(DEFINES) -DTIMING -O3 -ftree-vectorize -g -Wall -Wno-sign-compare -W
 #SILO_INC = -I$(HOME)/silo-4.8-bsd/include
 #SILO_LIB = -L$(HOME)/silo-4.8-bsd/lib -L$(HOME)/hdf5-1.8.9/hdf5/lib -lsiloh5 -lhdf5 -lz
 
-SILO_INC = -I$(HOME)/opt/include
-SILO_LIB = -L$(HOME)/opt/lib -lsiloh5 -lhdf5 -lz
+#SILO_INC = -I$(HOME)/opt/include
+#SILO_LIB = -L$(HOME)/opt/lib -lsiloh5 -lhdf5 -lz
 
 #SILO_INC = -I$(HOME)/FX10/include
 #SILO_LIB = -L$(HOME)/FX10/lib -lsiloh5 -lhdf5 -lz
 
 #SILO_INC = -I$(HOME)/K/include
 #SILO_LIB = -L$(HOME)/K/lib -lsiloh5 -lhdf5 -lz
+
+SILO_INC = 
+SILO_LIB = -lsiloh5 -lhdf5 -lz
+

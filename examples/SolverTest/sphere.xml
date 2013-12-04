@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<Parameter>
+  <Elem name="PolygonGroup">
+      <Param name="class_name" dtype="STRING" value="PolygonGroup"/>
+      <Param name="id"         dtype="INT"    value="2"/>
+      <Param name="name"       dtype="STRING" value="sphere"/>
+      <Param name="filepath"   dtype="STRING" value="../STL_DATA/sphere.stl"/>
+  </Elem>
+</Parameter>
+

@@ -1,0 +1,2053 @@
+diff -r BCMTools_20120916/Makefile.inc BCMTools_20130417_Onishi/Makefile.inc
+18,19c18,19
+< SILO_INC = -I$(HOME)/opt/include
+< SILO_LIB = -L$(HOME)/opt/lib -lsiloh5 -lhdf5 -lz
+---
+> #SILO_INC = -I$(HOME)/opt/include
+> #SILO_LIB = -L$(HOME)/opt/lib -lsiloh5 -lhdf5 -lz
+25a26,29
+> 
+> SILO_INC = 
+> SILO_LIB = -lsiloh5 -lhdf5 -lz
+> 
+BCMTools_20130417_Onishi/examples のみに存在: FileIO
+BCMTools_20130417_Onishi/examples/STL_DATA のみに存在: sphere.stl
+BCMTools_20130417_Onishi/examples のみに存在: SolverTest
+BCMTools_20130417_Onishi/examples/util/include のみに存在: BBDivider.h
+diff -r BCMTools_20120916/examples/util/include/BCMOctree.h BCMTools_20130417_Onishi/examples/util/include/BCMOctree.h
+26,28c26,29
+<     Z,        ///< Z(Morton)オーダリング
+<     HILBERT,  ///< ヒルベルトオーダリング
+<     RANDOM,   ///< ランダムシャッフル
+---
+>     Z,             ///< Z(Morton)オーダリング
+>     HILBERT,       ///< ヒルベルトオーダリング
+>     RANDOM,        ///< ランダムシャッフル
+>     PEDIGREELIST,  ///< Pedigreeリスト順(ファイルロード用)
+57a59,68
+> 
+>   /// コンストラクタ.
+>   ///
+>   ///  @param[in] rootGrid ルートノード配置情報
+>   ///  @param[in] pedigrees ペディグリリスト
+>   ///
+>   ///  @note rootGridは、デストラクタにより解放される．
+>   ///
+>   BCMOctree(RootGrid* rootGrid, const std::vector<Pedigree>& pedigrees);
+> 
+76a88,90
+> 
+>   /// ルートグリッドを取得
+>   const RootGrid* getRootGrid() const { return rootGrid; }
+diff -r BCMTools_20120916/examples/util/include/BoundingBox.h BCMTools_20130417_Onishi/examples/util/include/BoundingBox.h
+51c51
+<     min.y = std::min(min.y, p.y);
+---
+>     min.z = std::min(min.z, p.z);
+87a88,104
+> 
+>   bool inside(const BoundingBox& bbox) const {
+>     if (min.x < bbox.min.x && bbox.max.x < max.x &&
+>         min.y < bbox.min.y && bbox.max.y < max.y &&
+>         min.z < bbox.min.z && bbox.max.z < max.z) return true;
+>     return false;
+> 	}
+> 
+>   bool outside(const BoundingBox& bbox) const {
+> 		if( inside(bbox) ){
+> 			return false;
+> 		}
+> 		if( intersects(bbox) ) {
+> 			return false;
+> 		}
+> 		return true;
+> 	}
+diff -r BCMTools_20120916/examples/util/include/Pedigree.h BCMTools_20130417_Onishi/examples/util/include/Pedigree.h
+185c185,186
+<   static size_t GetSerializeSize() { return sizeof(p); }
+---
+> //  static size_t GetSerializeSize() { return sizeof(p); }
+>   static size_t GetSerializeSize() { return sizeof(uint64_t); }
+BCMTools_20130417_Onishi/examples/util/include のみに存在: RectangleDivider.h
+BCMTools_20130417_Onishi/examples/util/include のみに存在: SphereDivider2.h
+BCMTools_20130417_Onishi/examples/util/include のみに存在: VtkWriter.h
+diff -r BCMTools_20120916/examples/util/src/BCMOctree.cpp BCMTools_20130417_Onishi/examples/util/src/BCMOctree.cpp
+47a48,79
+> /// コンストラクタ(ファイルロード用)
+> BCMOctree::BCMOctree(RootGrid* rootGrid, const std::vector<Pedigree>& pedigrees)
+>  : rootGrid(rootGrid), divider(0), ordering(PEDIGREELIST)
+> {
+> 	using namespace std;
+> 	int nRoot = rootGrid->getSize();
+> 	rootNodes = new Node*[nRoot];
+> 	for(int i = 0; i < nRoot; i++){ rootNodes[i] = new Node(i); }
+> 	
+> 	leafNodeArray.clear();
+> 	leafNodeArray.reserve(pedigrees.size());
+> 
+> 	// Build Octree form Pedigree List
+> 	for(vector<Pedigree>::const_iterator ped = pedigrees.begin(); ped != pedigrees.end(); ++ped) {
+> 		unsigned int rootId = ped->getRootID();
+> 		Node* node = rootNodes[rootId];
+> 		for(int l = 1; l <= ped->getLevel(); l++) {
+> 			if(node->isLeafNode()) {
+> 				node->makeChildNodes();
+> 				for(int cid = 0; cid < 8; cid++) {
+> 					node->getChild(cid)->setActive(false);
+> 				}
+> 			}
+> 			int cid = ped->getChildId(l);
+> 			node = node->getChild(cid);
+> 		}
+> 		node->setActive(true);
+> 		node->setBlockID(leafNodeArray.size());
+> 		leafNodeArray.push_back(node);
+> 	}
+> 
+> }
+52c84,85
+<   for (int id = 0; id < rootGrid->getSize(); id++) deleteNode(rootNodes[id]);
+---
+>   //for (int id = 0; id < rootGrid->getSize(); id++) deleteNode(rootNodes[id]);
+>   for (int id = 0; id < rootGrid->getSize(); id++) delete rootNodes[id];
+331c364
+<       if (pedigree.getY() == 0) return true;
+---
+>       if (pedigree.getY() == 0 && rootGrid->isOuterBoundary(rootID, face)) return true;
+337c370
+<       if (pedigree.getZ() == 0) return true;
+---
+>       if (pedigree.getZ() == 0 && rootGrid->isOuterBoundary(rootID, face)) return true;
+384c417,419
+<     if (!neighbor) continue;
+---
+>     if (!neighbor) {
+>       continue;
+>     }
+diff -r BCMTools_20120916/include/BlockManager.h BCMTools_20130417_Onishi/include/BlockManager.h
+20a21,32
+> 
+> /// 仮想セル同期方法型.
+> class VCUpdateMethod {
+> public:
+>   enum Type {
+>     AtOnce,         ///< 全部同時に
+>     SeparateXYZ,    ///< xyz3方向を別々に
+>     SeparateXYZ_SeparateLevelDiff,  ///< xyz3方向・レベル差別に
+>   };
+> };
+> 
+> 
+28a41,48
+>   /// ブロック境界でのレベル差型(レベル差 = 相手のレベル - 自分のレベル).
+>   enum LevelDiff {
+>     LD_M1,  ///< -1
+>     LD_0,   ///< 0
+>     LD_P1   ///< +1
+>   };
+> 
+> 
+73a94
+>   bool separateLevelDiffFaceListPrepared;
+82a104,107
+>   FaceList localSeparateLevelDiffFaceList[3][3];    ///< 同一ノード内のブロックと接する面のリスト(方向・レベル差別)
+>   FaceListMap sendSeparateLevelDiffFaceList[3][3];  ///< 他ノードへ送信する面のリスト(方向・レベル差別)
+>   FaceListMap recvSeparateLevelDiffFaceList[3][3];  ///< 他ノードから受信する面のリスト(方向・レベル差別)
+> 
+87a113,114
+>   CommBufferTableMap commBufferSeparateLevelDiffTableMap[3][3]; ///< 「データクラスID→通信バッファ」のマップ(方向・レベル差別)
+> 
+207a235,242
+>   ///  @param[in] method  仮想セル同期方法
+>   ///
+>   void prepareForVCUpdate(int dataClassID, int tag, VCUpdateMethod::Type method);
+> 
+>   /// 仮想セル同期の準備(旧インタフェース用ラッパ).
+>   ///
+>   ///  @param[in] dataClassID 対象データクラスのID
+>   ///  @param[in] tag 通信タグ番号
+210c245,251
+<   void prepareForVCUpdate(int dataClassID, int tag, bool separate = false);
+---
+>   void prepareForVCUpdate(int dataClassID, int tag, bool separate = false) {
+>     if (separate) {
+>       prepareForVCUpdate(dataClassID, tag, VCUpdateMethod::SeparateXYZ);
+>     } else {
+>       prepareForVCUpdate(dataClassID, tag, VCUpdateMethod::AtOnce);
+>     }
+>   }
+227a269,286
+>   /// 仮想セル同期(x方向, レベル差なし).
+>   ///
+>   ///  @param[in] dataClassID データクラスID
+>   ///
+>   void updateVC_X_Flat(int dataClassID) { updateVC_Flat(dataClassID, 0); }
+> 
+>   /// 仮想セル同期(x方向, レベルL+1→L).
+>   ///
+>   ///  @param[in] dataClassID データクラスID
+>   ///
+>   void updateVC_X_F2C(int dataClassID) { updateVC_F2C(dataClassID, 0); }
+> 
+>   /// 仮想セル同期(x方向, レベルL→L+1).
+>   ///
+>   ///  @param[in] dataClassID データクラスID
+>   ///
+>   void updateVC_X_C2F(int dataClassID) { updateVC_C2F(dataClassID, 0); }
+> 
+233a293,310
+>   /// 仮想セル同期(y方向, レベル差なし).
+>   ///
+>   ///  @param[in] dataClassID データクラスID
+>   ///
+>   void updateVC_Y_Flat(int dataClassID) { updateVC_Flat(dataClassID, 1); }
+> 
+>   /// 仮想セル同期(y方向, レベルL+1→L).
+>   ///
+>   ///  @param[in] dataClassID データクラスID
+>   ///
+>   void updateVC_Y_F2C(int dataClassID) { updateVC_F2C(dataClassID, 1); }
+> 
+>   /// 仮想セル同期(y方向, レベルL→L+1).
+>   ///
+>   ///  @param[in] dataClassID データクラスID
+>   ///
+>   void updateVC_Y_C2F(int dataClassID) { updateVC_C2F(dataClassID, 1); }
+> 
+239a317,335
+>   /// 仮想セル同期(z方向, レベル差なし).
+>   ///
+>   ///  @param[in] dataClassID データクラスID
+>   ///
+>   void updateVC_Z_Flat(int dataClassID) { updateVC_Flat(dataClassID, 2); }
+> 
+>   /// 仮想セル同期(z方向, レベルL+1→L).
+>   ///
+>   ///  @param[in] dataClassID データクラスID
+>   ///
+>   void updateVC_Z_F2C(int dataClassID) { updateVC_F2C(dataClassID, 2); }
+> 
+>   /// 仮想セル同期(z方向, レベルL→L+1).
+>   ///
+>   ///  @param[in] dataClassID データクラスID
+>   ///
+>   void updateVC_Z_C2F(int dataClassID) { updateVC_C2F(dataClassID, 2); }
+> 
+> 
+251a348,390
+>   /// 仮想セル同期(個別方向, レベル差なし).
+>   ///
+>   ///  @param[in] dataClassID データクラスID
+>   ///  @param[in] xyz 方向(0:x, 1:y, 2:z)
+>   ///
+>   void updateVC_Flat(int dataClassID, int xyz) {
+>     assert(commBufferSeparateLevelDiffTableMap[xyz][LD_0].find(dataClassID)
+>            != commBufferSeparateLevelDiffTableMap[xyz][LD_0].end());
+>   //std::cout << "FLAT: xyz = " << xyz << std::endl;
+>     beginUpdateVC_Flat(dataClassID, xyz);
+>     endUpdateVC_Flat(dataClassID, xyz);
+>   }
+> 
+>   /// 仮想セル同期(個別方向, レベルL+1→L).
+>   ///
+>   ///  @param[in] dataClassID データクラスID
+>   ///  @param[in] xyz 方向(0:x, 1:y, 2:z)
+>   ///
+>   void updateVC_F2C(int dataClassID, int xyz) {
+>     assert(commBufferSeparateLevelDiffTableMap[xyz][LD_P1].find(dataClassID)
+>            != commBufferSeparateLevelDiffTableMap[xyz][LD_P1].end());
+>     assert(commBufferSeparateLevelDiffTableMap[xyz][LD_M1].find(dataClassID)
+>            != commBufferSeparateLevelDiffTableMap[xyz][LD_M1].end());
+>   //std::cout << "F2C:  xyz = " << xyz << std::endl;
+>     beginUpdateVC_F2C(dataClassID, xyz);
+>     endUpdateVC_F2C(dataClassID, xyz);
+>   }
+> 
+>   /// 仮想セル同期(個別方向, レベルL→L+1).
+>   ///
+>   ///  @param[in] dataClassID データクラスID
+>   ///  @param[in] xyz 方向(0:x, 1:y, 2:z)
+>   ///
+>   void updateVC_C2F(int dataClassID, int xyz) {
+>     assert(commBufferSeparateLevelDiffTableMap[xyz][LD_P1].find(dataClassID)
+>            != commBufferSeparateLevelDiffTableMap[xyz][LD_P1].end());
+>     assert(commBufferSeparateLevelDiffTableMap[xyz][LD_M1].find(dataClassID)
+>            != commBufferSeparateLevelDiffTableMap[xyz][LD_M1].end());
+>   //std::cout << "C2F:  xyz = " << xyz << std::endl;
+>     beginUpdateVC_C2F(dataClassID, xyz);
+>     endUpdateVC_C2F(dataClassID, xyz);
+>   }
+> 
+258,261c397,400
+<     recvVCBegin(dataClassID);
+<     copyVCToSendBuffer(dataClassID);
+<     sendVCBegin(dataClassID);
+<     copyVCFromNeighbor(dataClassID);
+---
+>     recvVCBegin(dataClassID, commBufferTableMap);
+>     copyVCToSendBuffer(dataClassID, sendFaceList);
+>     sendVCBegin(dataClassID, commBufferTableMap);
+>     copyVCFromNeighbor(dataClassID, localFaceList);
+269a409,426
+>   /// 仮想セル同期(x方向, レベル差なし)通信開始.
+>   ///
+>   ///  @param[in] dataClassID データクラスID
+>   ///
+>   void beginUpdateVC_X_Flat(int dataClassID) { beginUpdateVC_Flat(dataClassID, 0); }
+> 
+>   /// 仮想セル同期(x方向, レベル差L+1→L)通信開始.
+>   ///
+>   ///  @param[in] dataClassID データクラスID
+>   ///
+>   void beginUpdateVC_X_F2C(int dataClassID) { beginUpdateVC_F2C(dataClassID, 0); }
+> 
+>   /// 仮想セル同期(x方向, レベル差L→L+1)通信開始.
+>   ///
+>   ///  @param[in] dataClassID データクラスID
+>   ///
+>   void beginUpdateVC_X_C2F(int dataClassID) { beginUpdateVC_C2F(dataClassID, 0); }
+> 
+275a433,450
+>   /// 仮想セル同期(y方向, レベル差なし)通信開始.
+>   ///
+>   ///  @param[in] dataClassID データクラスID
+>   ///
+>   void beginUpdateVC_Y_Flat(int dataClassID) { beginUpdateVC_Flat(dataClassID, 1); }
+> 
+>   /// 仮想セル同期(y方向, レベル差L+1→L)通信開始.
+>   ///
+>   ///  @param[in] dataClassID データクラスID
+>   ///
+>   void beginUpdateVC_Y_F2C(int dataClassID) { beginUpdateVC_F2C(dataClassID, 1); }
+> 
+>   /// 仮想セル同期(y方向, レベル差L→L+1)通信開始.
+>   ///
+>   ///  @param[in] dataClassID データクラスID
+>   ///
+>   void beginUpdateVC_Y_C2F(int dataClassID) { beginUpdateVC_C2F(dataClassID, 1); }
+> 
+281a457,474
+>   /// 仮想セル同期(z方向, レベル差なし)通信開始.
+>   ///
+>   ///  @param[in] dataClassID データクラスID
+>   ///
+>   void beginUpdateVC_Z_Flat(int dataClassID) { beginUpdateVC_Flat(dataClassID, 2); }
+> 
+>   /// 仮想セル同期(z方向, レベル差L+1→L)通信開始.
+>   ///
+>   ///  @param[in] dataClassID データクラスID
+>   ///
+>   void beginUpdateVC_Z_F2C(int dataClassID) { beginUpdateVC_F2C(dataClassID, 2); }
+> 
+>   /// 仮想セル同期(z方向, レベル差L→L+1)通信開始.
+>   ///
+>   ///  @param[in] dataClassID データクラスID
+>   ///
+>   void beginUpdateVC_Z_C2F(int dataClassID) { beginUpdateVC_C2F(dataClassID, 2); }
+> 
+290,293c483,532
+<     recvVCBegin(dataClassID, xyz);
+<     copyVCToSendBuffer(dataClassID, xyz);
+<     sendVCBegin(dataClassID, xyz);
+<     copyVCFromNeighbor(dataClassID, xyz);
+---
+>     recvVCBegin(dataClassID, commBufferSeparateTableMap[xyz]);
+>     copyVCToSendBuffer(dataClassID, sendSeparateFaceList[xyz]);
+>     sendVCBegin(dataClassID, commBufferSeparateTableMap[xyz]);
+>     copyVCFromNeighbor(dataClassID, localSeparateFaceList[xyz]);
+>   }
+> 
+>   /// 仮想セル同期(個別方向, レベル差なし)通信開始.
+>   ///
+>   ///  @param[in] dataClassID データクラスID
+>   ///  @param[in] xyz 方向(0:x, 1:y, 2:z)
+>   ///
+>   void beginUpdateVC_Flat(int dataClassID, int xyz) {
+>     assert(commBufferSeparateLevelDiffTableMap[xyz][LD_0].find(dataClassID) 
+>            != commBufferSeparateLevelDiffTableMap[xyz][LD_0].end());
+>     recvVCBegin(dataClassID, commBufferSeparateLevelDiffTableMap[xyz][LD_0]);
+>     copyVCToSendBuffer(dataClassID, sendSeparateLevelDiffFaceList[xyz][LD_0]);
+>     sendVCBegin(dataClassID, commBufferSeparateLevelDiffTableMap[xyz][LD_0]);
+>     copyVCFromNeighbor(dataClassID, localSeparateLevelDiffFaceList[xyz][LD_0]);
+>   }
+> 
+>   /// 仮想セル同期(個別方向, レベルL+1→L)通信開始.
+>   ///
+>   ///  @param[in] dataClassID データクラスID
+>   ///  @param[in] xyz 方向(0:x, 1:y, 2:z)
+>   ///
+>   void beginUpdateVC_F2C(int dataClassID, int xyz) {
+>     assert(commBufferSeparateLevelDiffTableMap[xyz][LD_P1].find(dataClassID) 
+>            != commBufferSeparateLevelDiffTableMap[xyz][LD_P1].end());
+>     assert(commBufferSeparateLevelDiffTableMap[xyz][LD_M1].find(dataClassID) 
+>            != commBufferSeparateLevelDiffTableMap[xyz][LD_M1].end());
+>     recvVCBegin(dataClassID, commBufferSeparateLevelDiffTableMap[xyz][LD_P1]);
+>     copyVCToSendBuffer(dataClassID, sendSeparateLevelDiffFaceList[xyz][LD_M1]);
+>     sendVCBegin(dataClassID, commBufferSeparateLevelDiffTableMap[xyz][LD_M1]);
+>     copyVCFromNeighbor(dataClassID, localSeparateLevelDiffFaceList[xyz][LD_P1]);
+>   }
+> 
+>   /// 仮想セル同期(個別方向, レベルL→L+1)通信開始.
+>   ///
+>   ///  @param[in] dataClassID データクラスID
+>   ///  @param[in] xyz 方向(0:x, 1:y, 2:z)
+>   ///
+>   void beginUpdateVC_C2F(int dataClassID, int xyz) {
+>     assert(commBufferSeparateLevelDiffTableMap[xyz][LD_P1].find(dataClassID) 
+>            != commBufferSeparateLevelDiffTableMap[xyz][LD_P1].end());
+>     assert(commBufferSeparateLevelDiffTableMap[xyz][LD_M1].find(dataClassID) 
+>            != commBufferSeparateLevelDiffTableMap[xyz][LD_M1].end());
+>     recvVCBegin(dataClassID, commBufferSeparateLevelDiffTableMap[xyz][LD_M1]);
+>     copyVCToSendBuffer(dataClassID, sendSeparateLevelDiffFaceList[xyz][LD_P1]);
+>     sendVCBegin(dataClassID, commBufferSeparateLevelDiffTableMap[xyz][LD_P1]);
+>     copyVCFromNeighbor(dataClassID, localSeparateLevelDiffFaceList[xyz][LD_M1]);
+302,304c541,543
+<     recvVCEnd(dataClassID);
+<     copyVCFromRecvBuffer(dataClassID);
+<     sendVCEnd(dataClassID);
+---
+>     recvVCEnd(dataClassID, commBufferTableMap);
+>     copyVCFromRecvBuffer(dataClassID, recvFaceList);
+>     sendVCEnd(dataClassID, commBufferTableMap);
+312a552,569
+>   /// 仮想セル同期(x方向, レベル差なし)通信完了待ち.
+>   ///
+>   ///  @param[in] dataClassID データクラスID
+>   ///
+>   void endUpdateVC_X_Flat(int dataClassID) { endUpdateVC_Flat(dataClassID, 0); }
+> 
+>   /// 仮想セル同期(x方向, レベル差L+1→L)通信完了待ち.
+>   ///
+>   ///  @param[in] dataClassID データクラスID
+>   ///
+>   void endUpdateVC_X_F2C(int dataClassID) { endUpdateVC_F2C(dataClassID, 0); }
+> 
+>   /// 仮想セル同期(x方向, レベル差L→L+1)通信完了待ち.
+>   ///
+>   ///  @param[in] dataClassID データクラスID
+>   ///
+>   void endUpdateVC_X_C2F(int dataClassID) { endUpdateVC_C2F(dataClassID, 0); }
+> 
+318a576,593
+>   /// 仮想セル同期(y方向, レベル差なし)通信完了待ち.
+>   ///
+>   ///  @param[in] dataClassID データクラスID
+>   ///
+>   void endUpdateVC_Y_Flat(int dataClassID) { endUpdateVC_Flat(dataClassID, 1); }
+> 
+>   /// 仮想セル同期(y方向, レベル差L+1→L)通信完了待ち.
+>   ///
+>   ///  @param[in] dataClassID データクラスID
+>   ///
+>   void endUpdateVC_Y_F2C(int dataClassID) { endUpdateVC_F2C(dataClassID, 1); }
+> 
+>   /// 仮想セル同期(y方向, レベル差L→L+1)通信完了待ち.
+>   ///
+>   ///  @param[in] dataClassID データクラスID
+>   ///
+>   void endUpdateVC_Y_C2F(int dataClassID) { endUpdateVC_C2F(dataClassID, 1); }
+> 
+324a600,617
+>   /// 仮想セル同期(z方向, レベル差なし)通信完了待ち.
+>   ///
+>   ///  @param[in] dataClassID データクラスID
+>   ///
+>   void endUpdateVC_Z_Flat(int dataClassID) { endUpdateVC_Flat(dataClassID, 2); }
+> 
+>   /// 仮想セル同期(z方向, レベル差L+1→L)通信完了待ち.
+>   ///
+>   ///  @param[in] dataClassID データクラスID
+>   ///
+>   void endUpdateVC_Z_F2C(int dataClassID) { endUpdateVC_F2C(dataClassID, 2); }
+> 
+>   /// 仮想セル同期(z方向, レベル差L→L+1)通信完了待ち.
+>   ///
+>   ///  @param[in] dataClassID データクラスID
+>   ///
+>   void endUpdateVC_Z_C2F(int dataClassID) { endUpdateVC_C2F(dataClassID, 2); }
+> 
+333,335c626,671
+<     recvVCEnd(dataClassID, xyz);
+<     copyVCFromRecvBuffer(dataClassID, xyz);
+<     sendVCEnd(dataClassID, xyz);
+---
+>     recvVCEnd(dataClassID, commBufferSeparateTableMap[xyz]);
+>     copyVCFromRecvBuffer(dataClassID, recvSeparateFaceList[xyz]);
+>     sendVCEnd(dataClassID, commBufferSeparateTableMap[xyz]);
+>   }
+> 
+>   /// 仮想セル同期(個別方向, レベル差なし)通信完了待ち.
+>   ///
+>   ///  @param[in] dataClassID データクラスID
+>   ///  @param[in] xyz 方向(0:x, 1:y, 2:z)
+>   ///
+>   void endUpdateVC_Flat(int dataClassID, int xyz) {
+>     assert(commBufferSeparateLevelDiffTableMap[xyz][LD_0].find(dataClassID)
+>            != commBufferSeparateLevelDiffTableMap[xyz][LD_0].end());
+>     recvVCEnd(dataClassID, commBufferSeparateLevelDiffTableMap[xyz][LD_0]);
+>     copyVCFromRecvBuffer(dataClassID, recvSeparateLevelDiffFaceList[xyz][LD_0]);
+>     sendVCEnd(dataClassID, commBufferSeparateLevelDiffTableMap[xyz][LD_0]);
+>   }
+> 
+>   /// 仮想セル同期(個別方向, レベルL+1→L)通信完了待ち.
+>   ///
+>   ///  @param[in] dataClassID データクラスID
+>   ///  @param[in] xyz 方向(0:x, 1:y, 2:z)
+>   ///
+>   void endUpdateVC_F2C(int dataClassID, int xyz) {
+>     assert(commBufferSeparateLevelDiffTableMap[xyz][LD_P1].find(dataClassID)
+>            != commBufferSeparateLevelDiffTableMap[xyz][LD_P1].end());
+>     assert(commBufferSeparateLevelDiffTableMap[xyz][LD_M1].find(dataClassID)
+>            != commBufferSeparateLevelDiffTableMap[xyz][LD_M1].end());
+>     recvVCEnd(dataClassID, commBufferSeparateLevelDiffTableMap[xyz][LD_P1]);
+>     copyVCFromRecvBuffer(dataClassID, recvSeparateLevelDiffFaceList[xyz][LD_P1]);
+>     sendVCEnd(dataClassID, commBufferSeparateLevelDiffTableMap[xyz][LD_M1]);
+>   }
+> 
+>   /// 仮想セル同期(個別方向, レベルL→L+1)通信完了待ち.
+>   ///
+>   ///  @param[in] dataClassID データクラスID
+>   ///  @param[in] xyz 方向(0:x, 1:y, 2:z)
+>   ///
+>   void endUpdateVC_C2F(int dataClassID, int xyz) {
+>     assert(commBufferSeparateLevelDiffTableMap[xyz][LD_P1].find(dataClassID)
+>            != commBufferSeparateLevelDiffTableMap[xyz][LD_P1].end());
+>     assert(commBufferSeparateLevelDiffTableMap[xyz][LD_M1].find(dataClassID)
+>            != commBufferSeparateLevelDiffTableMap[xyz][LD_M1].end());
+>     recvVCEnd(dataClassID, commBufferSeparateLevelDiffTableMap[xyz][LD_M1]);
+>     copyVCFromRecvBuffer(dataClassID, recvSeparateLevelDiffFaceList[xyz][LD_M1]);
+>     sendVCEnd(dataClassID, commBufferSeparateLevelDiffTableMap[xyz][LD_P1]);
+392,393c728,729
+<   /// 各ブロックで，指定したデータクラスの隣接データクラス情報を設定.
+<   void setDataClassNeighbor(int dataClassID);
+---
+>   /// フェイスリスト(3方向・レベル差別)の設定.
+>   void setSeparateLevelDiffFaceLists();
+395,396c731,732
+<   /// 各ブロックで，指定したデータクラスの隣接データクラス情報(3方向別)を設定.
+<   void setDataClassNeighbor(int dataClassID, int xyz);
+---
+>   /// 各ブロックで，指定したデータクラスの隣接データクラス情報を設定.
+>   void setDataClassNeighbor(int dataClassID, const FaceList& faceList);
+399,402c735
+<   void setSendBufferPointers(SendBuffer* sendBuffer, int dataClassID);
+< 
+<   /// 各ブロックで，指定したデータクラスの送信バッファポインタ(3方向別)を設定.
+<   void setSendBufferPointers(SendBuffer* sendBuffer, int dataClassID, int xyz);
+---
+>   void setSendBufferPointers(SendBuffer* sendBuffer, int dataClassID, const FaceListMap& faceListMap);
+405,408c738
+<   void setRecvBufferPointers(RecvBuffer* recvBuffer, int dataClassID);
+< 
+<   /// 各ブロックで，指定したデータクラスの受信バッファポインタ(3方向別)を設定.
+<   void setRecvBufferPointers(RecvBuffer* recvBuffer, int dataClassID, int xyz);
+---
+>   void setRecvBufferPointers(RecvBuffer* recvBuffer, int dataClassID, const FaceListMap& faceListMap);
+411,414c741
+<   void copyVCFromNeighbor(int dataClassID);
+< 
+<   /// 各ブロックで，指定したデータクラスの仮想セルデータを隣接ブロックからコピー(3方向別).
+<   void copyVCFromNeighbor(int dataClassID, int xyz);
+---
+>   void copyVCFromNeighbor(int dataClassID, const FaceList& faceList);
+417,420c744
+<   void copyVCToSendBuffer(int dataClassID);
+< 
+<   /// 各ブロックで，指定したデータクラスの仮想セルデータを送信バッファにコピー(3方向別).
+<   void copyVCToSendBuffer(int dataClassID, int xyz);
+---
+>   void copyVCToSendBuffer(int dataClassID, const FaceListMap& faceListMap);
+423,426c747
+<   void copyVCFromRecvBuffer(int dataClassID);
+< 
+<   /// 各ブロックで，指定したデータクラスの仮想セルデータを受信バッファからコピー(3方向別).
+<   void copyVCFromRecvBuffer(int dataClassID, int xyz);
+---
+>   void copyVCFromRecvBuffer(int dataClassID, const FaceListMap& faceListMap);
+429c750
+<   void sendVC(int dataClassID) {
+---
+>   void sendVC(int dataClassID, CommBufferTableMap& commBufferTableMap) {
+433,437d753
+<   /// 仮想セル同期データ送信(3方向別).
+<   void sendVC(int dataClassID, int xyz) {
+<     commBufferSeparateTableMap[xyz][dataClassID]->sendBuffer->send();
+<   }
+< 
+439c755
+<   void sendVCBegin(int dataClassID) {
+---
+>   void sendVCBegin(int dataClassID, CommBufferTableMap& commBufferTableMap) {
+443,447d758
+<   /// 仮想セル同期データ送信開始(3方向別).
+<   void sendVCBegin(int dataClassID, int xyz) {
+<     commBufferSeparateTableMap[xyz][dataClassID]->sendBuffer->sendBegin();
+<   }
+< 
+449c760
+<   void sendVCEnd(int dataClassID) {
+---
+>   void sendVCEnd(int dataClassID, CommBufferTableMap& commBufferTableMap) {
+453,457d763
+<   /// 仮想セル同期データ送信完了待ち(3方向別).
+<   void sendVCEnd(int dataClassID, int xyz) {
+<     commBufferSeparateTableMap[xyz][dataClassID]->sendBuffer->sendEnd();
+<   }
+< 
+459c765
+<   void recvVC(int dataClassID) {
+---
+>   void recvVC(int dataClassID, CommBufferTableMap& commBufferTableMap) {
+463,467d768
+<   /// 仮想セル同期データ受信(3方向別).
+<   void recvVC(int dataClassID, int xyz) {
+<     commBufferSeparateTableMap[xyz][dataClassID]->recvBuffer->recv();
+<   }
+< 
+469c770
+<   void recvVCBegin(int dataClassID) {
+---
+>   void recvVCBegin(int dataClassID, CommBufferTableMap& commBufferTableMap) {
+473,477d773
+<   /// 仮想セル同期データ受信開始(3方向別).
+<   void recvVCBegin(int dataClassID, int xyz) {
+<     commBufferSeparateTableMap[xyz][dataClassID]->recvBuffer->recvBegin();
+<   }
+< 
+479c775
+<   void recvVCEnd(int dataClassID) {
+---
+>   void recvVCEnd(int dataClassID, CommBufferTableMap& commBufferTableMap) {
+483,487d778
+<   /// 仮想セル同期データ受信完了待ち(3方向別).
+<   void recvVCEnd(int dataClassID, int xyz) {
+<     commBufferSeparateTableMap[xyz][dataClassID]->recvBuffer->recvEnd();
+<   }
+< 
+508c799,800
+<    : numBlock(0), faceListPrepared(false), separateFaceListPrepared(false) {
+---
+>    : numBlock(0), faceListPrepared(false), separateFaceListPrepared(false),
+>      separateLevelDiffFaceListPrepared(false) {
+diff -r BCMTools_20120916/include/Scalar3D.h BCMTools_20130417_Onishi/include/Scalar3D.h
+31a32,33
+> 	int vc0;
+> 
+39c41
+<   Scalar3D(const Vec3i& size, int vc) : UpdatableDataClass(size, vc), index(size, vc) {
+---
+>   Scalar3D(const ::Vec3i& size, int vc) : UpdatableDataClass(size, vc), index(size, vc) {
+43a46
+> 		vc0 = vc;
+57a61,62
+> 	int getVCsize() { return vc0; }
+> 
+70a76,77
+> 
+> /*
+98c105
+< 
+---
+> */
+108c115
+< 
+---
+> /*
+118a126,232
+> */
+> 
+> 
+> #define USE_PRIVATE_METHODS
+> 
+> public:
+> /// 直方体領域からバッファへのデータコピー(シリアライズ).
+> void copyToBuffer(int i0, int j0, int k0, int nx, int ny, int nz, T* buffer) const
+> {
+> #ifdef USE_PRIVATE_METHODS
+>   copyToBuffer_0(i0, j0, k0, nx, ny, nz, data, index, buffer);
+> #else
+>   for (int k = k0; k < k0 + nz; ++k) {
+>     for (int j = j0; j < j0 + ny; ++j) {
+>       for (int i = i0; i < i0 + nx; ++i) {
+>         buffer[i-i0 + nx*(j-j0) + (nx*ny)*(k-k0)] = data[index(i,j,k)];
+>       }
+>     }
+>   }
+> #endif
+> }
+> 
+> 
+> /// バッファから直方体領域へのデータコピー(デシリアライズ).
+> void copyFromBuffer(int i0, int j0, int k0, int nx, int ny, int nz, const T* buffer)
+> {
+> #ifdef USE_PRIVATE_METHODS
+>   copyFromBuffer_0(i0, j0, k0, nx, ny, nz, buffer, data, index);
+> #else
+>   for (int k = k0; k < k0 + nz; ++k) {
+>     for (int j = j0; j < j0 + ny; ++j) {
+>       for (int i = i0; i < i0 + nx; ++i) {
+>         data[index(i,j,k)] = buffer[i-i0 + nx*(j-j0) + (nx*ny)*(k-k0)];
+>       }
+>     }
+>   }
+> #endif
+> }
+> 
+> 
+> /// 他データクラスの直方体領域から直方体領域へのデータコピー.
+> void copyFromDataClass(int i0, int j0, int k0, int i1, int j1, int k1,
+>                                     int nx, int ny, int nz, const DataClass* dataClass)
+> {
+>   const Scalar3D<T>* s = dynamic_cast<const Scalar3D<T>*>(dataClass);
+>   T* sData = s->getData();
+>   Index3DS sIndex = s->getIndex();
+> #if USE_PRIVATE_METHODs
+>   copyFromDataClass_0(i0, j0, k0, i1, j1, k1, nx, ny, nz, sData, sIndex, data, index);
+> #else
+>   for (int k = 0; k < nz; ++k) {
+>     for (int j = 0; j < ny; ++j) {
+>       for (int i = 0; i < nx; ++i) {
+>         data[index(i0+i,j0+j,k0+k)] = sData[sIndex(i1+i,j1+j,k1+k)];
+>       }
+>     }
+>   }
+> #endif
+> }
+> 
+> 
+> private:
+> void copyToBuffer_0(int i0, int j0, int k0, int nx, int ny, int nz,
+>                                  const T* data, Index3DS index, T* buffer) const
+> {
+> #pragma omp parallel for if(nz >= 16)
+>   for (int k = k0; k < k0 + nz; ++k) {
+>     for (int j = j0; j < j0 + ny; ++j) {
+>       for (int i = i0; i < i0 + nx; ++i) {
+>         buffer[i-i0 + nx*(j-j0) + (nx*ny)*(k-k0)] = data[index(i,j,k)];
+>       }
+>     }
+>   }
+> }
+> 
+> 
+> void copyFromBuffer_0(int i0, int j0, int k0, int nx, int ny, int nz,
+>                                    const T* buffer, T* data, Index3DS index)
+> {
+> #pragma omp parallel for if(nz >= 16)
+>   for (int k = k0; k < k0 + nz; ++k) {
+>     for (int j = j0; j < j0 + ny; ++j) {
+>       for (int i = i0; i < i0 + nx; ++i) {
+>         data[index(i,j,k)] = buffer[i-i0 + nx*(j-j0) + (nx*ny)*(k-k0)];
+>       }
+>     }
+>   }
+> } 
+> 
+> 
+> void copyFromDataClass_0(int i0, int j0, int k0, int i1, int j1, int k1,
+>                                        int nx, int ny, int nz,
+>                                        const T* sData, Index3DS sIndex,
+>                                        T* dData, Index3DS dIndex)
+> {
+> #pragma omp parallel for schedule(static,1) if(nz >= 16)
+>   for (int k = 0; k < nz; ++k) {
+>     for (int j = 0; j < ny; ++j) {
+>       for (int i = 0; i < nx; ++i) {
+> //      dData[dIndex(i0+i,j0+j,k0+k)] = sData[sIndex(i1+i,j1+j,k1+k)];
+>         int ii = dIndex(i0+i,j0+j,k0+k);
+>         int jj = sIndex(i1+i,j1+j,k1+k);
+>         dData[ii] = sData[jj];
+>       }
+>     }
+>   }
+> }
+diff -r BCMTools_20120916/include/Scalar3DUpdater.h BCMTools_20130417_Onishi/include/Scalar3DUpdater.h
+251c251
+< 
+---
+> /*
+299a300,885
+> */
+> 
+> 
+> /// 隣接データクラスから仮想セルデータをコピー(同レベル間).
+> void copyFromNeighbor(Face face)
+> {
+>   Scalar3D<T>* dc = neighborDataClass[face][0];
+>   if (!dc) return;
+>   switch (face) {
+>     case X_M:
+>       dataClass->copyFromDataClass(-vc, 0, 0,  dc->getSizeX()-vc, 0, 0, vc, ny, nz,  dc);
+>       break;
+>     case X_P:
+>       dataClass->copyFromDataClass(nx, 0, 0,  0, 0, 0,  vc, ny, nz,  dc);
+>       break;
+>     case Y_M:
+>       dataClass->copyFromDataClass(0, -vc, 0,  0, dc->getSizeY()-vc, 0, nx, vc, nz,  dc);
+>       break;
+>     case Y_P:
+>       dataClass->copyFromDataClass(0, ny, 0,  0, 0, 0,  nx, vc, nz,  dc);
+>       break;
+>     case Z_M:
+>       dataClass->copyFromDataClass(0, 0, -vc,  0, 0, dc->getSizeZ()-vc, nx, ny, vc,  dc);
+>       break;
+>     case Z_P:
+>       dataClass->copyFromDataClass(0, 0, nz,  0, 0, 0,  nx, ny, vc,  dc);
+>       break;
+>     default:
+>       break;
+>   }
+> }
+> 
+> 
+> /// 隣接データクラスから仮想セルデータをコピー(レベルL+1→L).
+> void copyFromNeighborF2C(Face face, Subface subface)
+> {
+>   T* cData = dataClass->getData();
+>   Index3DS cIndex = dataClass->getIndex();
+>   Scalar3D<T>* f = neighborDataClass[face][subface];
+>   T* fData = f->getData();
+>   Index3DS fIndex = f->getIndex();
+> 
+>   copyFromNeighborF2C_0(nx, ny, nz, vc, face, subface, fData, fIndex, cData, cIndex);
+> }
+> 
+> 
+> /// 隣接データクラスから仮想セルデータをコピー(レベルL→L+1).
+> void copyFromNeighborC2F(Face face, Subface subface)
+> {
+>   T* fData = dataClass->getData();
+>   Index3DS fIndex = dataClass->getIndex();
+>   Scalar3D<T>* c = neighborDataClass[face][0];
+>   T* cData = c->getData();
+>   Index3DS cIndex = c->getIndex();
+> 
+>   copyFromNeighborC2F_0(nx, ny, nz, vc, face, subface, cData, cIndex, fData, fIndex);
+> }
+> 
+> 
+> /// 送信バッファに仮想セルデータをコピー(同レベル間).
+> void copyToCommBuffer(Face face)
+> {
+>   T* buffer = sendBuffer[face][0];
+>   if (!buffer) return;
+>   switch (face) {
+>     case X_M:
+>       dataClass->copyToBuffer(0, 0, 0,  vc, ny, nz,  buffer);
+>       break;
+>     case X_P:
+>       dataClass->copyToBuffer(nx-vc, 0, 0,  vc, ny, nz,  buffer);
+>       break;
+>     case Y_M:
+>       dataClass->copyToBuffer(0, 0, 0,  nx, vc, nz,  buffer);
+>       break;
+>     case Y_P:
+>       dataClass->copyToBuffer(0, ny-vc, 0,  nx, vc, nz,  buffer);
+>       break;
+>     case Z_M:
+>       dataClass->copyToBuffer(0, 0, 0,  nx, ny, vc,  buffer);
+>       break;
+>     case Z_P:
+>       dataClass->copyToBuffer(0, 0, nz-vc,  nx, ny, vc,  buffer);
+>       break;
+>     default:
+>       break;
+>   }
+> }
+> 
+> 
+> /// 送信バッファに仮想セルデータをコピー(レベルL+1→L).
+> void copyToCommBufferF2C(Face face, Subface subface)
+> {
+>   T* buffer = sendBuffer[face][0];
+>   T* fData = dataClass->getData();
+>   Index3DS fIndex = dataClass->getIndex();
+> 
+>   copyToCommBufferF2C_0(nx, ny, nz, vc, face, subface, fData, fIndex, buffer);
+> }
+> 
+> 
+> /// 送信バッファに仮想セルデータをコピー(レベルL→L+1).
+> void copyToCommBufferC2F(Face face, Subface subface)
+> {
+>   T* cData = dataClass->getData();
+>   Index3DS cIndex = dataClass->getIndex();
+>   T* buffer = sendBuffer[face][subface];
+> 
+>   copyToCommBufferC2F_0(nx, ny, nz, vc, face, subface, cData, cIndex, buffer);
+> }
+> 
+> 
+> /// 受信バッファから仮想セルデータをコピー(同レベル間).
+> void copyFromCommBuffer(Face face)
+> {
+>   T* buffer = recvBuffer[face][0];
+>   if (!buffer) return;
+>   switch (face) {
+>     case X_M:
+>       dataClass->copyFromBuffer(-vc, 0, 0,  vc, ny, nz,  buffer);
+>       break;
+>     case X_P:
+>       dataClass->copyFromBuffer(nx, 0, 0,  vc, ny, nz,  buffer);
+>       break;
+>     case Y_M:
+>       dataClass->copyFromBuffer(0, -vc, 0,  nx, vc, nz,  buffer);
+>       break;
+>     case Y_P:
+>       dataClass->copyFromBuffer(0, ny, 0,  nx, vc, nz,  buffer);
+>       break;
+>     case Z_M:
+>       dataClass->copyFromBuffer(0, 0, -vc,  nx, ny, vc,  buffer);
+>       break;
+>     case Z_P:
+>       dataClass->copyFromBuffer(0, 0, nz,  nx, ny, vc,  buffer);
+>       break;
+>     default:
+>       break;
+>   }
+> }
+> 
+> 
+> /// 受信バッファから仮想セルデータをコピー(レベルL+1→L).
+> void copyFromCommBufferF2C(Face face, Subface subface)
+> {
+>   T* buffer = recvBuffer[face][subface];
+>   switch (face) {
+>     case X_M:
+>     {
+>       int j0 = (ny/2) * subfaceOrigin0(subface);
+>       int k0 = (nz/2) * subfaceOrigin1(subface);
+>       dataClass->copyFromBuffer(-vc, j0, k0, vc, ny/2, nz/2, buffer);
+>       break;
+>     }
+>     case X_P:
+>     {
+>       int j0 = (ny/2) * subfaceOrigin0(subface);
+>       int k0 = (nz/2) * subfaceOrigin1(subface);
+>       dataClass->copyFromBuffer(nx, j0, k0, vc, ny/2, nz/2, buffer);
+>       break;
+>     }
+>     case Y_M:
+>     {
+>       int k0 = (nz/2) * subfaceOrigin0(subface);
+>       int i0 = (nx/2) * subfaceOrigin1(subface);
+>       dataClass->copyFromBuffer(i0, -vc, k0,  nx/2, vc, nz/2,  buffer);
+>       break;
+>     }
+>     case Y_P:
+>     {
+>       int k0 = (nz/2) * subfaceOrigin0(subface);
+>       int i0 = (nx/2) * subfaceOrigin1(subface);
+>       dataClass->copyFromBuffer(i0, ny, k0,  nx/2, vc, nz/2,  buffer);
+>       break;
+>     }
+>     case Z_M:
+>     {
+>       int i0 = (nx/2) * subfaceOrigin0(subface);
+>       int j0 = (ny/2) * subfaceOrigin1(subface);
+>       dataClass->copyFromBuffer(i0, j0, -vc,  nx/2, ny/2, vc,  buffer);
+>       break;
+>     }
+>     case Z_P:
+>     {
+>       int i0 = (nx/2) * subfaceOrigin0(subface);
+>       int j0 = (ny/2) * subfaceOrigin1(subface);
+>       dataClass->copyFromBuffer(i0, j0, nz,  nx/2, ny/2, vc,  buffer);
+>       break;
+>     }
+>     default:
+>       break;
+>   }
+> }
+> 
+> 
+> /// 受信バッファから仮想セルデータをコピー(レベルL→L+1).
+> void copyFromCommBufferC2F(Face face, Subface subface)
+> {
+>   copyFromCommBuffer(face);
+> }
+> 
+>  
+> 
+> void copyFromNeighborF2C_0(int nx, int ny, int nz, int vc,
+>                                                Face face, Subface subface,
+>                                                const T* fData, Index3DS fIndex,
+>                                                T* cData, Index3DS cIndex)
+> {
+>   switch (face) {
+>     case X_M:
+>     {
+>       int j0 = (ny/2) * subfaceOrigin0(subface);
+>       int k0 = (nz/2) * subfaceOrigin1(subface);
+> #pragma omp parallel for collapse(3)
+>       for (int k = 0; k < nz/2; k++) {
+>         for (int j = 0; j < ny/2; j++) {
+>           for (int i = 0; i < vc; i++) {
+>             cData[cIndex(i-vc, j+j0, k+k0)] = interpolateF2C(fData, fIndex, i+nx/2-vc, j, k);
+>           }
+>         }
+>       }
+>       break;
+>     }
+>     case X_P:
+>     {
+>       int j0 = (ny/2) * subfaceOrigin0(subface);
+>       int k0 = (nz/2) * subfaceOrigin1(subface);
+> #pragma omp parallel for collapse(3)
+>       for (int k = 0; k < nz/2; k++) {
+>         for (int j = 0; j < ny/2; j++) {
+>           for (int i = 0; i < vc; i++) {
+>             cData[cIndex(i+nx, j+j0, k+k0)] = interpolateF2C(fData, fIndex, i, j, k);
+>           }
+>         }
+>       }
+>       break;
+>     }
+>     case Y_M:
+>     {
+>       int k0 = (nz/2) * subfaceOrigin0(subface);
+>       int i0 = (nx/2) * subfaceOrigin1(subface);
+> #pragma omp parallel for collapse(3)
+>       for (int k = 0; k < nz/2; k++) {
+>         for (int j = 0; j < vc; j++) {
+>           for (int i = 0; i < nx/2; i++) {
+>             cData[cIndex(i+i0, j-vc, k+k0)] = interpolateF2C(fData, fIndex, i, j+ny/2-vc, k);
+>           }
+>         }
+>       }
+>       break;
+>     }
+>     case Y_P:
+>     {
+>       int k0 = (nz/2) * subfaceOrigin0(subface);
+>       int i0 = (nx/2) * subfaceOrigin1(subface);
+> #pragma omp parallel for collapse(3)
+>       for (int k = 0; k < nz/2; k++) {
+>         for (int j = 0; j < vc; j++) {
+>           for (int i = 0; i < nx/2; i++) {
+>             cData[cIndex(i+i0, j+ny, k+k0)] = interpolateF2C(fData, fIndex, i, j, k);
+>           }
+>         }
+>       }
+>       break;
+>     }
+>     case Z_M:
+>     {
+>       int i0 = (nx/2) * subfaceOrigin0(subface);
+>       int j0 = (ny/2) * subfaceOrigin1(subface);
+> #pragma omp parallel for collapse(3)
+>       for (int k = 0; k < vc; k++) {
+>         for (int j = 0; j < ny/2; j++) {
+>           for (int i = 0; i < nx/2; i++) {
+>             cData[cIndex(i+i0, j+j0, k-vc)] = interpolateF2C(fData, fIndex, i, j, k+nz/2-vc);
+>           }
+>         }
+>       }
+>       break;
+>     }
+>     case Z_P:
+>     {
+>       int i0 = (nx/2) * subfaceOrigin0(subface);
+>       int j0 = (ny/2) * subfaceOrigin1(subface);
+> #pragma omp parallel for collapse(3)
+>       for (int k = 0; k < vc; k++) {
+>         for (int j = 0; j < ny/2; j++) {
+>           for (int i = 0; i < nx/2; i++) {
+>             cData[cIndex(i+i0, j+j0, k+nz)] = interpolateF2C(fData, fIndex, i, j, k);
+>           }
+>         }
+>       }
+>       break;
+>     }
+>     default:
+>       break;
+>   }
+> }
+> 
+> 
+> void copyFromNeighborC2F_0(int nx, int ny, int nz, int vc,
+>                                                Face face, Subface subface,
+>                                                const T* cData, Index3DS cIndex,
+>                                                T* fData, Index3DS fIndex)
+> {
+>   switch (face) {
+>     case X_M:
+>     {
+>       int J0 = ny * subfaceOrigin0(subface);
+>       int K0 = nz * subfaceOrigin1(subface);
+> #pragma omp parallel for collapse(3)
+>       for (int K = 0; K < nz; K++) {
+>         for (int J = 0; J < ny; J++) {
+>           for (int I = 0; I < vc; I++) {
+>             fData[fIndex(I-vc, J, K)] = interpolateC2F(cData, cIndex, I+2*nx-vc, J+J0, K+K0);
+>           }
+>         }
+>       }
+>       break;
+>     }
+>     case X_P:
+>     {
+>       int J0 = ny * subfaceOrigin0(subface);
+>       int K0 = nz * subfaceOrigin1(subface);
+> #pragma omp parallel for collapse(3)
+>       for (int K = 0; K < nz; K++) {
+>         for (int J = 0; J < ny; J++) {
+>           for (int I = 0; I < vc; I++) {
+>             fData[fIndex(I+nx, J, K)] = interpolateC2F(cData, cIndex, I, J+J0, K+K0);
+>           }
+>         }
+>       }
+>       break;
+>     }
+>     case Y_M:
+>     {
+>       int K0 = nz * subfaceOrigin0(subface);
+>       int I0 = nx * subfaceOrigin1(subface);
+> #pragma omp parallel for collapse(3)
+>       for (int K = 0; K < nz; K++) {
+>         for (int J = 0; J < vc; J++) {
+>           for (int I = 0; I < nx; I++) {
+>             fData[fIndex(I, J-vc, K)] = interpolateC2F(cData, cIndex, I+I0, J+2*ny-vc, K+K0);
+>           }
+>         }
+>       }
+>       break;
+>     }
+>     case Y_P:
+>     {
+>       int K0 = nz * subfaceOrigin0(subface);
+>       int I0 = nx * subfaceOrigin1(subface);
+> #pragma omp parallel for collapse(3)
+>       for (int K = 0; K < nz; K++) {
+>         for (int J = 0; J < vc; J++) {
+>           for (int I = 0; I < nx; I++) {
+>             fData[fIndex(I, J+ny, K)] = interpolateC2F(cData, cIndex, I+I0, J, K+K0);
+>           }
+>         }
+>       }
+>       break;
+>     }
+>     case Z_M:
+>     {
+>       int I0 = nx * subfaceOrigin0(subface);
+>       int J0 = ny * subfaceOrigin1(subface);
+> #pragma omp parallel for collapse(3)
+>       for (int K = 0; K < vc; K++) {
+>         for (int J = 0; J < ny; J++) {
+>           for (int I = 0; I < nx; I++) {
+>             fData[fIndex(I, J, K-vc)] = interpolateC2F(cData, cIndex, I+I0, J+J0, K+2*nz-vc);
+>           }
+>         }
+>       }
+>       break;
+>     }
+>     case Z_P:
+>     {
+>       int I0 = nx * subfaceOrigin0(subface);
+>       int J0 = ny * subfaceOrigin1(subface);
+> #pragma omp parallel for collapse(3)
+>       for (int K = 0; K < vc; K++) {
+>         for (int J = 0; J < ny; J++) {
+>           for (int I = 0; I < nx; I++) {
+>             fData[fIndex(I, J, K+nz)] = interpolateC2F(cData, cIndex, I+I0, J+J0, K);
+>           }
+>         }
+>       }
+>       break;
+>     }
+>     default:
+>       break;
+>   }
+> }
+> 
+> 
+> void copyToCommBufferC2F_0(int nx, int ny, int nz, int vc,
+>                                                Face face, Subface subface,
+>                                                const T* cData, Index3DS cIndex,
+>                                                T* buffer)
+> {
+>   int ii = 0;
+>   switch (face) {
+>     case X_M:
+>     {
+>       int J0 = ny * subfaceOrigin0(subface);
+>       int K0 = nz * subfaceOrigin1(subface);
+> #pragma omp parallel for collapse(3)
+>       for (int K = 0; K < nz; K++) {
+>         for (int J = 0; J < ny; J++) {
+>           for (int I = 0; I < vc; I++) {
+> 						int m = I + vc*(J + ny*K);
+>             buffer[m] = interpolateC2F(cData, cIndex, I, J+J0, K+K0);
+>           }
+>         }
+>       }
+>       break;
+>     }
+>     case X_P:
+>     {
+>       int J0 = ny * subfaceOrigin0(subface);
+>       int K0 = nz * subfaceOrigin1(subface);
+> #pragma omp parallel for collapse(3)
+>       for (int K = 0; K < nz; K++) {
+>         for (int J = 0; J < ny; J++) {
+>           for (int I = 0; I < vc; I++) {
+> 						int m = I + vc*(J + ny*K);
+>             buffer[m] = interpolateC2F(cData, cIndex, I+2*nx-vc, J+J0, K+K0);
+>           }
+>         }
+>       }
+>       break;
+>     }
+>     case Y_M:
+>     {
+>       int K0 = nz * subfaceOrigin0(subface);
+>       int I0 = nx * subfaceOrigin1(subface);
+> #pragma omp parallel for collapse(3)
+>       for (int K = 0; K < nz; K++) {
+>         for (int J = 0; J < vc; J++) {
+>           for (int I = 0; I < nx; I++) {
+> 						int m = I + nx*(J + vc*K);
+>             buffer[m] = interpolateC2F(cData, cIndex, I+I0, J, K+K0);
+>           }
+>         }
+>       }
+>       break;
+>     }
+>     case Y_P:
+>     {
+>       int K0 = nz * subfaceOrigin0(subface);
+>       int I0 = nx * subfaceOrigin1(subface);
+> #pragma omp parallel for collapse(3)
+>       for (int K = 0; K < nz; K++) {
+>         for (int J = 0; J < vc; J++) {
+>           for (int I = 0; I < nx; I++) {
+> 						int m = I + nx*(J + vc*K);
+>             buffer[m] = interpolateC2F(cData, cIndex, I+I0, J+2*ny-vc, K+K0);
+>           }
+>         }
+>       }
+>       break;
+>     }
+>     case Z_M:
+>     {
+>       int I0 = nx * subfaceOrigin0(subface);
+>       int J0 = ny * subfaceOrigin1(subface);
+> #pragma omp parallel for collapse(3)
+>       for (int K = 0; K < vc; K++) {
+>         for (int J = 0; J < ny; J++) {
+>           for (int I = 0; I < nx; I++) {
+> 						int m = I + nx*(J + ny*K);
+>             buffer[m] = interpolateC2F(cData, cIndex, I+I0, J+J0, K);
+>           }
+>         }
+>       }
+>       break;
+>     }
+>     case Z_P:
+>     {
+>       int I0 = nx * subfaceOrigin0(subface);
+>       int J0 = ny * subfaceOrigin1(subface);
+> #pragma omp parallel for collapse(3)
+>       for (int K = 0; K < vc; K++) {
+>         for (int J = 0; J < ny; J++) {
+>           for (int I = 0; I < nx; I++) {
+> 						int m = I + nx*(J + ny*K);
+>             buffer[m] = interpolateC2F(cData, cIndex, I+I0, J+J0, K+2*nz-vc);
+>           }
+>         }
+>       }
+>       break;
+>     }
+>     default:
+>       break;
+>   }
+> }
+> 
+> void copyToCommBufferF2C_0(int nx, int ny, int nz, int vc,
+>                                                Face face, Subface subface,
+>                                                const T* fData, Index3DS fIndex,
+>                                                T* buffer)
+> {
+>   int ii = 0;
+>   switch (face) {
+>     case X_M:
+>     {
+> #pragma omp parallel for collapse(3)
+>       for (int k = 0; k < nz/2; k++) {
+>         for (int j = 0; j < ny/2; j++) {
+>           for (int i = 0; i < vc; i++) {
+> 						int m = i + vc*(j + ny/2*k);
+>             buffer[m] = interpolateF2C(fData, fIndex, i, j, k);
+>           }
+>         }
+>       }
+>       break;
+>     }
+>     case X_P:
+>     {
+> #pragma omp parallel for collapse(3)
+>       for (int k = 0; k < nz/2; k++) {
+>         for (int j = 0; j < ny/2; j++) {
+>           for (int i = 0; i < vc; i++) {
+> 						int m = i + vc*(j + ny/2*k);
+>             buffer[m] = interpolateF2C(fData, fIndex, i+nx/2-vc, j, k);
+>           }
+>         }
+>       }
+>       break;
+>     }
+>     case Y_M:
+>     {
+> #pragma omp parallel for collapse(3)
+>       for (int k = 0; k < nz/2; k++) {
+>         for (int j = 0; j < vc; j++) {
+>           for (int i = 0; i < nx/2; i++) {
+> 						int m = i + nx/2*(j + vc*k);
+>             buffer[m] = interpolateF2C(fData, fIndex, i, j, k);
+>           }
+>         }
+>       }
+>       break;
+>     }
+>     case Y_P:
+>     {
+> #pragma omp parallel for collapse(3)
+>       for (int k = 0; k < nz/2; k++) {
+>         for (int j = 0; j < vc; j++) {
+>           for (int i = 0; i < nx/2; i++) {
+> 						int m = i + nx/2*(j + vc*k);
+>             buffer[m] =  interpolateF2C(fData, fIndex, i, j+ny/2-vc, k);
+>           }
+>         }
+>       }
+>       break;
+>     }
+>     case Z_M:
+>     {
+> #pragma omp parallel for collapse(3)
+>       for (int k = 0; k < vc; k++) {
+>         for (int j = 0; j < ny/2; j++) {
+>           for (int i = 0; i < nx/2; i++) {
+> 						int m = i + nx/2*(j + ny/2*k);
+>             buffer[m] = interpolateF2C(fData, fIndex, i, j, k);
+>           }
+>         }
+>       }
+>       break;
+>     }
+>     case Z_P:
+>     {
+> #pragma omp parallel for collapse(3)
+>       for (int k = 0; k < vc; k++) {
+>         for (int j = 0; j < ny/2; j++) {
+>           for (int i = 0; i < nx/2; i++) {
+> 						int m = i + nx/2*(j + ny/2*k);
+>             buffer[m] = interpolateF2C(fData, fIndex, i, j, k+nz/2-vc);
+>           }
+>         }
+>       }
+>       break;
+>     }
+>     default:
+>       break;
+>   }
+> }
+> 
+diff -r BCMTools_20120916/include/Vector3D.h BCMTools_20130417_Onishi/include/Vector3D.h
+80a81
+> /*
+108c109
+< 
+---
+> */
+118a120
+> /*
+128a131,256
+> */
+> 
+> 
+> #define USE_PRIVATE_METHODS
+> 
+> public:
+> 
+> /// 直方体領域からバッファへのデータコピー(シリアライズ).
+> void copyToBuffer(int i0, int j0, int k0, int nx, int ny, int nz, T* buffer) const
+> {
+> #ifdef USE_PRIVATE_METHODS
+>   copyToBuffer_0(i0, j0, k0, nx, ny, nz, data, index, buffer);
+> #else
+>   for (int k = k0; k < k0 + nz; ++k) {
+>     for (int j = j0; j < j0 + ny; ++j) {
+>       for (int i = i0; i < i0 + nx; ++i) {
+>         int ii = 3*(i-i0) + (3*nx)*(j-j0) + (3*nx*ny)*(k-k0);
+>         int jj = index(i,j,k);
+>         buffer[ii  ] = data[jj  ];
+>         buffer[ii+1] = data[jj+1];
+>         buffer[ii+2] = data[jj+2];
+>       }
+>     }
+>   }
+> #endif
+> }
+> 
+> 
+> /// バッファから直方体領域へのデータコピー(デシリアライズ).
+> void copyFromBuffer(int i0, int j0, int k0, int nx, int ny, int nz, const T* buffer)
+> {
+> #ifdef USE_PRIVATE_METHODS
+>   copyFromBuffer_0(i0, j0, k0, nx, ny, nz, buffer, data, index);
+> #else
+>   for (int k = k0; k < k0 + nz; ++k) {
+>     for (int j = j0; j < j0 + ny; ++j) {
+>       for (int i = i0; i < i0 + nx; ++i) {
+>         int ii = 3*(i-i0) + (3*nx)*(j-j0) + (3*nx*ny)*(k-k0);
+>         int jj = index(i,j,k);
+>         data[jj  ] = buffer[ii  ];
+>         data[jj+1] = buffer[ii+1];
+>         data[jj+2] = buffer[ii+2];
+>       }
+>     }
+>   }
+> #endif
+> }
+> 
+> 
+> /// 他データクラスの直方体領域から直方体領域へのデータコピー.
+> void copyFromDataClass(int i0, int j0, int k0, int i1, int j1, int k1,
+>                        int nx, int ny, int nz, const DataClass* dataClass)
+> {
+>   const Vector3D<T>* s = dynamic_cast<const Vector3D<T>*>(dataClass);
+>   T* sData = s->getData();
+>   Index3DV sIndex = s->getIndex();
+> #ifdef USE_PRIVATE_METHODS
+>   copyFromDataClass_0(i0, j0, k0, i1, j1, k1, nx, ny, nz, sData, sIndex, data, index);
+> #else
+>   for (int k = 0; k < nz; ++k) {
+>     for (int j = 0; j < ny; ++j) {
+>       for (int i = 0; i < nx; ++i) {
+>         int ii = index(i0+i,j0+j,k0+k);
+>         int jj = sIndex(i1+i,j1+j,k1+k);
+>         data[ii  ] = sData[jj  ];
+>         data[ii+1] = sData[jj+1];
+>         data[ii+2] = sData[jj+2];
+>       }
+>     }
+>   }
+> #endif
+> }
+> 
+> 
+> private:
+> void copyToBuffer_0(int i0, int j0, int k0, int nx, int ny, int nz,
+>                                  const T* data, const Index3DV& index, T* buffer) const
+> {
+>   for (int k = k0; k < k0 + nz; ++k) {
+>     for (int j = j0; j < j0 + ny; ++j) {
+>       for (int i = i0; i < i0 + nx; ++i) {
+>         int ii = 3*(i-i0) + (3*nx)*(j-j0) + (3*nx*ny)*(k-k0);
+>         int jj = index(i,j,k);
+>         buffer[ii  ] = data[jj  ];
+>         buffer[ii+1] = data[jj+1];
+>         buffer[ii+2] = data[jj+2];
+>       }
+>     }
+>   }
+> }
+> 
+> 
+> void copyFromBuffer_0(int i0, int j0, int k0, int nx, int ny, int nz,
+>                                    const T* buffer, T* data, const Index3DV& index)
+> {
+>   for (int k = k0; k < k0 + nz; ++k) {
+>     for (int j = j0; j < j0 + ny; ++j) {
+>       for (int i = i0; i < i0 + nx; ++i) {
+>         int ii = 3*(i-i0) + (3*nx)*(j-j0) + (3*nx*ny)*(k-k0);
+>         int jj = index(i,j,k);
+>         data[jj  ] = buffer[ii  ];
+>         data[jj+1] = buffer[ii+1];
+>         data[jj+2] = buffer[ii+2];
+>       }
+>     }
+>   }
+> } 
+> 
+> 
+> void copyFromDataClass_0(int i0, int j0, int k0, int i1, int j1, int k1,
+>                                        int nx, int ny, int nz,
+>                                        const T* sData, const Index3DV& sIndex,
+>                                        T* dData, const Index3DV& dIndex)
+> {
+>   for (int k = 0; k < nz; ++k) {
+>     for (int j = 0; j < ny; ++j) {
+>       for (int i = 0; i < nx; ++i) {
+>         int ii = dIndex(i0+i,j0+j,k0+k);
+>         int jj = sIndex(i1+i,j1+j,k1+k);
+>         dData[ii  ] = sData[jj  ];
+>         dData[ii+1] = sData[jj+1];
+>         dData[ii+2] = sData[jj+2];
+>       }
+>     }
+>   }
+> }
+BCMTools_20130417_Onishi のみに存在: make_setting.fx
+BCMTools_20130417_Onishi のみに存在: make_setting.gnu
+BCMTools_20130417_Onishi のみに存在: make_setting.ibm
+BCMTools_20130417_Onishi のみに存在: make_setting.intel
+diff -r BCMTools_20120916/src/Block/BlockManager.cpp BCMTools_20130417_Onishi/src/Block/BlockManager.cpp
+45c45
+< void BlockManager::prepareForVCUpdate(int dataClassID, int tag, bool separate)
+---
+> void BlockManager::prepareForVCUpdate(int dataClassID, int tag, VCUpdateMethod::Type method)
+47,78c47,94
+<   if (separate) {
+<     if (!separateFaceListPrepared) setSeparateFaceLists();
+< 
+<     for (int xyz = 0; xyz < 3; xyz++) {
+<       setDataClassNeighbor(dataClassID, xyz);
+< 
+<       assert(commBufferSeparateTableMap[xyz].find(dataClassID)
+<              == commBufferSeparateTableMap[xyz].end());
+<       commBufferSeparateTableMap[xyz][dataClassID] = new CommBufferTable(tag);
+< 
+<       setSendBufferPointers(commBufferSeparateTableMap[xyz][dataClassID]->sendBuffer,
+<                             dataClassID, xyz);
+<       setRecvBufferPointers(commBufferSeparateTableMap[xyz][dataClassID]->recvBuffer,
+<                             dataClassID, xyz);
+< 
+<       commBufferSeparateTableMap[xyz][dataClassID]->sendBuffer->allocateBuffer();
+<       commBufferSeparateTableMap[xyz][dataClassID]->recvBuffer->allocateBuffer();
+<     }
+<   }
+<   else {
+<     if (!faceListPrepared) setFaceLists();
+< 
+<     setDataClassNeighbor(dataClassID);
+< 
+<     assert(commBufferTableMap.find(dataClassID) == commBufferTableMap.end());
+<     commBufferTableMap[dataClassID] = new CommBufferTable(tag);
+< 
+<     setSendBufferPointers(commBufferTableMap[dataClassID]->sendBuffer, dataClassID);
+<     setRecvBufferPointers(commBufferTableMap[dataClassID]->recvBuffer, dataClassID);
+< 
+<     commBufferTableMap[dataClassID]->sendBuffer->allocateBuffer();
+<     commBufferTableMap[dataClassID]->recvBuffer->allocateBuffer();
+---
+>   switch (method) {
+>     case VCUpdateMethod::AtOnce:
+>       if (!faceListPrepared) setFaceLists();
+>       setDataClassNeighbor(dataClassID, localFaceList);
+>       assert(commBufferTableMap.find(dataClassID) == commBufferTableMap.end());
+>       commBufferTableMap[dataClassID] = new CommBufferTable(tag);
+>       setSendBufferPointers(commBufferTableMap[dataClassID]->sendBuffer,
+>                             dataClassID, sendFaceList);
+>       setRecvBufferPointers(commBufferTableMap[dataClassID]->recvBuffer,
+>                             dataClassID, recvFaceList);
+>       commBufferTableMap[dataClassID]->sendBuffer->allocateBuffer();
+>       commBufferTableMap[dataClassID]->recvBuffer->allocateBuffer();
+>       break;
+>     case VCUpdateMethod::SeparateXYZ:
+>       if (!separateFaceListPrepared) setSeparateFaceLists();
+>       for (int xyz = 0; xyz < 3; xyz++) {
+>         setDataClassNeighbor(dataClassID, localSeparateFaceList[xyz]);
+>         assert(commBufferSeparateTableMap[xyz].find(dataClassID)
+>                == commBufferSeparateTableMap[xyz].end());
+>         commBufferSeparateTableMap[xyz][dataClassID] = new CommBufferTable(tag);
+>         setSendBufferPointers(commBufferSeparateTableMap[xyz][dataClassID]->sendBuffer,
+>                               dataClassID, sendSeparateFaceList[xyz]);
+>         setRecvBufferPointers(commBufferSeparateTableMap[xyz][dataClassID]->recvBuffer,
+>                               dataClassID, recvSeparateFaceList[xyz]);
+>         commBufferSeparateTableMap[xyz][dataClassID]->sendBuffer->allocateBuffer();
+>         commBufferSeparateTableMap[xyz][dataClassID]->recvBuffer->allocateBuffer();
+>       }
+>       break;
+>     case VCUpdateMethod::SeparateXYZ_SeparateLevelDiff:
+>       if (!separateLevelDiffFaceListPrepared) setSeparateLevelDiffFaceLists();
+>       for (int xyz = 0; xyz < 3; xyz++) {
+>         for (int ld = 0; ld < 3; ld++) {
+>           setDataClassNeighbor(dataClassID, localSeparateLevelDiffFaceList[xyz][ld]);
+>           assert(commBufferSeparateLevelDiffTableMap[xyz][ld].find(dataClassID)
+>                  == commBufferSeparateLevelDiffTableMap[xyz][ld].end());
+>           commBufferSeparateLevelDiffTableMap[xyz][ld][dataClassID] = new CommBufferTable(tag);
+>           setSendBufferPointers(commBufferSeparateLevelDiffTableMap[xyz][ld][dataClassID]->sendBuffer,
+>                                 dataClassID, sendSeparateLevelDiffFaceList[xyz][ld]);
+>           setRecvBufferPointers(commBufferSeparateLevelDiffTableMap[xyz][ld][dataClassID]->recvBuffer,
+>                                 dataClassID, recvSeparateLevelDiffFaceList[xyz][ld]);
+>           commBufferSeparateLevelDiffTableMap[xyz][ld][dataClassID]->sendBuffer->allocateBuffer();
+>           commBufferSeparateLevelDiffTableMap[xyz][ld][dataClassID]->recvBuffer->allocateBuffer();
+>         }
+>       }
+>       break;
+>     default:
+>       assert(0);
+>       break;
+97c113
+<   for (int localID = 0; localID < numBlock; ++localID) {
+---
+>   for (int localID = 0; localID < numBlock; localID++) {
+105,106c121,122
+<   comm.Allreduce(MPI_IN_PLACE, &levelMin, 1, MPI::INTEGER, MPI::MIN);
+<   comm.Allreduce(MPI_IN_PLACE, &levelMax, 1, MPI::INTEGER, MPI::MAX);
+---
+>   comm.Allreduce(MPI_IN_PLACE, &levelMin, 1, MPI::INT, MPI::MIN);
+>   comm.Allreduce(MPI_IN_PLACE, &levelMax, 1, MPI::INT, MPI::MAX);
+120c136
+<   for (int localID = 0; localID < numBlock; ++localID) {
+---
+>   for (int localID = 0; localID < numBlock; localID++) {
+127c143
+<   comm.Reduce(&numBlock, &numBlockSum, 1, MPI::INTEGER, MPI::SUM, 0);
+---
+>   comm.Reduce(&numBlock, &numBlockSum, 1, MPI::INT, MPI::SUM, 0);
+129c145
+<     comm.Reduce(MPI_IN_PLACE, nBlock, nLevel, MPI::INTEGER, MPI::SUM, 0);
+---
+>     comm.Reduce(MPI_IN_PLACE, nBlock, nLevel, MPI::INT, MPI::SUM, 0);
+131c147
+<     comm.Reduce(nBlock, nBlock, nLevel, MPI::INTEGER, MPI::SUM, 0);
+---
+>     comm.Reduce(nBlock, nBlock, nLevel, MPI::INT, MPI::SUM, 0);
+145,146c161,162
+<   comm.Reduce(&numBlock, &numBlockMin, 1, MPI::INTEGER, MPI::MIN, 0);
+<   comm.Reduce(&numBlock, &numBlockMax, 1, MPI::INTEGER, MPI::MAX, 0);
+---
+>   comm.Reduce(&numBlock, &numBlockMin, 1, MPI::INT, MPI::MIN, 0);
+>   comm.Reduce(&numBlock, &numBlockMax, 1, MPI::INT, MPI::MAX, 0);
+149c165
+<     comm.Reduce(MPI_IN_PLACE, &numBlock2Sum, 1, MPI::INTEGER, MPI::SUM, 0);
+---
+>     comm.Reduce(MPI_IN_PLACE, &numBlock2Sum, 1, MPI::INT, MPI::SUM, 0);
+151c167
+<     comm.Reduce(&numBlock2Sum, &numBlock2Sum, 1, MPI::INTEGER, MPI::SUM, 0);
+---
+>     comm.Reduce(&numBlock2Sum, &numBlock2Sum, 1, MPI::INT, MPI::SUM, 0);
+166d181
+<   enum LevelDiff { L_M1, L_0, L_P1 };
+170c185
+<   for (int localID = 0; localID < numBlock; ++localID) {
+---
+>   for (int localID = 0; localID < numBlock; localID++) {
+179c194
+<             nFaceIntra[L_0]++;
+---
+>             nFaceIntra[LD_0]++;
+181c196
+<             nFaceInter[L_0]++;
+---
+>             nFaceInter[LD_0]++;
+188c203
+<               nFaceIntra[L_P1]++;
+---
+>               nFaceIntra[LD_P1]++;
+190c205
+<               nFaceInter[L_P1]++;
+---
+>               nFaceInter[LD_P1]++;
+196c211
+<             nFaceIntra[L_M1]++;
+---
+>             nFaceIntra[LD_M1]++;
+198c213
+<             nFaceInter[L_M1]++;
+---
+>             nFaceInter[LD_M1]++;
+211,212c226,227
+<   comm.Reduce(nFaceInter, nFaceInterSum, 3, MPI::INTEGER, MPI::SUM, 0);
+<   comm.Reduce(nFaceIntra, nFaceIntraSum, 3, MPI::INTEGER, MPI::SUM, 0);
+---
+>   comm.Reduce(nFaceInter, nFaceInterSum, 3, MPI::INT, MPI::SUM, 0);
+>   comm.Reduce(nFaceIntra, nFaceIntraSum, 3, MPI::INT, MPI::SUM, 0);
+217,219c232,234
+<     std::cout << "        dLevel=-1: " << nFaceIntraSum[L_M1] << std::endl;
+<     std::cout << "        dLevel= 0: " << nFaceIntraSum[L_0] << std::endl;
+<     std::cout << "        dLevel=+1: " << nFaceIntraSum[L_P1] << std::endl;
+---
+>     std::cout << "        dLevel=-1: " << nFaceIntraSum[LD_M1] << std::endl;
+>     std::cout << "        dLevel= 0: " << nFaceIntraSum[LD_0] << std::endl;
+>     std::cout << "        dLevel=+1: " << nFaceIntraSum[LD_P1] << std::endl;
+221c236
+<            << nFaceIntraSum[L_M1] + nFaceIntraSum[L_0] + nFaceIntraSum[L_P1] 
+---
+>            << nFaceIntraSum[LD_M1] + nFaceIntraSum[LD_0] + nFaceIntraSum[LD_P1] 
+224,226c239,241
+<     std::cout << "        dLevel=-1: " << nFaceInterSum[L_M1] << std::endl;
+<     std::cout << "        dLevel= 0: " << nFaceInterSum[L_0] << std::endl;
+<     std::cout << "        dLevel=+1: " << nFaceInterSum[L_P1] << std::endl;
+---
+>     std::cout << "        dLevel=-1: " << nFaceInterSum[LD_M1] << std::endl;
+>     std::cout << "        dLevel= 0: " << nFaceInterSum[LD_0] << std::endl;
+>     std::cout << "        dLevel=+1: " << nFaceInterSum[LD_P1] << std::endl;
+228c243
+<            << nFaceInterSum[L_M1] + nFaceInterSum[L_0] + nFaceInterSum[L_P1] 
+---
+>            << nFaceInterSum[LD_M1] + nFaceInterSum[LD_0] + nFaceInterSum[LD_P1] 
+232c247
+<   int nFaceInterTotal = nFaceInter[L_M1] + nFaceInter[L_0] + nFaceInter[L_P1];
+---
+>   int nFaceInterTotal = nFaceInter[LD_M1] + nFaceInter[LD_0] + nFaceInter[LD_P1];
+235,236c250,251
+<   comm.Reduce(&nFaceInterTotal, &nFaceInterTotalMin, 1, MPI::INTEGER, MPI::MIN, 0);
+<   comm.Reduce(&nFaceInterTotal, &nFaceInterTotalMax, 1, MPI::INTEGER, MPI::MAX, 0);
+---
+>   comm.Reduce(&nFaceInterTotal, &nFaceInterTotalMin, 1, MPI::INT, MPI::MIN, 0);
+>   comm.Reduce(&nFaceInterTotal, &nFaceInterTotalMax, 1, MPI::INT, MPI::MAX, 0);
+240c255
+<     comm.Reduce(MPI_IN_PLACE, &nFaceInterTotal2Sum, 1, MPI::INTEGER, MPI::SUM, 0);
+---
+>     comm.Reduce(MPI_IN_PLACE, &nFaceInterTotal2Sum, 1, MPI::INT, MPI::SUM, 0);
+242c257
+<     comm.Reduce(&nFaceInterTotal2Sum, &nFaceInterTotal2Sum, 1, MPI::INTEGER, MPI::SUM, 0);
+---
+>     comm.Reduce(&nFaceInterTotal2Sum, &nFaceInterTotal2Sum, 1, MPI::INT, MPI::SUM, 0);
+248c263
+<       = (double)(nFaceInterSum[L_M1] + nFaceInterSum[L_0] + nFaceInterSum[L_P1]) / nprocs;
+---
+>       = (double)(nFaceInterSum[LD_M1] + nFaceInterSum[LD_0] + nFaceInterSum[LD_P1]) / nprocs;
+264c279
+<   for (int localID = 0; localID < numBlock; ++localID) {
+---
+>   for (int localID = 0; localID < numBlock; localID++) {
+268c283
+<     for (int i = 0; i < NUM_FACE; ++i) {
+---
+>     for (int i = 0; i < NUM_FACE; i++) {
+326c341
+<   for (int localID = 0; localID < numBlock; ++localID) {
+---
+>   for (int localID = 0; localID < numBlock; localID++) {
+330c345
+<     for (int i = 0; i < NUM_FACE; ++i) {
+---
+>     for (int i = 0; i < NUM_FACE; i++) {
+374,388c389,436
+< /// 各ブロックで，指定したデータクラスの隣接データクラス情報を設定.
+< void BlockManager::setDataClassNeighbor(int dataClassID) {
+<   FaceList::const_iterator it = localFaceList.begin();
+<   for (; it != localFaceList.end(); ++it) {
+<     int id = it->id;
+<     Face face = it->face;
+<     Subface subface = it->subface;
+<     BlockBase* block = blockList[id];
+<     UpdatableDataClass* dataClass
+<       = dynamic_cast<UpdatableDataClass*>(block->getDataClass(dataClassID));
+<     assert(dataClass);
+<     int neighborBlockID = (block->getNeighborInfo())[face].getID(subface)
+<                             - startID;
+<     dataClass->setNeighbor(face, subface, 
+<                            blockList[neighborBlockID]->getDataClass(dataClassID));
+---
+> /// フェイスリスト(3方向別・レベル差別)の設定.
+> void BlockManager::setSeparateLevelDiffFaceLists() {
+>   if (separateLevelDiffFaceListPrepared) return;
+> 
+>   int myrank = comm.Get_rank();
+> 
+>   for (int localID = 0; localID < numBlock; localID++) {
+>     BlockBase* block = blockList[localID];
+>     const NeighborInfo* neighborInfo = block->getNeighborInfo();
+> 
+>     for (int i = 0; i < NUM_FACE; i++) {
+>       Face face = Face(i);
+>       int xyz = faceToXYZ(face);
+> 
+>       if (neighborInfo[face].getLevelDifference() == 0) {
+>         int rank = neighborInfo[face].getRank();
+>         if (rank == myrank) {
+>           localSeparateLevelDiffFaceList[xyz][LD_0].push_back(FaceID(localID, face));
+>         }
+>         else if (rank != MPI::PROC_NULL) {
+>           sendSeparateLevelDiffFaceList[xyz][LD_0][rank].push_back(FaceID(localID, face));
+>           recvSeparateLevelDiffFaceList[xyz][LD_0][rank].push_back(FaceID(localID, face));
+>         }
+>       }
+>       else if (neighborInfo[face].getLevelDifference() == -1) {
+>         int rank = neighborInfo[face].getRank();
+>         if (rank == myrank) {
+>           localSeparateLevelDiffFaceList[xyz][LD_M1].push_back(FaceID(localID, face));
+>         }
+>         else if (rank != MPI::PROC_NULL) {
+>           sendSeparateLevelDiffFaceList[xyz][LD_M1][rank].push_back(FaceID(localID, face));
+>           recvSeparateLevelDiffFaceList[xyz][LD_M1][rank].push_back(FaceID(localID, face));
+>         }
+>       }
+>       else if (neighborInfo[face].getLevelDifference() == 1) {
+>         for (int j = 0; j < NUM_SUBFACE; j++) {
+>           Subface subface = Subface(j);
+>           int rank = neighborInfo[face].getRank(subface);
+>           if (rank == myrank) {
+>             localSeparateLevelDiffFaceList[xyz][LD_P1].push_back(FaceID(localID, face, subface));
+>           }
+>           else if (rank != MPI::PROC_NULL) {
+>             sendSeparateLevelDiffFaceList[xyz][LD_P1][rank].push_back(FaceID(localID, face, subface));
+>             recvSeparateLevelDiffFaceList[xyz][LD_P1][rank].push_back(FaceID(localID, face, subface));
+>           }
+>         }
+>       }
+>     }
+389a438,449
+> 
+>   // 送信側のFaceIDオーダーに合わせるため，RecvFaceListをソートする
+>   for (int xyz = 0; xyz < 3; xyz++) {
+>     for (int ld = 0; ld < 3; ld++) {
+>       FaceListMap::iterator it = recvSeparateLevelDiffFaceList[xyz][ld].begin();
+>       for (; it != recvSeparateLevelDiffFaceList[xyz][ld].end(); ++it) {
+>         std::sort(it->second.begin(), it->second.end(), RecvFaceComp(blockList));
+>       }
+>     }
+>   }
+> 
+>   separateLevelDiffFaceListPrepared = true;
+393,397c453,456
+< /// 各ブロックで，指定したデータクラスの隣接データクラス情報(3方向別)を設定.
+< void BlockManager::setDataClassNeighbor(int dataClassID, int xyz) {
+<   assert(0 <= xyz && xyz < 3);
+<   FaceList::const_iterator it = localSeparateFaceList[xyz].begin();
+<   for (; it != localSeparateFaceList[xyz].end(); ++it) {
+---
+> /// 各ブロックで，指定したデータクラスの隣接データクラス情報を設定.
+> void BlockManager::setDataClassNeighbor(int dataClassID, const FaceList& faceList) {
+>   FaceList::const_iterator it = faceList.begin();
+>   for (; it != faceList.end(); ++it) {
+412,432d470
+<   
+< /// 各ブロックで，指定したデータクラスの送信バッファポインタを設定.
+< void BlockManager::setSendBufferPointers(SendBuffer* sendBuffer, int dataClassID)
+< {
+<   FaceListMap::const_iterator it_map = sendFaceList.begin();
+<   for (; it_map != sendFaceList.end(); ++it_map) {
+<     int rank = it_map->first;
+<     FaceList::const_iterator it = it_map->second.begin();
+<     for (; it != it_map->second.end(); ++it) {
+<       int id = it->id;
+<       Face face = it->face;
+<       Subface subface = it->subface;
+<       UpdatableDataClass* dataClass
+<         = dynamic_cast<UpdatableDataClass*>(
+<                           blockList[id]->getDataClass(dataClassID));
+<       sendBuffer->setData(rank, 
+<                           dataClass->getSendBufferByteSize(face, subface),
+<                           dataClass->getSendBufferPointerSetter(face, subface));
+<     }
+<   }
+< }
+434,436c472,473
+< 
+< /// 各ブロックで，指定したデータクラスの送信バッファポインタ(3方向別)を設定.
+< void BlockManager::setSendBufferPointers(SendBuffer* sendBuffer, int dataClassID, int xyz)
+---
+> /// 各ブロックで，指定したデータクラスの送信バッファポインタを設定.
+> void BlockManager::setSendBufferPointers(SendBuffer* sendBuffer, int dataClassID, const FaceListMap& faceListMap)
+438,440c475,476
+<   assert(0 <= xyz && xyz < 3);
+<   FaceListMap::const_iterator it_map = sendSeparateFaceList[xyz].begin();
+<   for (; it_map != sendSeparateFaceList[xyz].end(); ++it_map) {
+---
+>   FaceListMap::const_iterator it_map = faceListMap.begin();
+>   for (; it_map != faceListMap.end(); ++it_map) {
+459c495
+< void BlockManager::setRecvBufferPointers(RecvBuffer* recvBuffer, int dataClassID)
+---
+> void BlockManager::setRecvBufferPointers(RecvBuffer* recvBuffer, int dataClassID, const FaceListMap& faceListMap)
+461,485c497,498
+<   FaceListMap::const_iterator it_map = recvFaceList.begin();
+<   for (; it_map != recvFaceList.end(); ++it_map) {
+<     int rank = it_map->first;
+<     FaceList::const_iterator it = it_map->second.begin();
+<     for (; it != it_map->second.end(); ++it) {
+<       int id = it->id;
+<       Face face = it->face;
+<       Subface subface = it->subface;
+<       UpdatableDataClass* dataClass
+<         = dynamic_cast<UpdatableDataClass*>(
+<                           blockList[id]->getDataClass(dataClassID));
+<       recvBuffer->setData(rank, 
+<                           dataClass->getRecvBufferByteSize(face, subface),
+<                           dataClass->getRecvBufferPointerSetter(face, subface));
+<     }
+<   }
+< }
+< 
+< 
+< /// 各ブロックで，指定したデータクラスの受信バッファポインタ(3方向別)を設定.
+< void BlockManager::setRecvBufferPointers(RecvBuffer* recvBuffer, int dataClassID, int xyz)
+< {
+<   assert(0 <= xyz && xyz < 3);
+<   FaceListMap::const_iterator it_map = recvSeparateFaceList[xyz].begin();
+<   for (; it_map != recvSeparateFaceList[xyz].end(); ++it_map) {
+---
+>   FaceListMap::const_iterator it_map = faceListMap.begin();
+>   for (; it_map != faceListMap.end(); ++it_map) {
+504c517
+< void BlockManager::copyVCFromNeighbor(int dataClassID)
+---
+> void BlockManager::copyVCFromNeighbor(int dataClassID, const FaceList& faceList)
+506,507c519,520
+<   FaceList::const_iterator it = localFaceList.begin();
+<   for (; it != localFaceList.end(); ++it) {
+---
+>   FaceList::const_iterator it = faceList.begin();
+>   for (; it != faceList.end(); ++it) {
+517,533c530
+< 
+< 
+< /// 各ブロックで，指定したデータクラスの仮想セルデータを隣接ブロックからコピー(3方向別).
+< void BlockManager::copyVCFromNeighbor(int dataClassID, int xyz)
+< {
+<   FaceList::const_iterator it = localSeparateFaceList[xyz].begin();
+<   for (; it != localSeparateFaceList[xyz].end(); ++it) {
+<     int id = it->id;
+<     Face face = it->face;
+<     Subface subface = it->subface;
+<     UpdatableDataClass* dataClass
+<       = dynamic_cast<UpdatableDataClass*>(
+<                           blockList[id]->getDataClass(dataClassID));
+<     dataClass->copyFromNeighbor(face, subface);
+<   }
+< }
+< 
+---
+>   
+536,555c533
+< void BlockManager::copyVCToSendBuffer(int dataClassID)
+< {
+<   FaceListMap::const_iterator it_map = sendFaceList.begin();
+<   for (; it_map != sendFaceList.end(); ++it_map) {
+<     FaceList::const_iterator it = it_map->second.begin();
+<     for (; it != it_map->second.end(); ++it) {
+<       int id = it->id;
+<       Face face = it->face;
+<       Subface subface = it->subface;
+<       UpdatableDataClass* dataClass
+<         = dynamic_cast<UpdatableDataClass*>(
+<                           blockList[id]->getDataClass(dataClassID));
+<       dataClass->copyToCommBuffer(face, subface);
+<     }
+<   }
+< }
+< 
+< 
+< /// 各ブロックで，指定したデータクラスの仮想セルデータを送信バッファにコピー(3方向別).
+< void BlockManager::copyVCToSendBuffer(int dataClassID, int xyz)
+---
+> void BlockManager::copyVCToSendBuffer(int dataClassID, const FaceListMap& faceListMap)
+557,558c535,536
+<   FaceListMap::const_iterator it_map = sendSeparateFaceList[xyz].begin();
+<   for (; it_map != sendSeparateFaceList[xyz].end(); ++it_map) {
+---
+>   FaceListMap::const_iterator it_map = faceListMap.begin();
+>   for (; it_map != faceListMap.end(); ++it_map) {
+574,593c552
+< void BlockManager::copyVCFromRecvBuffer(int dataClassID)
+< {
+<   FaceListMap::const_iterator it_map = recvFaceList.begin();
+<   for (; it_map != recvFaceList.end(); ++it_map) {
+<     FaceList::const_iterator it = it_map->second.begin();
+<     for (; it != it_map->second.end(); ++it) {
+<       int id = it->id;
+<       Face face = it->face;
+<       Subface subface = it->subface;
+<       UpdatableDataClass* dataClass
+<         = dynamic_cast<UpdatableDataClass*>(
+<                           blockList[id]->getDataClass(dataClassID));
+<       dataClass->copyFromCommBuffer(face, subface);
+<     }
+<   }
+< }
+< 
+< 
+< /// 各ブロックで，指定したデータクラスの仮想セルデータを受信バッファからコピー(3方向別).
+< void BlockManager::copyVCFromRecvBuffer(int dataClassID, int xyz)
+---
+> void BlockManager::copyVCFromRecvBuffer(int dataClassID, const FaceListMap& faceListMap)
+595,596c554,555
+<   FaceListMap::const_iterator it_map = recvSeparateFaceList[xyz].begin();
+<   for (; it_map != recvSeparateFaceList[xyz].end(); ++it_map) {
+---
+>   FaceListMap::const_iterator it_map = faceListMap.begin();
+>   for (; it_map != faceListMap.end(); ++it_map) {
+diff -r BCMTools_20120916/src/DataClass/Scalar3D.cpp BCMTools_20130417_Onishi/src/DataClass/Scalar3D.cpp
+6a7
+> /*
+154c155
+< 
+---
+> */
+diff -r BCMTools_20120916/src/DataClass/Scalar3DUpdater.cpp BCMTools_20130417_Onishi/src/DataClass/Scalar3DUpdater.cpp
+7c7
+< 
+---
+> /*
+602,603c602,603
+< #error Scalar3DUpdater not implemented for integer type yet.
+< //template class Scalar3DUpdater<int>;
+---
+> //#error Scalar3DUpdater not implemented for integer type yet.
+> template class Scalar3DUpdater<int>;
+610c610
+< 
+---
+> */
+diff -r BCMTools_20120916/src/DataClass/Vector3D.cpp BCMTools_20130417_Onishi/src/DataClass/Vector3D.cpp
+6a7
+> /*
+173c174
+< 
+---
+> */
+diff -r BCMTools_20120916/src/Makefile BCMTools_20130417_Onishi/src/Makefile
+1c1,2
+< BCMLIB = ../lib/libbcm.a
+---
+> # Default environment
+> FFVC=intel
+3c4
+< DATACLASS_LIST = ./DataClass.list
+---
+> ### compiler detection
+5c6,8
+< all: $(BCMLIB)
+---
+> ifeq ($(FFVC),gnu)
+> include ../make_setting.gnu
+> endif
+7,8c10,12
+< OBJS = CommBuffer/CommBuffer.o Block/BlockManager.o \
+<   DataClass/Scalar3D.o DataClass/Vector3D.o DataClass/Scalar3DUpdater.o DataClass/Vector3DUpdater.o
+---
+> ifeq ($(FFVC),fx)
+> include ../make_setting.fx
+> endif
+10c14,16
+< include ../Makefile.inc
+---
+> ifeq ($(FFVC),ibm)
+> include ../make_setting.ibm
+> endif
+11a18,20
+> ifeq ($(FFVC),intel)
+> include ../make_setting.intel
+> endif
+13,15c22
+< #AR = ar cr
+< AR = ar cru
+< RANLIB = ranlib
+---
+> #####
+18c25
+< DATACLASS_OPT = $(shell awk '/^ *[^\#]/{ printf " -DUSE_%s", $$1}' $(DATACLASS_LIST))
+---
+> BCMLIB = ../lib/libbcm.a
+20c27
+< CFLAGS = -I. -I../include $(OPTIONS) $(DATACLASS_OPT)
+---
+> all: $(BCMLIB)
+21a29,38
+> OBJS = CommBuffer/CommBuffer.o Block/BlockManager.o \
+>   DataClass/Scalar3D.o DataClass/Vector3D.o DataClass/Scalar3DUpdater.o DataClass/Vector3DUpdater.o
+> 
+> #include ../Makefile.inc
+> #DATACLASS_OPT = $(shell awk '/^ *[^\#]/{ printf " -DUSE_%s", $$1}' $(DATACLASS_LIST))
+> #CFLAGS = -I. -I../include $(OPTIONS) $(DATACLASS_OPT)
+> 
+> CFLAGS += -I. -I../include 
+> 
+> DATACLASS_LIST = ./DataClass.list

@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<Parameter>
+  <Elem name="PolygonGroup">
+    <Param name="class_name" dtype="STRING" value="PolygonGroup"/>
+    <Param name="name"       dtype="STRING" value="root"/>
+    <Elem name="PolygonGroup">
+      <Param name="class_name" dtype="STRING" value="PolygonGroup"/>
+      <Param name="name"       dtype="STRING" value="ducky"/>
+      <Param name="filepath"   dtype="STRING" value="../../STL_DATA/pato.stl"/>
+      <Param name="id"         dtype="INT"    value="1"/>
+    </Elem>
+  </Elem>
+</Parameter>

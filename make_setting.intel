@@ -1,0 +1,56 @@
+###################################################################
+#
+# FFV : Frontflow / violet BCM
+#
+# Copyright (c) 2013 All right reserved.
+#
+# Institute of Industrial Science, University of Tokyo, Japan. 
+#
+###################################################################
+
+########################
+# INTEL (default, intel compiler)
+########################
+
+AR          = ar cru
+RANLIB      = ranlib
+RM          = \rm -f
+MPI_DIR	    = /opt/mpi/openmpi-1.6.2_intel64-v12.1.3
+MPI_DIR	    = /usr/lib/openmpi
+MPI_DIR			= $(HOME)/MyLib/MPIlib
+BCM_DIR     = $(HOME)/BCMTools
+BCM_FILEIO_DIR     = $(HOME)/BCMTools/examples/FileIO
+CPM_DIR     = $(HOME)/MyLib/CPMlib
+TP_DIR      = $(HOME)/MyLib/TPlib
+POLYLIB_DIR = $(HOME)/MyLib/Polylib_2_0_3_Rel
+CUTLIB_DIR  = $(HOME)/MyLib/Cutlib-2.0.5
+PMLIB_DIR   = $(HOME)/MyLib/PMlib-1.5
+XML2_DIR    = $(HOME)/MyLib/libxml2-2.7.8_lib
+OMP_FLAGS   = -openmp -par-report=1 -vec-report=1
+DEFINES     = -DDEBUG
+UDEF_OPT    =
+CC          = icc
+CFLAGS      = -O3 $(OMP_FLAGS) -I$(MPI_DIR)/include
+CXX         = icpc
+CXXFLAGS    = $(CFLAGS)
+FC          = ifort
+FCFLAGS     = -O3 -Warn unused -fpp $(OMP_FLAGS)
+F90         = ifort
+F90FLAGS    = $(FCFLAGS)
+LDFLAGS     = $(OMP_FLAGS)
+LIBS        = -lifport -lifcore -lmpi_cxx
+UDEF_LIB_PATH_SPEC =
+UDEF_LIBS_SPEC     =
+
+## iff double
+CFLAGS     += -D_REAL_IS_DOUBLE_
+CXXFLAGS   += -D_REAL_IS_DOUBLE_
+FCFLAGS    += -D_REAL_IS_DOUBLE_ -r8
+F90FLAGS   += -D_REAL_IS_DOUBLE_ -r8
+
+## iff large block
+CFLAGS     += -D_LARGE_BLOCK
+CXXFLAGS   += -D_LARGE_BLOCK
+FCFLAGS    += -D_LARGE_BLOCK
+F90FLAGS   += -D_LARGE_BLOCK
+

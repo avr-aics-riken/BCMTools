@@ -182,7 +182,8 @@ public:
   ///
   ///   @return バイト数
   ///
-  static size_t GetSerializeSize() { return sizeof(p); }
+//  static size_t GetSerializeSize() { return sizeof(p); }
+  static size_t GetSerializeSize() { return sizeof(uint64_t); }
 
   /// シリアライズ.
   ///
