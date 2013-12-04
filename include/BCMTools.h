@@ -1,6 +1,6 @@
 ///
 /// @file BCMTools.h
-/// @brief 共通ヘッダ
+/// @brief BCM Tools 共通ヘッダ
 ///
 
 #ifndef BCM_TOOLS_H

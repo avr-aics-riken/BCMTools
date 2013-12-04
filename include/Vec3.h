@@ -1,3 +1,8 @@
+///
+/// @file Vec3.h
+/// @brief 3次元ベクトル テンプレートクラス.
+/// 
+
 #ifndef VEC3_H
 #define VEC3_H
 
@@ -10,7 +15,7 @@ namespace BCMT_NAMESPACE {
 #endif
 
 
-/// 3次元ベクトルクラス テンプレート.
+/// 3次元ベクトル テンプレートクラス.
 template <typename T>
 class Vec3 {
 public:

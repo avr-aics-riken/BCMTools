@@ -1,0 +1,77 @@
+# polylib_gcc.patch     
+# 2012/09/01 suzuro@iis.u-tokyo.ac.jp
+#
+# 一部のgccでコンパイルできないことへの対策パッチ。
+# Polylib_2_0_3_Relで動作確認。
+#
+# パッチの当て方:
+# Polylibを展開してできたディレクトリに降りて、
+#   patch -p1 < このファイル
+#
+diff -ur Polylib_2_0_3_Rel.org/src/c_lang/CPolylib.cxx Polylib_2_0_3_Rel/src/c_lang/CPolylib.cxx
+--- Polylib_2_0_3_Rel.org/src/c_lang/CPolylib.cxx	2010-10-27 18:45:15.000000000 +0900
++++ Polylib_2_0_3_Rel/src/c_lang/CPolylib.cxx	2012-08-28 14:35:20.000000000 +0900
+@@ -6,6 +6,7 @@
+  */
+ #include <vector>
+ #include <iostream>
++#include <cstring>
+ #include "common/PolylibCommon.h"
+ #include "common/PolylibStat.h"
+ #include "Polylib.h"
+Only in Polylib_2_0_3_Rel.org/src: depend.inc
+diff -ur Polylib_2_0_3_Rel.org/src/file_io/PolylibConfig.cxx Polylib_2_0_3_Rel/src/file_io/PolylibConfig.cxx
+--- Polylib_2_0_3_Rel.org/src/file_io/PolylibConfig.cxx	2010-10-27 18:45:17.000000000 +0900
++++ Polylib_2_0_3_Rel/src/file_io/PolylibConfig.cxx	2012-08-28 14:35:20.000000000 +0900
+@@ -7,6 +7,7 @@
+ #include <iostream>
+ #include <sstream>
+ #include <vector>
++#include <cstring>
+ #include "file_io/PolylibConfig.h"
+ 
+ namespace PolylibNS {
+diff -ur Polylib_2_0_3_Rel.org/src/file_io/TriMeshIO.cxx Polylib_2_0_3_Rel/src/file_io/TriMeshIO.cxx
+--- Polylib_2_0_3_Rel.org/src/file_io/TriMeshIO.cxx	2010-10-27 18:45:20.000000000 +0900
++++ Polylib_2_0_3_Rel/src/file_io/TriMeshIO.cxx	2012-08-28 14:35:20.000000000 +0900
+@@ -5,6 +5,7 @@
+  *
+  */
+ #include <string>
++#include <cstring>
+ #include "polygons/Triangle.h"
+ #include "file_io/TriMeshIO.h"
+ #include "file_io/stl.h"
+diff -ur Polylib_2_0_3_Rel.org/src/file_io/stl.cxx Polylib_2_0_3_Rel/src/file_io/stl.cxx
+--- Polylib_2_0_3_Rel.org/src/file_io/stl.cxx	2010-10-27 18:45:22.000000000 +0900
++++ Polylib_2_0_3_Rel/src/file_io/stl.cxx	2012-08-28 14:35:20.000000000 +0900
+@@ -7,6 +7,7 @@
+ #include <fstream>
+ #include <vector>
+ #include <iomanip>
++#include <cstring>
+ #include "common/tt.h"
+ #include "polygons/Triangle.h"
+ #include "file_io/TriMeshIO.h"
+diff -ur Polylib_2_0_3_Rel.org/src/file_io/triangle_id.cxx Polylib_2_0_3_Rel/src/file_io/triangle_id.cxx
+--- Polylib_2_0_3_Rel.org/src/file_io/triangle_id.cxx	2010-11-09 13:45:25.000000000 +0900
++++ Polylib_2_0_3_Rel/src/file_io/triangle_id.cxx	2012-08-28 14:35:20.000000000 +0900
+@@ -7,6 +7,7 @@
+ #include <fstream>
+ #include <vector>
+ #include <iomanip>
++#include <cstdlib>
+ #include "polygons/Triangle.h"
+ #include "file_io/triangle_id.h"
+ 
+diff -ur Polylib_2_0_3_Rel.org/src/groups/PolygonGroup.cxx Polylib_2_0_3_Rel/src/groups/PolygonGroup.cxx
+--- Polylib_2_0_3_Rel.org/src/groups/PolygonGroup.cxx	2012-04-22 10:39:44.000000000 +0900
++++ Polylib_2_0_3_Rel/src/groups/PolygonGroup.cxx	2012-08-28 14:35:20.000000000 +0900
+@@ -8,6 +8,7 @@
+ #include <sstream>
+ #include <iomanip>
+ #include <algorithm>
++#include <cstring>
+ #include "Polylib.h"
+ //#include "MPIPolylib.h"
+ #include "polygons/Polygons.h"

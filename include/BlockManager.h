@@ -130,7 +130,7 @@ public:
   /// 先頭ブロックIDの取得.
   int getStartID() const { return startID; }
 
-  /// ブロック数の取得.
+  /// 担当ブロック数の取得.
   int getNumBlock() const { return numBlock;; }
 
 //const BlockList& getBlockList() const { return blockList; }

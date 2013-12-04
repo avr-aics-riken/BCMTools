@@ -153,7 +153,8 @@ public:
   }
 
   /// 指定した隣接面を含む隣接ブロックにおける子ブロック番号を取得.
-  static int getNeighborChild(Face face, Subface subface) {
+//static int getNeighborChild(Face face, Subface subface) {
+  static int getNeighborChildId(Face face, Subface subface) {
     const int neighborChild_XM[] = { 1, 3, 5, 7 };
     const int neighborChild_XP[] = { 0, 2, 4, 6 };
     const int neighborChild_YM[] = { 2, 6, 3, 7 };

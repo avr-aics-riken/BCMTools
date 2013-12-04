@@ -1,0 +1,47 @@
+# of MPI processes = 4
+# of OpenMP threads = 1
+
+Configuration file: test.conf
+  root grid:          (1, 1, 2)
+  min level:          0
+  max level:          4
+  tree type:          cylinder [c=(0.500000, 0.500000), r=0.400000]
+  ordering:           Hilbert
+  block size:         2
+  output file:        test.silo
+  verbose message:    off
+
+Partitioning
+0: [0:575] #576
+1: [576:1151] #576
+2: [1152:1727] #576
+3: [1728:2303] #576
+
+Block Layout Information
+  Min level: 3
+  Max level: 4
+  Number of blocks
+    L=3: 384
+    L=4: 1920
+    total: 2304
+  Number of total blocks / node
+    ave: 576.000
+    min: 576
+    max: 576
+     sd: 0.00000
+  Number of faces
+    intra-node 
+        dLevel=-1: 1536
+        dLevel= 0: 9440
+        dLevel=+1: 1536
+            total: 12512
+    inter-node 
+        dLevel=-1: 0
+        dLevel= 0: 504
+        dLevel=+1: 0
+            total: 504
+  Number of total inter-node faces / node
+    ave: 126.000
+    min: 84
+    max: 168
+     sd: 42.0000
