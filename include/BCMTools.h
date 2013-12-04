@@ -1,3 +1,14 @@
+/*
+ * BCMTools
+ *
+ * Copyright (C) 2011-2013 Institute of Industrial Science, The University of Tokyo.
+ * All rights reserved.
+ *
+ * Copyright (c) 2012-2013 Advanced Institute for Computational Science, RIKEN.
+ * All rights reserved.
+ *
+ */
+
 ///
 /// @file BCMTools.h
 /// @brief BCM Tools 共通ヘッダ
@@ -16,7 +27,6 @@ namespace BCMT_NAMESPACE {
 /// 呼び出し箇所が分かるexit関数マクロ(assertの代わりに使用).
 #define Exit(x) \
   ((void)printf("exit at %s:%u\n", __FILE__, __LINE__), exit((x)))
-
 
 /// DEBUGマクロの定義時のみassertマクロを有効に.
 #ifndef DEBUG

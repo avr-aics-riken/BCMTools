@@ -1,3 +1,14 @@
+/*
+ * BCMTools
+ *
+ * Copyright (C) 2011-2013 Institute of Industrial Science, The University of Tokyo.
+ * All rights reserved.
+ *
+ * Copyright (c) 2012-2013 Advanced Institute for Computational Science, RIKEN.
+ * All rights reserved.
+ *
+ */
+
 #include <iostream>
 #include <cstdlib>
 #include <sys/stat.h>
@@ -8,12 +19,7 @@
 
 int main(int argc, char** argv)
 {
-	mkdir("./VTI", 0755);
-	mkdir("./BIN", 0755);
-
 	Solver *pSolver = new Solver();
-
-	bool bResult = false;
 
 	int nResultInit = pSolver->Init(argc, argv);
 	switch( nResultInit ) {
@@ -35,7 +41,9 @@ int main(int argc, char** argv)
 		case EX_SUCCESS : {
 			break;
 		}
-		case 1 : {
+		case EX_FAILURE : {
+			delete pSolver;
+			return EX_SUCCESS;
 			break;
 		}
 		default : {
@@ -48,7 +56,9 @@ int main(int argc, char** argv)
 		case EX_SUCCESS : {
 			break;
 		}
-		case 1 : {
+		case EX_FAILURE : {
+			delete pSolver;
+			return EX_SUCCESS;
 			break;
 		}
 		default : {

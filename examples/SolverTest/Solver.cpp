@@ -1,3 +1,14 @@
+/*
+ * BCMTools
+ *
+ * Copyright (C) 2011-2013 Institute of Industrial Science, The University of Tokyo.
+ * All rights reserved.
+ *
+ * Copyright (c) 2012-2013 Advanced Institute for Computational Science, RIKEN.
+ * All rights reserved.
+ *
+ */
+
 #include "Solver.h"
 
 #include <iostream>
@@ -6,8 +17,8 @@
 #include <omp.h>
 #endif
 
-
 #include "real.h"
+#include "comm.h"
 
 #include "RootGrid.h"
 #include "BCMOctree.h"
@@ -15,10 +26,13 @@
 #include "Partition.h"
 #include "PolygonBBoxDivider.h"
 #include "BBDivider.h"
-//#include "SphereDivider.h"
+
+#include "SphereDivider.h"
 #include "SphereDivider2.h"
+#include "SphereDivider3.h"
+
 #include "RectangleDivider.h"
-#include "BoundaryConditionSetter.h"
+//#include "BoundaryConditionSetter.h"
 #include "BlockFactory.h"
 #include "Block.h"
 #include "BlockManager.h"
@@ -26,17 +40,17 @@
 #include "Polylib.h"
 #include "Cutlib.h"
 #include "CutInfo/CutInfo.h"
+#include "GridAccessor/Cell.h"
 
 #include "bcut.h"
 #include "bstl.h"
+#include "PM.h"
 
-#ifdef __K_FPCOLL
-#include <fjcoll.h>
-#endif
+#include "outputVtk.h"
 
-#ifdef __K_FAPP
-#include <fj_tool/fapp.h>
-#endif
+#define GLOBAL_VALUE_DEFINE
+#include "gv.h"
+#undef GLOBAL_VALUE_DEFINE
 
 void PrintInt32t(int32_t i) {
 	int m[32];
@@ -62,51 +76,98 @@ int Solver::Init(int argc, char** argv){
 /////////////////////////////////////////////
 	MPI::Init(argc, argv);
 	MPI::Comm& comm = MPI::COMM_WORLD;
-	int myrank = comm.Get_rank();
-	rank = myrank;
-
-	if( myrank == 0 ) {
-		if( argc != 2 ) {
-			std::cout << "usage: " << argv[0] << " configfile" << std::endl;
-			comm.Abort(EX_USAGE);
-		}
-    std::cout << "# of MPI processes = " << comm.Get_size() << std::endl;
-#ifdef _OPENMP
-    std::cout << "# of OpenMP threads = " << omp_get_max_threads() << std::endl;
-#endif
-    std::cout <<  std::endl << "Configuration file: " << argv[1] << std::endl;
+	this->myrank = comm.Get_rank();
+	if( argc != 2 ) {
+		PrintLog(0, "usage: %s configfile", argv[0]);
+		comm.Abort(EX_USAGE);
 	}
-/////////////////////////////////////////////
 
+	PrintLog(1, GetSolverName().c_str());
+	PrintLog(2, "%-20s : %s", "Git hash", __GIT_VERSION);
+	PrintLog(2, "%-20s : %s", "Build date", __BUILD_DATE);
+	PrintLog(2, "%-20s : %s", "Configuration file", argv[1]);
+	PrintLog(2, "%-20s : %d", "MPI processes", comm.Get_size());
+#ifdef _OPENMP
+	PrintLog(2, "%-20s : %d", "OpenMP threads", omp_get_max_threads());
+#endif
+/////////////////////////////////////////////
 
 
 /////////////////////////////////////////////
 // Init Config
 /////////////////////////////////////////////
+	PrintLog(1, "Loading configuration file");
 	conf.load(argv[1]);
+	g_pconf = &conf;
+/*
 	if(myrank == 0) {
 		conf.print();
 	}
-/////////////////////////////////////////////
+*/
 
+	PrintLog(2, "%-20s : %d", "min level", conf.minLevel);
+	PrintLog(2, "%-20s : %d", "max level", conf.maxLevel);
+	PrintLog(2, "%-20s : %s", "tree type", conf.treeType.c_str());
+	PrintLog(2, "%-20s : %s", "ordering",  conf.ordering.c_str());
+	PrintLog(2, "%-20s : %d", "block size", conf.size);
+	PrintLog(2, "%-20s : %d", "vc width", conf.vc);
+
+	g_pPM = new pm_lib::PerfMonitor;
+	g_pPM->initialize(tm_END);
+	g_pPM->setRankInfo(this->myrank);
+	g_pPM->setProperties(tm_Init_LoadSTL,      "LoadSTL",      pm_lib::PerfMonitor::COMM, true);
+	g_pPM->setProperties(tm_Init_DivideDomain, "DivideDomain", pm_lib::PerfMonitor::CALC, true);
+	g_pPM->setProperties(tm_Init_OrderBlock,   "OrderBlock",   pm_lib::PerfMonitor::CALC, true);
+	g_pPM->setProperties(tm_Update,   "Update",   pm_lib::PerfMonitor::CALC, false);
+	g_pPM->setProperties(tm_UpdateT,  "UpdateT",  pm_lib::PerfMonitor::CALC, false);
+	g_pPM->setProperties(tm_UpdateUX, "UpdateUX", pm_lib::PerfMonitor::CALC, false);
+	g_pPM->setProperties(tm_UpdateUY, "UpdateUY", pm_lib::PerfMonitor::CALC, false);
+	g_pPM->setProperties(tm_UpdateUZ, "UpdateUZ", pm_lib::PerfMonitor::CALC, false);
+	g_pPM->setProperties(tm_UpdateP,  "UpdateP",  pm_lib::PerfMonitor::CALC, false);
+	g_pPM->setProperties(tm_UpdateU,  "UpdateU",  pm_lib::PerfMonitor::CALC, false);
+	g_pPM->setProperties(tm_DOT,      "DOT",      pm_lib::PerfMonitor::CALC, false);
+	g_pPM->setProperties(tm_DOT_Calc, "DOT_Calc", pm_lib::PerfMonitor::CALC, true);
+	g_pPM->setProperties(tm_DOT_Comm, "DOT_Comm", pm_lib::PerfMonitor::COMM, true);
+	g_pPM->setProperties(tm_JacobiSmoother,      "JacobiSmoother",      pm_lib::PerfMonitor::CALC, false);
+	g_pPM->setProperties(tm_JacobiSmoother_Calc, "JacobiSmoother_Calc", pm_lib::PerfMonitor::CALC, true);
+	g_pPM->setProperties(tm_JacobiSmoother_Swap, "JacobiSmoother_Swap", pm_lib::PerfMonitor::CALC, true);
+	g_pPM->setProperties(tm_JacobiSmoother_Comm, "JacobiSmoother_Comm", pm_lib::PerfMonitor::COMM, true);
+	int nThreads = 1;
+#ifdef _OPENMP
+	nThreads = omp_get_max_threads();
+#endif
+	g_pPM->setParallelMode("Hybrid", nThreads, comm.Get_size());
+/////////////////////////////////////////////
 
 
 /////////////////////////////////////////////
 // Init BCM
 /////////////////////////////////////////////
+	PrintLog(1, "Loading STL file(s)");
+
+	PM_Start(tm_Init_LoadSTL, 0, 0, false);
 	PolylibNS::BCMPolylib* pl = new PolylibNS::BCMPolylib;
-	if(myrank == 0) {
-		if (conf.polygonGroupList.size() > 0) {
-			if (pl->load(conf.polylibConfig) != PLSTAT_OK) {
-				comm.Abort(EX_OPEN_FILE);
-			}
+	if (conf.polygonGroupList.size() > 0) {
+		if (pl->load(conf.polylibConfig) != PLSTAT_OK) {
+			comm.Abort(EX_OPEN_FILE);
 		}
 	}
+	PM_Stop(tm_Init_LoadSTL);
 
-//  BCMOctree* tree = 0;
-	tree = 0;
-	if( myrank == 0 ) {
+	if(myrank == 0) {
+		PrintLog(1, "Building BCMOctree");
+
+		PM_Start(tm_Init_DivideDomain, 0, 0, false);
 		rootGrid = new RootGrid(conf.rootN);
+		if( conf.periodicX ) {
+			rootGrid->setPeriodicX();
+		}
+		if( conf.periodicY ) {
+			rootGrid->setPeriodicY();
+		}
+		if( conf.periodicZ ) {
+			rootGrid->setPeriodicZ();
+		}
 
 		Divider* divider;
 		if (conf.treeType == "flat") {
@@ -139,8 +200,19 @@ int Solver::Init(int argc, char** argv){
 												conf.boundingBoxList,
 												conf.sphericalBoxList,
 												(double)conf.vc/conf.size);
+		} else if (conf.treeType == "sphere3") {
+			divider = new SphereDivider3(
+												conf.origin,
+												conf.rootLength,
+												rootGrid,
+												conf.minLevel,
+												pl,
+												conf.polygonGroupList,
+												conf.boundingBoxList,
+												conf.sphericalBoxList,
+												(double)conf.vc/conf.size);
 		} else if(conf.treeType == "sphere") {
-			divider = new SphereDivider(
+			divider = new SphereDivider2(
 												rootGrid,
 												conf.minLevel,
 												conf.maxLevel,
@@ -165,7 +237,9 @@ int Solver::Init(int argc, char** argv){
 		} else {
 			exit(EX_READ_CONFIG);
 		}
+		PM_Stop(tm_Init_DivideDomain);
 
+		PM_Start(tm_Init_OrderBlock, 0, 0, false);
 		BCMOctree::Ordering ordering;
 		if (conf.ordering == "Z") {
 			ordering = BCMOctree::Z;
@@ -178,6 +252,7 @@ int Solver::Init(int argc, char** argv){
 		} else {
 			exit(EX_READ_CONFIG);
 		}
+		PM_Stop(tm_Init_OrderBlock);
 
 		tree = new BCMOctree(rootGrid, divider, ordering);
     tree->broadcast();
@@ -186,14 +261,14 @@ int Solver::Init(int argc, char** argv){
 	}
 
   int numLeafNode = tree->getNumLeafNode();
-
-//  Partition* partition = new Partition(comm.Get_size(), numLeafNode);
 	partition = new Partition(comm.Get_size(), numLeafNode);
-
-  if (myrank == 0) {
-    std::cout << std::endl << "Partitioning" << std::endl;
-    partition->print();
-  }
+	for(int n=0; n<comm.Get_size(); n++) {
+		if( n==0 ) {
+			PrintLog(2, "%-20s : #%05d [%04d:%04d] (%04d)",  "Partitions", n, partition->getStart(n), partition->getEnd(n)-1, partition->getEnd(n) - partition->getStart(n));
+		} else {
+			PrintLog(2, "%-20s : #%05d [%04d:%04d] (%04d)",  "", n, partition->getStart(n), partition->getEnd(n)-1, partition->getEnd(n) - partition->getStart(n));
+		}
+	}
 
   // ブロック内のセル数
 	::Vec3i size(conf.size, conf.size, conf.size);
@@ -211,6 +286,26 @@ int Solver::Init(int argc, char** argv){
 
 		for (int i = 0; i < NUM_FACE; ++i) {
 			Face face = Face(i);
+			switch(i) {
+				case 0:
+				case 1:
+					if( conf.periodicX == true ) {
+						continue;
+					}
+					break;
+				case 2:
+				case 3:
+					if( conf.periodicY == true ) {
+						continue;
+					}
+					break;
+				case 4:
+				case 5:
+					if( conf.periodicZ == true ) {
+						continue;
+					}
+					break;
+			}
 			bool bOuterBoundary = tree->checkOnOuterBoundary(node, face);
 			neighborInfo[face].setOuterBoundary(bOuterBoundary);
 		}
@@ -220,6 +315,7 @@ int Solver::Init(int argc, char** argv){
   }
   blockManager.endRegisterBlock();
   blockManager.printBlockLayoutInfo();
+  blockManager.printBlockLayoutInfo("data-block.txt");
 
 	if( conf.GridGenerationMode ) {
 		return EX_FAILURE;
@@ -244,11 +340,13 @@ int Solver::Init(int argc, char** argv){
 			pl->load_from_rank0();
 		}
 	}
+
+	cutlib::RepairPolygonData(pl);
+
 /*
 	std::string file;
-	pl->save_parallel(&file, "stl_b");
+	pl->save_parallel(&file, "stl", "test");
 */
-
 
 //  delete tree;
 //  delete partition;
@@ -257,21 +355,20 @@ int Solver::Init(int argc, char** argv){
 /////////////////////////////////////////////
 // Misc.
 /////////////////////////////////////////////
-	int maxLevel = 0;
-#ifdef _LARGE_BLOCK_
-#else
-#endif
+	maxLevel = 0;
+	minLevel = INT_MAX;
 	for (int n=0; n<blockManager.getNumBlock(); ++n) {
 		BlockBase* block = blockManager.getBlock(n);
 		int level = block->getLevel();
 		if( level >= maxLevel ) {
 			maxLevel = level;
 		}
+		if( level <= minLevel ) {
+			minLevel = level;
+		}
 	}
 	diffLevel = maxLevel - conf.minLevel;
-
 	vc = conf.vc;
-
 /////////////////////////////////////////////
 
 
@@ -336,7 +433,6 @@ int Solver::Init(int argc, char** argv){
 		0, 0, 0, 0, 0, 0,
 	};
 
-	plsx0 = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeNULL, boundaryValueNULL);
 	plsr  = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeNULL, boundaryValueNULL);
 	plsr0 = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeNULL, boundaryValueNULL);
 	plsp  = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeNULL, boundaryValueNULL);
@@ -345,7 +441,6 @@ int Solver::Init(int argc, char** argv){
 	plss  = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeNULL, boundaryValueNULL);
 	plss_ = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeNULL, boundaryValueNULL);
 	plst_ = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeNULL, boundaryValueNULL);
-	plsx0->Fill(blockManager, 0.0);
 	plsr ->Fill(blockManager, 0.0);
 	plsr0->Fill(blockManager, 0.0);
 	plsp ->Fill(blockManager, 0.0);
@@ -378,9 +473,7 @@ int Solver::Init(int argc, char** argv){
 /////////////////////////////////////////////
 // Init Cut
 /////////////////////////////////////////////
-	if( myrank == 0 ) {
-		std::cerr << "Computing cuts" << std::endl;
-	}
+	PrintLog(1, "Computing cuts");
 
 	plsCut0 = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeNULL, boundaryValueNULL);
 	plsCut1 = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeNULL, boundaryValueNULL);
@@ -410,80 +503,39 @@ int Solver::Init(int argc, char** argv){
 	plsPhaseId = new LocalScalar3D<int>(blockManager, vc, conf.updateMethod, boundaryTypeNULL, boundaryValueNULLINT, 2);
 	plsPhaseId->Fill(blockManager, -1);
 
-#ifdef _LARGE_BLOCK_
+
+#ifdef _BLOCK_IS_LARGE_
 #else
 #endif
 	for (int n=0; n<blockManager.getNumBlock(); ++n) {
 		BlockBase* block = blockManager.getBlock(n);
-		::Vec3i size = block->getSize();
-		::Vec3r origin = block->getOrigin();
+		::Vec3i size      = block->getSize();
+		::Vec3r origin    = block->getOrigin();
 		::Vec3r blockSize = block->getBlockSize();
-		::Vec3r cellSize = block->getCellSize();
+		::Vec3r cellSize  = block->getCellSize();
 
 		int sz[3] = {size.x, size.y, size.z};
 		int g[1] = {vc};
 
-		float bpos[3] = {origin.x, origin.y, origin.z};
+		double bpos[3] = {origin.x, origin.y, origin.z};
 		unsigned int bbsize[3] = {size.x, size.y, size.z};
 		unsigned int gcsize[3] = {vc, vc, vc};
-		float dx[3] = {cellSize.x, cellSize.x, cellSize.x};
+		double dx[3] = {cellSize.x, cellSize.x, cellSize.x};
 		size_t ncell[3];
-		float org[3];
+		double org[3];
 		for(int i=0; i<3; i++) {
 			ncell[i] = bbsize[i] + 2*gcsize[i];
 			org[i] = bpos[i] - gcsize[i]*dx[i];
 		}
 
-		cutlib::CutPos32Array *cutPos = new cutlib::CutPos32Array(ncell);
-		cutlib::CutBid5Array  *cutBid = new cutlib::CutBid5Array(ncell);
+		cutlib::GridAccessor* grid   = new cutlib::Cell(org, dx);
+		cutlib::CutPosArray*  cutPos = new cutlib::CutPos32Array(ncell);
+		cutlib::CutBidArray*  cutBid = new cutlib::CutBid5Array(ncell);
 
-		CutInfoCell(org, dx, pl, cutPos, cutBid);
+//		CutInfoCell(org, dx, pl, cutPos, cutBid);
+		CalcCutInfo(grid, pl, cutPos, cutBid);
 
-		float*   cut = (float*)cutPos->getDataPointer();
-		int* bid = (int*)cutBid->getDataPointer();
-
-		real* cut_real = new real [6*ncell[0]*ncell[1]*ncell[2]];
-
-
-#ifdef _LARGE_BLOCK_
-#pragma omp parallel for
-#else
-#endif
-		for(int k=vc; k<vc+size.z; k++) {
-			for(int j=vc; j<vc+size.y; j++) {
-				for(int i=vc; i<vc+size.x; i++) {
-					int m = i + (2*vc + size.x)*(j + (2*vc + size.y)*k);
-					float cut0 = cut[6*m + 0];
-					float cut1 = cut[6*m + 1];
-					float cut2 = cut[6*m + 2];
-					float cut3 = cut[6*m + 3];
-					float cut4 = cut[6*m + 4];
-					float cut5 = cut[6*m + 5];
-
-					cut_real[6*m + 0] = cut0;
-					cut_real[6*m + 1] = cut1;
-					cut_real[6*m + 2] = cut2;
-					cut_real[6*m + 3] = cut3;
-					cut_real[6*m + 4] = cut4;
-					cut_real[6*m + 5] = cut5;
-/*
-					std::cout.setf(std::ios::scientific);
-					std::cout << cut0;
-					std::cout << " ";
-					std::cout << cut1;
-					std::cout << " ";
-					std::cout << cut2;
-					std::cout << " ";
-					std::cout << cut3;
-					std::cout << " ";
-					std::cout << cut4;
-					std::cout << " ";
-					std::cout << cut5;
-					std::cout << std::endl;
-*/
-				}
-			}
-		}
+//		outputVtk("test_2_", n + blockManager.getNumBlock()*myrank, grid, cutPos, cutBid);
 
 		real* pCut0 = plsCut0->GetBlockData(block);
 		real* pCut1 = plsCut1->GetBlockData(block);
@@ -497,55 +549,56 @@ int Solver::Init(int argc, char** argv){
 		int* pCutId3 = plsCutId3->GetBlockData(block);
 		int* pCutId4 = plsCutId4->GetBlockData(block);
 		int* pCutId5 = plsCutId5->GetBlockData(block);
-
-		bstl_read_cut_(
-						pCut0, pCut1, pCut2, pCut3, pCut4, pCut5,
-						pCutId0, pCutId1, pCutId2, pCutId3, pCutId4, pCutId5,
-						cut_real,
-						bid,
-						sz, g);
-
-/*
+#ifdef _BLOCK_IS_LARGE_
+#pragma omp parallel for
+#else
+#endif
 		for(int k=vc; k<vc+size.z; k++) {
 			for(int j=vc; j<vc+size.y; j++) {
 				for(int i=vc; i<vc+size.x; i++) {
 					int m = i + (2*vc + size.x)*(j + (2*vc + size.y)*k);
-					float cut0 = cut[6*m + 0];
-					float cut1 = cut[6*m + 1];
-					float cut2 = cut[6*m + 2];
-					float cut3 = cut[6*m + 3];
-					float cut4 = cut[6*m + 4];
-					float cut5 = cut[6*m + 5];
-
-					std::cout.setf(std::ios::scientific);
-					std::cout << pCut0[m];
-					std::cout << " ";
-					std::cout << cut0;
-					std::cout << std::endl;
-					std::cout << pCut1[m];
-					std::cout << " ";
-					std::cout << cut1;
-					std::cout << std::endl;
-					std::cout << pCut2[m];
-					std::cout << " ";
-					std::cout << cut2;
-					std::cout << std::endl;
-					std::cout << pCut3[m];
-					std::cout << " ";
-					std::cout << cut3;
-					std::cout << std::endl;
-					std::cout << pCut4[m];
-					std::cout << " ";
-					std::cout << cut4;
-					std::cout << std::endl;
-					std::cout << pCut5[m];
-					std::cout << " ";
-					std::cout << cut5;
-					std::cout << std::endl;
+					float cut0 = cutPos->getPos(i, j, k, 0);
+					float cut1 = cutPos->getPos(i, j, k, 1);
+					float cut2 = cutPos->getPos(i, j, k, 2);
+					float cut3 = cutPos->getPos(i, j, k, 3);
+					float cut4 = cutPos->getPos(i, j, k, 4);
+					float cut5 = cutPos->getPos(i, j, k, 5);
+					cutlib::BidType bid0 = cutBid->getBid(i, j, k, 0);
+					cutlib::BidType bid1 = cutBid->getBid(i, j, k, 1);
+					cutlib::BidType bid2 = cutBid->getBid(i, j, k, 2);
+					cutlib::BidType bid3 = cutBid->getBid(i, j, k, 3);
+					cutlib::BidType bid4 = cutBid->getBid(i, j, k, 4);
+					cutlib::BidType bid5 = cutBid->getBid(i, j, k, 5);
+					if( (int)bid0 != 0 ) {
+						pCut0[m] = cut0;
+					}
+					if( (int)bid1 != 0 ) {
+						pCut1[m] = cut1;
+					}
+					if( (int)bid2 != 0 ) {
+						pCut2[m] = cut2;
+					}
+					if( (int)bid3 != 0 ) {
+						pCut3[m] = cut3;
+					}
+					if( (int)bid4 != 0 ) {
+						pCut4[m] = cut4;
+					}
+					if( (int)bid5 != 0 ) {
+						pCut5[m] = cut5;
+					}
+					pCutId0[m] = bid0;
+					pCutId1[m] = bid1;
+					pCutId2[m] = bid2;
+					pCutId3[m] = bid3;
+					pCutId4[m] = bid4;
+					pCutId5[m] = bid5;
 				}
 			}
 		}
-*/
+		delete grid;
+		delete cutPos;
+		delete cutBid;
 
 		if( conf.cutoff ) {
 			real eps[1] = {conf.cutoff_epsilon};
@@ -569,11 +622,8 @@ int Solver::Init(int argc, char** argv){
 							pCutId0, pCutId1, pCutId2, pCutId3, pCutId4, pCutId5,
 							sz, g);
 		}
-
-		delete cutPos;
-		delete cutBid;
-		delete [] cut_real;
 	}
+
 	plsCut0->ImposeBoundaryCondition(blockManager);
 	plsCut1->ImposeBoundaryCondition(blockManager);
 	plsCut2->ImposeBoundaryCondition(blockManager);
@@ -589,7 +639,7 @@ int Solver::Init(int argc, char** argv){
 
 	{
 		int countLocal = 0;
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 #else
 #pragma omp parallel for reduction(+: countLocal)
 #endif
@@ -640,14 +690,13 @@ int Solver::Init(int argc, char** argv){
 
 		int countTmp = countLocal;
 		MPI_Allreduce(&countTmp, &countLocal, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
-		if( rank == 0 ) {
-			std::cout << "# of zero-cut cells = " << countLocal << std::endl;
-		}
+
+		PrintLog(2, "%-20s : %d", "Zero distance", countLocal);
 	}
 
 	{
 		int countLocal = 0;
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 #else
 #pragma omp parallel for reduction(+: countLocal)
 #endif
@@ -675,11 +724,17 @@ int Solver::Init(int argc, char** argv){
 			int* pCutId5 = plsCutId5->GetBlockData(block);
 
 			int count = 0;
+			int bClose = 1;
+			if( conf.holefilling == false ) {
+				bClose = 0;
+			}
 			bstl_fill_holes_(
 							pCut0, pCut1, pCut2, pCut3, pCut4, pCut5,
 							pCutId0, pCutId1, pCutId2, pCutId3, pCutId4, pCutId5,
 							&count,
+							&bClose,
 							sz, g);
+
 			countLocal += count;
 		}
 		plsCut0->ImposeBoundaryCondition(blockManager);
@@ -697,19 +752,90 @@ int Solver::Init(int argc, char** argv){
 
 		int countTmp = countLocal;
 		MPI_Allreduce(&countTmp, &countLocal, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
-		if( rank == 0 ) {
-			std::cout << "# of holes = " << countLocal << std::endl;
-		}
+
+		PrintLog(2, "%-20s : %d", "Hole faces(single)", countLocal);
 	}
+
+	{
+		int nIterationCount = 0;
+		int countLocal = 0;
+		int countTotal = 0;
+		do {
+			countLocal = 0;
+
+#ifdef _BLOCK_IS_LARGE_
+#else
+#pragma omp parallel for reduction(+: countLocal)
+#endif
+			for (int n=0; n<blockManager.getNumBlock(); ++n) {
+				BlockBase* block = blockManager.getBlock(n);
+				::Vec3i size = block->getSize();
+				::Vec3r origin = block->getOrigin();
+				::Vec3r blockSize = block->getBlockSize();
+				::Vec3r cellSize = block->getCellSize();
+
+				int sz[3] = {size.x, size.y, size.z};
+				int g[1] = {vc};
+
+				real* pCut0 = plsCut0->GetBlockData(block);
+				real* pCut1 = plsCut1->GetBlockData(block);
+				real* pCut2 = plsCut2->GetBlockData(block);
+				real* pCut3 = plsCut3->GetBlockData(block);
+				real* pCut4 = plsCut4->GetBlockData(block);
+				real* pCut5 = plsCut5->GetBlockData(block);
+				int* pCutId0 = plsCutId0->GetBlockData(block);
+				int* pCutId1 = plsCutId1->GetBlockData(block);
+				int* pCutId2 = plsCutId2->GetBlockData(block);
+				int* pCutId3 = plsCutId3->GetBlockData(block);
+				int* pCutId4 = plsCutId4->GetBlockData(block);
+				int* pCutId5 = plsCutId5->GetBlockData(block);
+
+				int count = 0;
+				int bClose = 1;
+				if( conf.holefilling2 == false ) {
+					bClose = 0;
+				}
+
+				bstl_fill_holes_v2_(
+								pCut0, pCut1, pCut2, pCut3, pCut4, pCut5,
+								pCutId0, pCutId1, pCutId2, pCutId3, pCutId4, pCutId5,
+								&count,
+								&bClose,
+								sz, g);
+
+				countLocal += count;
+			}
+			plsCut0->ImposeBoundaryCondition(blockManager);
+			plsCut1->ImposeBoundaryCondition(blockManager);
+			plsCut2->ImposeBoundaryCondition(blockManager);
+			plsCut3->ImposeBoundaryCondition(blockManager);
+			plsCut4->ImposeBoundaryCondition(blockManager);
+			plsCut5->ImposeBoundaryCondition(blockManager);
+			plsCutId0->ImposeBoundaryCondition(blockManager);
+			plsCutId1->ImposeBoundaryCondition(blockManager);
+			plsCutId2->ImposeBoundaryCondition(blockManager);
+			plsCutId3->ImposeBoundaryCondition(blockManager);
+			plsCutId4->ImposeBoundaryCondition(blockManager);
+			plsCutId5->ImposeBoundaryCondition(blockManager);
+
+			int countTmp = countLocal;
+			MPI_Allreduce(&countTmp, &countLocal, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+
+			nIterationCount++;
+			countTotal += countLocal;
+		}while( countLocal > 0 && conf.holefilling2 == true);
+
+		PrintLog(2, "%-20s : %d (#Ite.: %d)", "Hole faces(multi)", countTotal, nIterationCount);
+	}
+
+	PrintLog(1, "Filling");
 
 	real xs = conf.seed.x;
 	real ys = conf.seed.y;
 	real zs = conf.seed.z;
-	if( rank == 0 ) {
-		std::cout << "seed = (" << xs << ", " << ys << ", " << zs << ")" << std::endl;
-	}
+	PrintLog(2, "%-20s : %f %f %f", "Seed for FLUID", xs, ys, zs);
 
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 #else
 #endif
 	for (int n=0; n<blockManager.getNumBlock(); ++n) {
@@ -723,7 +849,6 @@ int Solver::Init(int argc, char** argv){
 		int g[1] = {vc};
 		real dx = cellSize.x;
 		real org[3] = {origin.x, origin.y, origin.z};
-//		std::cout << origin.y << " " << origin.y + sz[1]*dx << std::endl;
 
 		int* pPhaseId = plsPhaseId->GetBlockData(block);
 
@@ -737,17 +862,91 @@ int Solver::Init(int argc, char** argv){
 	}
 	plsPhaseId->ImposeBoundaryCondition(blockManager);
 
-
-
-
-	int nIterationCount = 0;
-	long int nCellsChanged = 0;
-	do {
-		nCellsChanged = 0;
-
-#ifdef _LARGE_BLOCK_
+	{
+		int nIterationCount = 0;
+		long int nCellsChanged = 0;
+		do {
+			nCellsChanged = 0;
+#ifdef _BLOCK_IS_LARGE_
 #else
 //#pragma omp parallel for reduction(+: nCellsChanged)
+#endif
+			for (int n=0; n<blockManager.getNumBlock(); ++n) {
+				BlockBase* block = blockManager.getBlock(n);
+				::Vec3i size = block->getSize();
+				::Vec3r origin = block->getOrigin();
+				::Vec3r blockSize = block->getBlockSize();
+				::Vec3r cellSize = block->getCellSize();
+
+				int sz[3] = {size.x, size.y, size.z};
+				int g[1] = {vc};
+				int nc[3] = {size.x + 2*vc, size.y + 2*vc, size.z + 2*vc};
+
+				real* pCut0 = plsCut0->GetBlockData(block);
+				real* pCut1 = plsCut1->GetBlockData(block);
+				real* pCut2 = plsCut2->GetBlockData(block);
+				real* pCut3 = plsCut3->GetBlockData(block);
+				real* pCut4 = plsCut4->GetBlockData(block);
+				real* pCut5 = plsCut5->GetBlockData(block);
+				int* pCutId0 = plsCutId0->GetBlockData(block);
+				int* pCutId1 = plsCutId1->GetBlockData(block);
+				int* pCutId2 = plsCutId2->GetBlockData(block);
+				int* pCutId3 = plsCutId3->GetBlockData(block);
+				int* pCutId4 = plsCutId4->GetBlockData(block);
+				int* pCutId5 = plsCutId5->GetBlockData(block);
+
+				int* pPhaseId = plsPhaseId->GetBlockData(block);
+#ifdef _BLOCK_IS_LARGE_
+//#pragma omp parallel for reduction(+: nCellsChanged)
+#else
+#endif
+				for(int k=vc; k<=size.z+vc-1; k++) {
+					for(int j=vc; j<=size.y+vc-1; j++) {
+						for(int i=vc; i<=size.x+vc-1; i++) {
+							int mp = i + nc[0]*( j + nc[1]*k );
+							int mw = i-1 + nc[0]*( j + nc[1]*k );
+							int me = i+1 + nc[0]*( j + nc[1]*k );
+							int ms = i + nc[0]*( j-1 + nc[1]*k );
+							int mn = i + nc[0]*( j+1 + nc[1]*k );
+							int mb = i + nc[0]*( j + nc[1]*(k-1) );
+							int mt = i + nc[0]*( j + nc[1]*(k+1) );
+
+							int cidp0 = pCutId0[mp];
+							int cidp1 = pCutId1[mp];
+							int cidp2 = pCutId2[mp];
+							int cidp3 = pCutId3[mp];
+							int cidp4 = pCutId4[mp];
+							int cidp5 = pCutId5[mp];
+
+							if( pPhaseId[mp] > 0 ) {
+								continue;
+							}
+
+							if( (pPhaseId[mw] == 1 && cidp0 == 0) ||
+									(pPhaseId[me] == 1 && cidp1 == 0) ||
+									(pPhaseId[ms] == 1 && cidp2 == 0) ||
+									(pPhaseId[mn] == 1 && cidp3 == 0) ||
+									(pPhaseId[mb] == 1 && cidp4 == 0) ||
+									(pPhaseId[mt] == 1 && cidp5 == 0) ) {
+								pPhaseId[mp] = 1;
+								nCellsChanged++;
+							}
+						}
+					}
+				}
+			}
+			plsPhaseId->ImposeBoundaryCondition(blockManager);
+
+			long int nCellsChangedTmp = nCellsChanged;
+			MPI_Allreduce(&nCellsChangedTmp, &nCellsChanged, 1, MPI_LONG_LONG_INT, MPI_SUM, MPI_COMM_WORLD);
+
+			nIterationCount++;
+		}while(nCellsChanged>0);
+
+		long int count = 0;
+		long int countS = 0;
+#ifdef _BLOCK_IS_LARGE_
+#else
 #endif
 		for (int n=0; n<blockManager.getNumBlock(); ++n) {
 			BlockBase* block = blockManager.getBlock(n);
@@ -760,133 +959,32 @@ int Solver::Init(int argc, char** argv){
 			int g[1] = {vc};
 			int nc[3] = {size.x + 2*vc, size.y + 2*vc, size.z + 2*vc};
 
-			real* pCut0 = plsCut0->GetBlockData(block);
-			real* pCut1 = plsCut1->GetBlockData(block);
-			real* pCut2 = plsCut2->GetBlockData(block);
-			real* pCut3 = plsCut3->GetBlockData(block);
-			real* pCut4 = plsCut4->GetBlockData(block);
-			real* pCut5 = plsCut5->GetBlockData(block);
-			int* pCutId0 = plsCutId0->GetBlockData(block);
-			int* pCutId1 = plsCutId1->GetBlockData(block);
-			int* pCutId2 = plsCutId2->GetBlockData(block);
-			int* pCutId3 = plsCutId3->GetBlockData(block);
-			int* pCutId4 = plsCutId4->GetBlockData(block);
-			int* pCutId5 = plsCutId5->GetBlockData(block);
-
 			int* pPhaseId = plsPhaseId->GetBlockData(block);
-#ifdef _LARGE_BLOCK_
-//#pragma omp parallel for reduction(+: nCellsChanged)
-#else
-#endif
 			for(int k=vc; k<=size.z+vc-1; k++) {
 				for(int j=vc; j<=size.y+vc-1; j++) {
 					for(int i=vc; i<=size.x+vc-1; i++) {
 						int mp = i + nc[0]*( j + nc[1]*k );
-						int mw = i-1 + nc[0]*( j + nc[1]*k );
-						int me = i+1 + nc[0]*( j + nc[1]*k );
-						int ms = i + nc[0]*( j-1 + nc[1]*k );
-						int mn = i + nc[0]*( j+1 + nc[1]*k );
-						int mb = i + nc[0]*( j + nc[1]*(k-1) );
-						int mt = i + nc[0]*( j + nc[1]*(k+1) );
-
-						int cidp0 = pCutId0[mp];
-						int cidp1 = pCutId1[mp];
-						int cidp2 = pCutId2[mp];
-						int cidp3 = pCutId3[mp];
-						int cidp4 = pCutId4[mp];
-						int cidp5 = pCutId5[mp];
-
 						if( pPhaseId[mp] > 0 ) {
-							continue;
-						}
-//						std::cout << i << " " << j << " " << k << " " << pPhaseId[mp] << std::endl;
-
-						if( (pPhaseId[mw] == 1 && cidp0 == 0) ||
-								(pPhaseId[me] == 1 && cidp1 == 0) ||
-								(pPhaseId[ms] == 1 && cidp2 == 0) ||
-								(pPhaseId[mn] == 1 && cidp3 == 0) ||
-								(pPhaseId[mb] == 1 && cidp4 == 0) ||
-								(pPhaseId[mt] == 1 && cidp5 == 0) ) {
-							pPhaseId[mp] = 1;
-							nCellsChanged++;
-
-/*
-						if( rank==0 ) {
-							std::cout << i << " ";
-							std::cout << j << " ";
-							std::cout << k << " ";
-							std::cout << pPhaseId[mp] << " ";
-							std::cout << pPhaseId[mw] << " ";
-							std::cout << pPhaseId[me] << " ";
-							std::cout << pPhaseId[ms] << " ";
-							std::cout << pPhaseId[mn] << " ";
-							std::cout << pPhaseId[mb] << " ";
-							std::cout << pPhaseId[mt] << " ";
-							std::cout << pPhaseId[mp] << " ";
-							std::cout << std::endl;
-						}
-*/
-
+							count++;
+						} else {
+							countS++;
 						}
 					}
 				}
 			}
 		}
-		plsPhaseId->ImposeBoundaryCondition(blockManager);
 
-		long int nCellsChangedTmp = nCellsChanged;
-		MPI_Allreduce(&nCellsChangedTmp, &nCellsChanged, 1, MPI_LONG, MPI_SUM, MPI_COMM_WORLD);
+		long int countTmp = count;
+		MPI_Allreduce(&countTmp, &count, 1, MPI_LONG_LONG_INT, MPI_SUM, MPI_COMM_WORLD);
 
-		nIterationCount++;
-	}while(nCellsChanged>0);
+		countTmp = countS;
+		MPI_Allreduce(&countTmp, &countS, 1, MPI_LONG_LONG_INT, MPI_SUM, MPI_COMM_WORLD);
 
-
-
-	long int count = 0;
-	long int countS = 0;
-#ifdef _LARGE_BLOCK_
-#else
-#endif
-	for (int n=0; n<blockManager.getNumBlock(); ++n) {
-		BlockBase* block = blockManager.getBlock(n);
-		::Vec3i size = block->getSize();
-		::Vec3r origin = block->getOrigin();
-		::Vec3r blockSize = block->getBlockSize();
-		::Vec3r cellSize = block->getCellSize();
-
-		int sz[3] = {size.x, size.y, size.z};
-		int g[1] = {vc};
-		int nc[3] = {size.x + 2*vc, size.y + 2*vc, size.z + 2*vc};
-
-		int* pPhaseId = plsPhaseId->GetBlockData(block);
-		for(int k=vc; k<=size.z+vc-1; k++) {
-			for(int j=vc; j<=size.y+vc-1; j++) {
-				for(int i=vc; i<=size.x+vc-1; i++) {
-					int mp = i + nc[0]*( j + nc[1]*k );
-					if( pPhaseId[mp] > 0 ) {
-						count++;
-					} else {
-						countS++;
-					}
-				}
-			}
-		}
+		PrintLog(2, "%-20s : %d", "Iteration", nIterationCount);
+		PrintLog(2, "%-20s : %d", "FLUID cells", count);
+		PrintLog(2, "%-20s : %d", "SOLID cells", countS);
 	}
-
-	long int countTmp = count;
-	MPI_Allreduce(&countTmp, &count, 1, MPI_LONG, MPI_SUM, MPI_COMM_WORLD);
-
-	countTmp = countS;
-	MPI_Allreduce(&countTmp, &countS, 1, MPI_LONG, MPI_SUM, MPI_COMM_WORLD);
-
-	if( rank==0 ) {
-		std::cout << "# of interation for FILLING = " << nIterationCount << std::endl;
-		std::cout << "# of FLUID cells = " << count << std::endl;
-		std::cout << "# of SOLID cells = " << countS << std::endl;
-	}
-
 /////////////////////////////////////////////
-
 
 
 /////////////////////////////////////////////
@@ -898,7 +996,7 @@ int Solver::Init(int argc, char** argv){
 	plsM = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeNULL, boundaryValueNULL);
 	plsM->Fill(blockManager, 0.0);
 
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 #else
 #pragma omp parallel for
 #endif
@@ -943,19 +1041,13 @@ int Solver::Init(int argc, char** argv){
 		conf.boundaryValueUX_Z_M,
 		conf.boundaryValueUX_Z_P,
 	};
-	plsUX0 = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeUX, boundaryValueUX);
-	plsUX1 = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeUX, boundaryValueUX);
+	plsUX0 = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeUX, boundaryValueUX, 1);
+	plsUX1 = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeUX, boundaryValueUX, 1);
 	plsUXC = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeNULL, boundaryValueNULL);
 	plsUXCP= new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeNULL, boundaryValueNULL);
 	plsUXD = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeNULL, boundaryValueNULL);
-	plsUX0->Fill(blockManager, 0.0);
-	plsUX1->Fill(blockManager, 0.0);
-/*
-	if( conf.boundaryTypeUX_X_M == 0 && fabs(conf.boundaryValueUX_X_M) > 1.0e-3 ) {
-		plsUX0->Fill(blockManager, conf.boundaryValueUX_X_M);
-		plsUX1->Fill(blockManager, conf.boundaryValueUX_X_M);
-	}
-*/
+	plsUX0->Fill(blockManager, 0.0, conf.uxs0);
+	plsUX1->Fill(blockManager, 0.0, conf.uxs0);
 	plsUXC->Fill(blockManager, 0.0);
 	plsUXCP->Fill(blockManager, 0.0);
 	plsUXD->Fill(blockManager, 0.0);
@@ -981,13 +1073,13 @@ int Solver::Init(int argc, char** argv){
 		conf.boundaryValueUY_Z_M,
 		conf.boundaryValueUY_Z_P,
 	};
-	plsUY0 = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeUY, boundaryValueUY);
-	plsUY1 = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeUY, boundaryValueUY);
+	plsUY0 = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeUY, boundaryValueUY, 1);
+	plsUY1 = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeUY, boundaryValueUY, 1);
 	plsUYC = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeNULL, boundaryValueNULL);
 	plsUYCP= new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeNULL, boundaryValueNULL);
 	plsUYD = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeNULL, boundaryValueNULL);
-	plsUY0->Fill(blockManager, 0.0);
-	plsUY1->Fill(blockManager, 0.0);
+	plsUY0->Fill(blockManager, 0.0, conf.uys0);
+	plsUY1->Fill(blockManager, 0.0, conf.uys0);
 	plsUYC->Fill(blockManager, 0.0);
 	plsUYCP->Fill(blockManager, 0.0);
 	plsUYD->Fill(blockManager, 0.0);
@@ -1013,13 +1105,13 @@ int Solver::Init(int argc, char** argv){
 		conf.boundaryValueUZ_Z_M,
 		conf.boundaryValueUZ_Z_P,
 	};
-	plsUZ0 = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeUZ, boundaryValueUZ);
-	plsUZ1 = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeUZ, boundaryValueUZ);
+	plsUZ0 = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeUZ, boundaryValueUZ, 1);
+	plsUZ1 = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeUZ, boundaryValueUZ, 1);
 	plsUZC = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeNULL, boundaryValueNULL);
 	plsUZCP= new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeNULL, boundaryValueNULL);
 	plsUZD = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeNULL, boundaryValueNULL);
-	plsUZ0->Fill(blockManager, 0.0);
-	plsUZ1->Fill(blockManager, 0.0);
+	plsUZ0->Fill(blockManager, 0.0, conf.uzs0);
+	plsUZ1->Fill(blockManager, 0.0, conf.uzs0);
 	plsUZC->Fill(blockManager, 0.0);
 	plsUZCP->Fill(blockManager, 0.0);
 	plsUZD->Fill(blockManager, 0.0);
@@ -1064,8 +1156,8 @@ int Solver::Init(int argc, char** argv){
 		conf.boundaryValueT_Z_M,
 		conf.boundaryValueT_Z_P,
 	};
-	plsT0 = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeT, boundaryValueT);
-	plsT1 = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeT, boundaryValueT);
+	plsT0 = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeT, boundaryValueT, 1);
+	plsT1 = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeT, boundaryValueT, 1);
 	plsTC = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeNULL, boundaryValueNULL);
 	plsTCP= new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeNULL, boundaryValueNULL);
 	plsTD = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeNULL, boundaryValueNULL);
@@ -1096,14 +1188,14 @@ int Solver::Init(int argc, char** argv){
 		conf.boundaryValueP_Z_M,
 		conf.boundaryValueP_Z_P,
 	};
-	plsP0 = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeP, boundaryValueP);
-	plsPD = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeP, boundaryValueP);
+	plsP0 = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeP, boundaryValueP, 1);
+	plsP1 = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeP, boundaryValueP, 1);
 	plsLapP = new LocalScalar3D<real>(blockManager, vc, conf.updateMethod, boundaryTypeNULL, boundaryValueNULL);
 	plsP0->Fill(blockManager, 0.0);
-	plsPD->Fill(blockManager, 0.0);
+	plsP1->Fill(blockManager, 0.0);
 	plsLapP->Fill(blockManager, 0.0);
 	plsP0->ImposeBoundaryCondition(blockManager);
-	plsPD->ImposeBoundaryCondition(blockManager);
+	plsP1->ImposeBoundaryCondition(blockManager);
 	plsLapP->ImposeBoundaryCondition(blockManager);
 /////////////////////////////////////////////
 
@@ -1148,13 +1240,23 @@ int Solver::Init(int argc, char** argv){
 					partition,
 					conf);
 	}
+	if( conf.PLOT3DSave ) {
+		WriteXYZInPlot3DFormat(
+					"xyz",
+					diffLevel,
+					rootGrid,
+					tree,
+					partition,
+					conf);
+	}
 /////////////////////////////////////////////
 
 
+	PrintLog(1, "Printing STL files for cut info");
 	PrintCut();
-	if( rank==0 ) {
-		std::cout << "print cut completed" << std::endl;
-	}
+
+	MPI_Barrier(MPI_COMM_WORLD);
+	PrintLog(1, "Completed");
 
 	return EX_SUCCESS;
 }
@@ -1165,23 +1267,16 @@ int Solver::Loop() {
 
 	bRestart = false;
 	if(StepStart == 0) {
-		Print(0, 0);
+		Print(0);
 	} else {
 		Load2(StepStart);
 		bRestart = true;
 	}
 
 	for(int step=StepStart+1; step<=StepEnd; step++) {
-		double t0 = GetTime();
 		int nResult = Update(step);
-		double t1 = GetTime();
 
-		double time0 = t1 - t0;
-		double times[1] = {
-			time0,
-		};
-
-		Print(step, times);
+		Print(step);
 
 		if( step%conf.StepPrintBin == 0 ) {
 			Dump2(step);
@@ -1198,14 +1293,13 @@ int Solver::Loop() {
 	return EX_SUCCESS;
 }
 
-int Solver::Print(int step, double* times) {
+int Solver::Print(int step) {
 	if( step%conf.StepPrintTime == 0 ) {
-		if( times ) {
-			PrintTime(step, times);
-		}
+		PrintTime(step);
 	}
 
 	if( step%conf.StepPrintStats == 0 ) {
+		PrintILS(step);
 		PrintStats(step);
 		PrintForce(step);
 	}
@@ -1220,35 +1314,81 @@ int Solver::Print(int step, double* times) {
 	return EX_SUCCESS;
 }
 
-void Solver::PrintTime(int step, double* times) {
-	if( rank == 0 ) {
-		std::cout << step;
-		std::cout << " ";
-		std::cout << times[0];
-		std::cout << " ";
-		std::cout << times[1];
-		std::cout << " ";
-		std::cout << this->countUX;
-		std::cout << " ";
-		std::cout << this->residualUX;
-		std::cout << " ";
-		std::cout << this->countUY;
-		std::cout << " ";
-		std::cout << this->residualUY;
-		std::cout << " ";
-		std::cout << this->countUZ;
-		std::cout << " ";
-		std::cout << this->residualUZ;
-		std::cout << " ";
-		std::cout << this->countP;
-		std::cout << " ";
-		std::cout << this->residualP;
-		std::cout << " ";
-		std::cout << this->countT;
-		std::cout << " ";
-		std::cout << this->residualT;
-		std::cout << std::endl;
+void Solver::PrintTime(int step) {
+	if( myrank != 0 ) {
+		return;
 	}
+
+	ostringstream ossMessage;
+	ossMessage.width(10);
+	ossMessage.setf(std::ios::fixed);
+	ossMessage.fill('0');
+	ossMessage << step << " ";
+	ossMessage.setf(std::ios::scientific, std::ios::floatfield);
+	ossMessage.precision(5);
+	ossMessage << times[0];
+	PrintLog(0, ossMessage.str().c_str());
+
+	std::string filename = "data-times.txt";
+
+	std::ofstream ofs;
+	if( step==0 ) {
+		ofs.open(filename.c_str(), std::ios::out);
+		ofs.close();
+	}
+	ofs.open(filename.c_str(), std::ios::out | std::ios::app);
+
+	ofs.width(10);
+	ofs.setf(std::ios::fixed);
+	ofs.fill('0');
+	ofs << step << " ";
+
+	ofs.setf(std::ios::scientific, std::ios::floatfield);
+	ofs.precision(5);
+	ofs << this->times[0] << " ";
+	ofs << this->times[1] << " ";
+	ofs << this->times[2] << " ";
+	ofs << this->times[3] << " ";
+	ofs << this->times[4] << " ";
+	ofs << this->times[5] << " ";
+	ofs << this->times[6] << " ";
+	ofs << std::endl;
+	ofs.close();
+}
+
+void Solver::PrintILS(int step) {
+	if( myrank != 0 ) {
+		return;
+	}
+
+	std::string filename = "data-ils.txt";
+
+	std::ofstream ofs;
+	if( step==0 ) {
+		ofs.open(filename.c_str(), std::ios::out);
+		ofs.close();
+	}
+	ofs.open(filename.c_str(), std::ios::out | std::ios::app);
+
+	ofs.width(10);
+	ofs.setf(std::ios::fixed);
+	ofs.fill('0');
+	ofs << step << " ";
+
+	ofs.setf(std::ios::scientific, std::ios::floatfield);
+	ofs.precision(5);
+	ofs << this->countUX << " ";
+	ofs << this->residualUX << " ";
+	ofs << this->countUY << " ";
+	ofs << this->residualUY << " ";
+	ofs << this->countUZ << " ";
+	ofs << this->residualUZ << " ";
+	ofs << this->countP << " ";
+	ofs << this->residualP << " ";
+	ofs << this->countT << " ";
+	ofs << this->residualT << " ";
+	ofs << std::endl;
+	ofs.close();
 }
 
 void Solver::PrintStats(int step) {
@@ -1258,7 +1398,11 @@ void Solver::PrintStats(int step) {
 	plsP0->CalcStats(blockManager);
 	plsT0->CalcStats(blockManager);
 
-	if( rank != 0 ) {
+	if( plsUX0->GetAbsMaxL() > 100.0 ) {
+		std::cout << myrank << std::endl;
+	}
+
+	if( myrank != 0 ) {
 		return;
 	}
 
@@ -1310,7 +1454,7 @@ void Solver::PrintStats(int step) {
 void Solver::PrintForce(int step) {
 	real fsp_local[3] = {0.0, 0.0, 0.0};
 	real fsv_local[3] = {0.0, 0.0, 0.0};
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 #else
 #endif
 	for (int n=0; n<blockManager.getNumBlock(); ++n) {
@@ -1396,37 +1540,43 @@ void Solver::PrintForce(int step) {
 	real fsp_global[3] = {0.0, 0.0, 0.0};
 	real fsv_global[3] = {0.0, 0.0, 0.0};
 
-	double sum = fsp_local[0];
-	double sum_tmp = sum;
-	MPI_Allreduce(&sum_tmp, &sum, 1, MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_WORLD);
+	real sum = fsp_local[0];
+	real sum_tmp = sum;
+	allreduce_(&sum, &sum_tmp);
+//	MPI_Allreduce(&sum_tmp, &sum, 1, MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_WORLD);
 	fsp_global[0] = sum;
 
 	sum = fsp_local[1];
 	sum_tmp = sum;
-	MPI_Allreduce(&sum_tmp, &sum, 1, MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_WORLD);
+	allreduce_(&sum, &sum_tmp);
+//	MPI_Allreduce(&sum_tmp, &sum, 1, MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_WORLD);
 	fsp_global[1] = sum;
 
 	sum = fsp_local[2];
 	sum_tmp = sum;
-	MPI_Allreduce(&sum_tmp, &sum, 1, MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_WORLD);
+	allreduce_(&sum, &sum_tmp);
+//	MPI_Allreduce(&sum_tmp, &sum, 1, MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_WORLD);
 	fsp_global[2] = sum;
 
 	sum = fsv_local[0];
 	sum_tmp = sum;
-	MPI_Allreduce(&sum_tmp, &sum, 1, MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_WORLD);
+	allreduce_(&sum, &sum_tmp);
+//	MPI_Allreduce(&sum_tmp, &sum, 1, MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_WORLD);
 	fsv_global[0] = sum;
 
 	sum = fsv_local[1];
 	sum_tmp = sum;
-	MPI_Allreduce(&sum_tmp, &sum, 1, MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_WORLD);
+	allreduce_(&sum, &sum_tmp);
+//	MPI_Allreduce(&sum_tmp, &sum, 1, MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_WORLD);
 	fsv_global[1] = sum;
 
 	sum = fsv_local[2];
 	sum_tmp = sum;
-	MPI_Allreduce(&sum_tmp, &sum, 1, MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_WORLD);
+	allreduce_(&sum, &sum_tmp);
+//	MPI_Allreduce(&sum_tmp, &sum, 1, MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_WORLD);
 	fsv_global[2] = sum;
 
-	if( rank != 0 ) {
+	if( myrank != 0 ) {
 		return;
 	}
 
@@ -1458,6 +1608,9 @@ void Solver::PrintForce(int step) {
 
 void Solver::PrintData(int step) {
 	WriteDataInVTKFormat("flow", step, diffLevel, rootGrid, tree, partition, conf);
+	if( conf.PLOT3DSave ) {
+		WriteDataInPlot3DFormat("flow", step, diffLevel, rootGrid, tree, partition, conf);
+	}
 //	WriteDataInSiloFormat("flow", step, conf);
 	plsT0->WriteDataInVTKFormat("t", step, diffLevel, rootGrid, tree, partition, conf);
 	if( step == 0 ) {
@@ -1465,11 +1618,75 @@ void Solver::PrintData(int step) {
 	}
 }
 
+void Solver::PrintLog(int level, const char* format, ...) {
+	if( myrank != 0 ) {
+		return;
+	}
+	static int first = 1;
+
+	va_list ap;
+	va_start(ap, format);
+
+	char* buffer;
+	int size = vasprintf(&buffer, format, ap);
+	va_end(ap);
+
+	ostringstream ossMessage;
+	switch(level) {
+		case 1:
+			ossMessage << "# ";
+			break;
+		case 2:
+			ossMessage << "#   ";
+			break;
+		case 3:
+			ossMessage << "#     ";
+			break;
+		case 0:
+		default:
+			break;
+	}
+	ossMessage << string(buffer);
+
+
+	free(buffer);
+
+	std::cout << ossMessage.str() << std::endl;
+
+	std::string filename = "data-log.txt";
+	std::ofstream ofs;
+	if( first == 1 ) {
+		ofs.open(filename.c_str(), std::ios::out);
+		ofs.close();
+	}
+	ofs.open(filename.c_str(), std::ios::out | std::ios::app);
+	ofs << ossMessage.str() << std::endl;
+	ofs.close();
+
+	first = 0;
+}
+
 int Solver::Post() {
+	g_pPM->gather();
+
+	if( this->myrank == 0 ) {
+		char hostname[MPI_MAX_PROCESSOR_NAME] = {0};
+		int nameLen;
+		MPI_Get_processor_name(hostname, &nameLen);
+		nameLen++;
+
+		FILE* fp = fopen("data-pm.txt", "w");
+		g_pPM->print(fp, hostname, conf.operatorname);
+		g_pPM->printDetail(fp);
+		fclose(fp);
+	}
+
 	return EX_SUCCESS;
 }
 
 int Solver::Update(int step) {
+PM_Start(tm_Update, 0, 0, true);
+double t0 = GetTime();
 
 	if( conf.AccelDuration != 0 && step <= conf.STEP_ACCELDURATION ) {
 		real vb = conf.boundaryValueUX_X_M*(real)step/(real)conf.STEP_ACCELDURATION;
@@ -1477,19 +1694,53 @@ int Solver::Update(int step) {
 		plsUX1->ResetBoundaryConditionValue(blockManager, 0, vb);
 	}
 
-	UpdateT();
+PM_Start(tm_UpdateT, 0, 0, true);
+	if( conf.bHeat ) {
+		UpdateT();
+	}
+double t1 = GetTime();
+PM_Stop(tm_UpdateT);
 
+PM_Start(tm_UpdateUX, 0, 0, true);
 	UpdateUX();
+PM_Stop(tm_UpdateUX);
+double t2 = GetTime();
+
+PM_Start(tm_UpdateUY, 0, 0, true);
 	UpdateUY();
+PM_Stop(tm_UpdateUY);
+double t3 = GetTime();
+
+PM_Start(tm_UpdateUZ, 0, 0, true);
 	UpdateUZ();
+PM_Stop(tm_UpdateUZ);
+double t4 = GetTime();
+
+PM_Start(tm_UpdateP, 0, 0, true);
 	UpdateP();
+PM_Stop(tm_UpdateP);
+double t5 = GetTime();
+
+PM_Start(tm_UpdateU, 0, 0, true);
 	UpdateU();
+PM_Stop(tm_UpdateU);
+double t6 = GetTime();
+
+PM_Stop(tm_Update);
+
+	this->times[0] = t6 - t0;
+	this->times[1] = t1 - t0;
+	this->times[2] = t2 - t1;
+	this->times[3] = t3 - t2;
+	this->times[4] = t4 - t3;
+	this->times[5] = t5 - t4;
+	this->times[6] = t6 - t5;
 
 	return EX_SUCCESS;
 }
 
 void Solver::UpdateUX() {
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 #else
 #pragma omp parallel for
 #endif
@@ -1607,6 +1858,9 @@ void Solver::UpdateUX() {
 					sz, g);
 		}
 		int axis=0;
+		real gx = conf.gx;
+		real gy = conf.gy;
+		real gz = conf.gz;
 		bcut_calc_ab_u_(
 				Ap, Aw, Ae, As, An, Ab, At, b,
 				ux0, uy0, uz0,
@@ -1621,6 +1875,7 @@ void Solver::UpdateUX() {
 				&mu,
 				&dx, &dt,
 				&Us,
+				&gx, &gy, &gz,
 				sz, g);
 		copy_(
 				uxcp,
@@ -1628,71 +1883,89 @@ void Solver::UpdateUX() {
 				sz, g);
 	}
 	plsUX0->ImposeBoundaryCondition(blockManager, plsAp, plsAw, plsAe, plsAs, plsAn, plsAb, plsAt, plsb);
-#ifdef _LARGE_BLOCK_
-	pils->BiCGSTAB(
-						blockManager,
-						plsUX0,
-						plsAp,
-						plsAw,
-						plsAe,
-						plsAs,
-						plsAn,
-						plsAb,
-						plsAt,
-						plsb,
-						plsr,
-						plsr0,
-						plsp,
-						plsp_,
-						plsq_,
-						plss,
-						plss_,
-						plst_,
-						plsx0,
-						omegaU,
-						countPreConditionerU,
-						countMaxU,
-						epsilonU,
-						countUX,
-						residualUX);
-#else
-	pils->BiCGSTAB_Mask(
-						blockManager,
-						plsUX0,
-						plsAp,
-						plsAw,
-						plsAe,
-						plsAs,
-						plsAn,
-						plsAb,
-						plsAt,
-						plsb,
-						plsr,
-						plsr0,
-						plsp,
-						plsp_,
-						plsq_,
-						plss,
-						plss_,
-						plst_,
-						plsx0,
-						plsMaskId,
-						omegaU,
-						countPreConditionerU,
-						countMaxU,
-						epsilonU,
-						countUX,
-						residualUX);
-#endif
-	plsUX0->ImposeBoundaryCondition(blockManager);
-	if( rank==0 ) {
-//		std::cout << this->countUX << " " << this->residualUX << std::endl;
+
+	if( g_pconf->masking == true ) {
+		pils->BiCGSTAB_Mask(
+							blockManager,
+							plsUX0,
+							plsAp,
+							plsAw,
+							plsAe,
+							plsAs,
+							plsAn,
+							plsAb,
+							plsAt,
+							plsb,
+							plsr,
+							plsr0,
+							plsp,
+							plsp_,
+							plsq_,
+							plss,
+							plss_,
+							plst_,
+							plsUX1,
+							plsMaskId,
+							omegaU,
+							countPreConditionerU,
+							countMaxU,
+							epsilonU,
+							countUX,
+							residualUX);
+/*
+		pils->Jacobi_Mask(
+							blockManager,
+							plsUX0,
+							plsAp,
+							plsAw,
+							plsAe,
+							plsAs,
+							plsAn,
+							plsAb,
+							plsAt,
+							plsb,
+							plsUX1,
+							plsMaskId,
+							omegaU,
+							countMaxU,
+							epsilonU,
+							countUX,
+							residualUX);
+*/
+	} else {
+		pils->BiCGSTAB(
+							blockManager,
+							plsUX0,
+							plsAp,
+							plsAw,
+							plsAe,
+							plsAs,
+							plsAn,
+							plsAb,
+							plsAt,
+							plsb,
+							plsr,
+							plsr0,
+							plsp,
+							plsp_,
+							plsq_,
+							plss,
+							plss_,
+							plst_,
+							plsUX1,
+							omegaU,
+							countPreConditionerU,
+							countMaxU,
+							epsilonU,
+							countUX,
+							residualUX);
 	}
+	plsUX0->ImposeBoundaryCondition(blockManager);
 /////////////////////////////////////////////
 }
 
 void Solver::UpdateUY() {
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 #else
 #pragma omp parallel for
 #endif
@@ -1797,6 +2070,9 @@ void Solver::UpdateUY() {
 					sz, g);
 		}
 		int axis=1;
+		real gx = conf.gx;
+		real gy = conf.gy;
+		real gz = conf.gz;
 		bcut_calc_ab_u_(
 				Ap, Aw, Ae, As, An, Ab, At, b,
 				ux0, uy0, uz0,
@@ -1811,6 +2087,7 @@ void Solver::UpdateUY() {
 				&mu,
 				&dx, &dt,
 				&Us,
+				&gx, &gy, &gz,
 				sz, g);
 		copy_(
 				uycp,
@@ -1818,71 +2095,69 @@ void Solver::UpdateUY() {
 				sz, g);
 	}
 	plsUY0->ImposeBoundaryCondition(blockManager, plsAp, plsAw, plsAe, plsAs, plsAn, plsAb, plsAt, plsb);
-#ifdef _LARGE_BLOCK_
-	pils->BiCGSTAB(
-						blockManager,
-						plsUY0,
-						plsAp,
-						plsAw,
-						plsAe,
-						plsAs,
-						plsAn,
-						plsAb,
-						plsAt,
-						plsb,
-						plsr,
-						plsr0,
-						plsp,
-						plsp_,
-						plsq_,
-						plss,
-						plss_,
-						plst_,
-						plsx0,
-						omegaU,
-						countPreConditionerU,
-						countMaxU,
-						epsilonU,
-						countUY,
-						residualUY);
-#else
-	pils->BiCGSTAB_Mask(
-						blockManager,
-						plsUY0,
-						plsAp,
-						plsAw,
-						plsAe,
-						plsAs,
-						plsAn,
-						plsAb,
-						plsAt,
-						plsb,
-						plsr,
-						plsr0,
-						plsp,
-						plsp_,
-						plsq_,
-						plss,
-						plss_,
-						plst_,
-						plsx0,
-						plsMaskId,
-						omegaU,
-						countPreConditionerU,
-						countMaxU,
-						epsilonU,
-						countUY,
-						residualUY);
-#endif
-	plsUY0->ImposeBoundaryCondition(blockManager);
-	if( rank==0 ) {
-//		std::cout << this->countUY << " " << this->residualUY << std::endl;
+
+	if( g_pconf->masking == true ) {
+		pils->BiCGSTAB_Mask(
+							blockManager,
+							plsUY0,
+							plsAp,
+							plsAw,
+							plsAe,
+							plsAs,
+							plsAn,
+							plsAb,
+							plsAt,
+							plsb,
+							plsr,
+							plsr0,
+							plsp,
+							plsp_,
+							plsq_,
+							plss,
+							plss_,
+							plst_,
+							plsUY1,
+							plsMaskId,
+							omegaU,
+							countPreConditionerU,
+							countMaxU,
+							epsilonU,
+							countUY,
+							residualUY);
+	} else {
+		pils->BiCGSTAB(
+							blockManager,
+							plsUY0,
+							plsAp,
+							plsAw,
+							plsAe,
+							plsAs,
+							plsAn,
+							plsAb,
+							plsAt,
+							plsb,
+							plsr,
+							plsr0,
+							plsp,
+							plsp_,
+							plsq_,
+							plss,
+							plss_,
+							plst_,
+							plsUY1,
+							omegaU,
+							countPreConditionerU,
+							countMaxU,
+							epsilonU,
+							countUY,
+							residualUY);
 	}
+	plsUY0->ImposeBoundaryCondition(blockManager);
 /////////////////////////////////////////////
 }
 
 void Solver::UpdateUZ() {
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 #else
 #pragma omp parallel for
 #endif
@@ -1987,6 +2262,9 @@ void Solver::UpdateUZ() {
 					sz, g);
 		}
 		int axis=2;
+		real gx = conf.gx;
+		real gy = conf.gy;
+		real gz = conf.gz;
 		bcut_calc_ab_u_(
 				Ap, Aw, Ae, As, An, Ab, At, b,
 				ux0, uy0, uz0,
@@ -2001,6 +2279,7 @@ void Solver::UpdateUZ() {
 				&mu,
 				&dx, &dt,
 				&Us,
+				&gx, &gy, &gz,
 				sz, g);
 		copy_(
 				uzcp,
@@ -2008,66 +2287,64 @@ void Solver::UpdateUZ() {
 				sz, g);
 	}
 	plsUZ0->ImposeBoundaryCondition(blockManager, plsAp, plsAw, plsAe, plsAs, plsAn, plsAb, plsAt, plsb);
-#ifdef _LARGE_BLOCK_
-	pils->BiCGSTAB(
-						blockManager,
-						plsUZ0,
-						plsAp,
-						plsAw,
-						plsAe,
-						plsAs,
-						plsAn,
-						plsAb,
-						plsAt,
-						plsb,
-						plsr,
-						plsr0,
-						plsp,
-						plsp_,
-						plsq_,
-						plss,
-						plss_,
-						plst_,
-						plsx0,
-						omegaU,
-						countPreConditionerU,
-						countMaxU,
-						epsilonU,
-						countUZ,
-						residualUZ);
-#else
-	pils->BiCGSTAB_Mask(
-						blockManager,
-						plsUZ0,
-						plsAp,
-						plsAw,
-						plsAe,
-						plsAs,
-						plsAn,
-						plsAb,
-						plsAt,
-						plsb,
-						plsr,
-						plsr0,
-						plsp,
-						plsp_,
-						plsq_,
-						plss,
-						plss_,
-						plst_,
-						plsx0,
-						plsMaskId,
-						omegaU,
-						countPreConditionerU,
-						countMaxU,
-						epsilonU,
-						countUZ,
-						residualUZ);
-#endif
-	plsUZ0->ImposeBoundaryCondition(blockManager);
-	if( rank==0 ) {
-//		std::cout << this->countUZ << " " << this->residualUZ << std::endl;
+
+	if( g_pconf->masking == true ) {
+		pils->BiCGSTAB_Mask(
+							blockManager,
+							plsUZ0,
+							plsAp,
+							plsAw,
+							plsAe,
+							plsAs,
+							plsAn,
+							plsAb,
+							plsAt,
+							plsb,
+							plsr,
+							plsr0,
+							plsp,
+							plsp_,
+							plsq_,
+							plss,
+							plss_,
+							plst_,
+							plsUZ1,
+							plsMaskId,
+							omegaU,
+							countPreConditionerU,
+							countMaxU,
+							epsilonU,
+							countUZ,
+							residualUZ);
+	} else {
+		pils->BiCGSTAB(
+							blockManager,
+							plsUZ0,
+							plsAp,
+							plsAw,
+							plsAe,
+							plsAs,
+							plsAn,
+							plsAb,
+							plsAt,
+							plsb,
+							plsr,
+							plsr0,
+							plsp,
+							plsp_,
+							plsq_,
+							plss,
+							plss_,
+							plst_,
+							plsUZ1,
+							omegaU,
+							countPreConditionerU,
+							countMaxU,
+							epsilonU,
+							countUZ,
+							residualUZ);
 	}
+	plsUZ0->ImposeBoundaryCondition(blockManager);
 /////////////////////////////////////////////
 }
 
@@ -2075,7 +2352,7 @@ void Solver::UpdateP() {
 /////////////////////////////////////////////
 // Calc A & b
 /////////////////////////////////////////////
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 #else
 #pragma omp parallel for
 #endif
@@ -2137,11 +2414,12 @@ void Solver::UpdateP() {
 				&dx, &dt,
 				sz, g);
 	}
+
 	plsUX0->ImposeBoundaryCondition(blockManager);
 	plsUY0->ImposeBoundaryCondition(blockManager);
 	plsUZ0->ImposeBoundaryCondition(blockManager);
 
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 #else
 #pragma omp parallel for
 #endif
@@ -2205,73 +2483,71 @@ void Solver::UpdateP() {
 				&dx, &dt,
 				sz, g);
 	}
+
 	plsP0->ImposeBoundaryCondition(blockManager, plsAp, plsAw, plsAe, plsAs, plsAn, plsAb, plsAt, plsb);
 
-#ifdef _LARGE_BLOCK_
-	pils->BiCGSTAB(
-						blockManager,
-						plsP0,
-						plsAp,
-						plsAw,
-						plsAe,
-						plsAs,
-						plsAn,
-						plsAb,
-						plsAt,
-						plsb,
-						plsr,
-						plsr0,
-						plsp,
-						plsp_,
-						plsq_,
-						plss,
-						plss_,
-						plst_,
-						plsx0,
-						omegaP,
-						countPreConditionerP,
-						countMaxP,
-						epsilonP,
-						countP,
-						residualP);
-#else
-	pils->BiCGSTAB_Mask(
-						blockManager,
-						plsP0,
-						plsAp,
-						plsAw,
-						plsAe,
-						plsAs,
-						plsAn,
-						plsAb,
-						plsAt,
-						plsb,
-						plsr,
-						plsr0,
-						plsp,
-						plsp_,
-						plsq_,
-						plss,
-						plss_,
-						plst_,
-						plsx0,
-						plsMaskId,
-						omegaP,
-						countPreConditionerP,
-						countMaxP,
-						epsilonP,
-						countP,
-						residualP);
-#endif
-	plsP0->ImposeBoundaryCondition(blockManager);
-	if( rank==0 ) {
-//		std::cout << this->countP << " " << this->residualP << std::endl;
+	if( g_pconf->masking == true ) {
+		pils->BiCGSTAB_Mask(
+							blockManager,
+							plsP0,
+							plsAp,
+							plsAw,
+							plsAe,
+							plsAs,
+							plsAn,
+							plsAb,
+							plsAt,
+							plsb,
+							plsr,
+							plsr0,
+							plsp,
+							plsp_,
+							plsq_,
+							plss,
+							plss_,
+							plst_,
+							plsP1,
+							plsMaskId,
+							omegaP,
+							countPreConditionerP,
+							countMaxP,
+							epsilonP,
+							countP,
+							residualP);
+	} else {
+		pils->BiCGSTAB(
+							blockManager,
+							plsP0,
+							plsAp,
+							plsAw,
+							plsAe,
+							plsAs,
+							plsAn,
+							plsAb,
+							plsAt,
+							plsb,
+							plsr,
+							plsr0,
+							plsp,
+							plsp_,
+							plsq_,
+							plss,
+							plss_,
+							plst_,
+							plsP1,
+							omegaP,
+							countPreConditionerP,
+							countMaxP,
+							epsilonP,
+							countP,
+							residualP);
 	}
+	plsP0->ImposeBoundaryCondition(blockManager);
 /////////////////////////////////////////////
 }
 
 void Solver::UpdateU() {
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 #else
 #pragma omp parallel for
 #endif
@@ -2337,7 +2613,7 @@ void Solver::UpdateT() {
 /////////////////////////////////////////////
 // Calc A & b
 /////////////////////////////////////////////
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 #else
 #pragma omp parallel for
 #endif
@@ -2491,86 +2767,63 @@ void Solver::UpdateT() {
 /////////////////////////////////////////////
 // Implicit 1st-order Euler method
 /////////////////////////////////////////////
-/*
-	pils->Jacobi(
-						blockManager,
-						plst1,
-						plsAp,
-						plsAw,
-						plsAe,
-						plsAs,
-						plsAn,
-						plsAb,
-						plsAt,
-						plsb,
-						plsx0,
-						omegaT,
-						countMaxT,
-						epsilonT,
-						countT,
-						residualT);
-*/
-
-#ifdef _LARGE_BLOCK_
-	pils->BiCGSTAB(
-						blockManager,
-						plsT0,
-						plsAp,
-						plsAw,
-						plsAe,
-						plsAs,
-						plsAn,
-						plsAb,
-						plsAt,
-						plsb,
-						plsr,
-						plsr0,
-						plsp,
-						plsp_,
-						plsq_,
-						plss,
-						plss_,
-						plst_,
-						plsx0,
-						omegaT,
-						countPreConditionerT,
-						countMaxT,
-						epsilonT,
-						countT,
-						residualT);
-#else
-	pils->BiCGSTAB_Mask(
-						blockManager,
-						plsT0,
-						plsAp,
-						plsAw,
-						plsAe,
-						plsAs,
-						plsAn,
-						plsAb,
-						plsAt,
-						plsb,
-						plsr,
-						plsr0,
-						plsp,
-						plsp_,
-						plsq_,
-						plss,
-						plss_,
-						plst_,
-						plsx0,
-						plsMaskId,
-						omegaT,
-						countPreConditionerT,
-						countMaxT,
-						epsilonT,
-						countT,
-						residualT);
-#endif
-	plsT0->ImposeBoundaryCondition(blockManager);
-	if( rank==0 ) {
-//		std::cout << this->countT << " " << this->residualT << std::endl;
+	if( g_pconf->masking == true ) {
+		pils->BiCGSTAB_Mask(
+							blockManager,
+							plsT0,
+							plsAp,
+							plsAw,
+							plsAe,
+							plsAs,
+							plsAn,
+							plsAb,
+							plsAt,
+							plsb,
+							plsr,
+							plsr0,
+							plsp,
+							plsp_,
+							plsq_,
+							plss,
+							plss_,
+							plst_,
+							plsT1,
+							plsMaskId,
+							omegaT,
+							countPreConditionerT,
+							countMaxT,
+							epsilonT,
+							countT,
+							residualT);
+	} else {
+		pils->BiCGSTAB(
+							blockManager,
+							plsT0,
+							plsAp,
+							plsAw,
+							plsAe,
+							plsAs,
+							plsAn,
+							plsAb,
+							plsAt,
+							plsb,
+							plsr,
+							plsr0,
+							plsp,
+							plsp_,
+							plsq_,
+							plss,
+							plss_,
+							plst_,
+							plsT1,
+							omegaT,
+							countPreConditionerT,
+							countMaxT,
+							epsilonT,
+							countT,
+							residualT);
 	}
+	plsT0->ImposeBoundaryCondition(blockManager);
 /////////////////////////////////////////////
 }
 
@@ -2603,14 +2856,14 @@ void Solver::PrintCut() {
 	ossFileName.width(5);
 	ossFileName.setf(std::ios::fixed);
 	ossFileName.fill('0');
-	ossFileName << rank;
+	ossFileName << myrank;
 	ossFileName << ".stl";
 
 	std::ofstream ofs;
 	ofs.open(ossFileName.str().c_str(), std::ios::out);
 	ofs.close();
 
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 #else
 #endif
 	for (int n=0; n<blockManager.getNumBlock(); ++n) {
@@ -2837,46 +3090,46 @@ void Solver::Load2(const int step) {
 }
 
 void Solver::Dump3(const int step) {
-	plsUX0->Dump3(blockManager, step, "ux", partition, rank);
-	plsUY0->Dump3(blockManager, step, "uy", partition, rank);
-	plsUZ0->Dump3(blockManager, step, "uz", partition, rank);
+	plsUX0->Dump3(blockManager, step, "ux", partition, myrank);
+	plsUY0->Dump3(blockManager, step, "uy", partition, myrank);
+	plsUZ0->Dump3(blockManager, step, "uz", partition, myrank);
 
-	plsP0->Dump3(blockManager, step, "p", partition, rank);
+	plsP0->Dump3(blockManager, step, "p", partition, myrank);
 
-	plsVw->Dump3(blockManager, step, "vw", partition, rank);
-	plsVe->Dump3(blockManager, step, "ve", partition, rank);
-	plsVs->Dump3(blockManager, step, "vs", partition, rank);
-	plsVn->Dump3(blockManager, step, "vn", partition, rank);
-	plsVb->Dump3(blockManager, step, "vb", partition, rank);
-	plsVt->Dump3(blockManager, step, "vt", partition, rank);
+	plsVw->Dump3(blockManager, step, "vw", partition, myrank);
+	plsVe->Dump3(blockManager, step, "ve", partition, myrank);
+	plsVs->Dump3(blockManager, step, "vs", partition, myrank);
+	plsVn->Dump3(blockManager, step, "vn", partition, myrank);
+	plsVb->Dump3(blockManager, step, "vb", partition, myrank);
+	plsVt->Dump3(blockManager, step, "vt", partition, myrank);
 
-	plsT0->Dump3(blockManager, step, "t", partition, rank);
+	plsT0->Dump3(blockManager, step, "t", partition, myrank);
 
-	plsUXCP->Dump3(blockManager, step, "uxcp", partition, rank);
-	plsUYCP->Dump3(blockManager, step, "uycp", partition, rank);
-	plsUZCP->Dump3(blockManager, step, "uzcp", partition, rank);
-	plsTCP->Dump3(blockManager, step, "tcp", partition, rank);
+	plsUXCP->Dump3(blockManager, step, "uxcp", partition, myrank);
+	plsUYCP->Dump3(blockManager, step, "uycp", partition, myrank);
+	plsUZCP->Dump3(blockManager, step, "uzcp", partition, myrank);
+	plsTCP->Dump3(blockManager, step, "tcp", partition, myrank);
 }
 
 void Solver::Load3(const int step) {
-	plsUX0->Load3(blockManager, step, "ux", partition, rank);
-	plsUY0->Load3(blockManager, step, "uy", partition, rank);
-	plsUZ0->Load3(blockManager, step, "uz", partition, rank);
+	plsUX0->Load3(blockManager, step, "ux", partition, myrank);
+	plsUY0->Load3(blockManager, step, "uy", partition, myrank);
+	plsUZ0->Load3(blockManager, step, "uz", partition, myrank);
 
-	plsP0->Load3(blockManager, step, "p", partition, rank);
+	plsP0->Load3(blockManager, step, "p", partition, myrank);
 
-	plsVw->Load3(blockManager, step, "vw", partition, rank);
-	plsVe->Load3(blockManager, step, "ve", partition, rank);
-	plsVs->Load3(blockManager, step, "vs", partition, rank);
-	plsVn->Load3(blockManager, step, "vn", partition, rank);
-	plsVb->Load3(blockManager, step, "vb", partition, rank);
-	plsVt->Load3(blockManager, step, "vt", partition, rank);
+	plsVw->Load3(blockManager, step, "vw", partition, myrank);
+	plsVe->Load3(blockManager, step, "ve", partition, myrank);
+	plsVs->Load3(blockManager, step, "vs", partition, myrank);
+	plsVn->Load3(blockManager, step, "vn", partition, myrank);
+	plsVb->Load3(blockManager, step, "vb", partition, myrank);
+	plsVt->Load3(blockManager, step, "vt", partition, myrank);
 
-	plsT0->Load3(blockManager, step, "t", partition, rank);
+	plsT0->Load3(blockManager, step, "t", partition, myrank);
 
-	plsUXCP->Load3(blockManager, step, "uxcp", partition, rank);
-	plsUYCP->Load3(blockManager, step, "uycp", partition, rank);
-	plsUZCP->Load3(blockManager, step, "uzcp", partition, rank);
-	plsTCP->Load3(blockManager, step, "tcp", partition, rank);
+	plsUXCP->Load3(blockManager, step, "uxcp", partition, myrank);
+	plsUYCP->Load3(blockManager, step, "uycp", partition, myrank);
+	plsUZCP->Load3(blockManager, step, "uzcp", partition, myrank);
+	plsTCP->Load3(blockManager, step, "tcp", partition, myrank);
 }
 

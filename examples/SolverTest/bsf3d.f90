@@ -1,3 +1,13 @@
+!
+! BCMTools
+!
+! Copyright (C) 2011-2013 Institute of Industrial Science, The University of Tokyo.
+! All rights reserved.
+!
+! Copyright (c) 2012-2013 Advanced Institute for Computational Science, RIKEN.
+! All rights reserved.
+!
+
 subroutine sf3d_copy_x2(x, xc, sz, g)
 	implicit none
 	integer									:: i, j, k
@@ -9,7 +19,7 @@ subroutine sf3d_copy_x2(x, xc, sz, g)
 	ix = sz(1)
 	jx = sz(2)
 	kx = sz(3)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k) 
 !$omp do 
 #else
@@ -21,7 +31,7 @@ subroutine sf3d_copy_x2(x, xc, sz, g)
 	end do
 	end do
 	end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -40,7 +50,12 @@ subroutine sf3d_calc_stats(dsum, dmax, dmin, dabsmax, dabsmin, ddata, sz, g)
 	ix = sz(1)
 	jx = sz(2)
 	kx = sz(3)
-#ifdef _LARGE_BLOCK_
+	dsum = 0.0
+	dmax = ddata(1, 1, 1)
+	dmin = ddata(1, 1, 1)
+	dabsmax = abs(ddata(1, 1, 1))
+	dabsmin = abs(ddata(1, 1, 1))
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k) &
 !$omp         ,private(ddata0)
 !$omp do reduction(+: dsum) &
@@ -73,7 +88,7 @@ subroutine sf3d_calc_stats(dsum, dmax, dmin, dabsmax, dabsmin, ddata, sz, g)
 	end do
 	end do
 	end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else

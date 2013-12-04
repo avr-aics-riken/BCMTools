@@ -10,7 +10,8 @@
 #
 ############################################################################
 #MPI_DIR		= /usr/lib/openmpi/1.3.2-gcc
-MPI_DIR		= /usr/local/openmpi
+MPI_DIR		= /usr/lib/openmpi
+XML2_DIR  = /home/jonishi/MyLib/libxml2-2.7.8
 CXX			= g++
 AR			= ar cr
 RANLIB		= ranlib
@@ -25,7 +26,7 @@ TARGET_DIR	= ../lib
 # 三角形IDファイルをテキストモードで出力するにはCFLAGSに以下を追加のこと
 # -DSAVE_ID_ASCII
 ###########################################################################
-CFLAGS		= -O2 -Wall -I../include -I$(MPI_DIR)/include \
+CFLAGS		= -O2 -Wall -I../include -I$(MPI_DIR)/include -I$(XML2_DIR)/include \
 			  -I/usr/include -I/usr/include/libxml2 -fno-strict-aliasing \
 			  -DSAVE_ID_ASCII
 

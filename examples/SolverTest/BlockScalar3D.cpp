@@ -1,4 +1,42 @@
+/*
+ * BCMTools
+ *
+ * Copyright (C) 2011-2013 Institute of Industrial Science, The University of Tokyo.
+ * All rights reserved.
+ *
+ * Copyright (c) 2012-2013 Advanced Institute for Computational Science, RIKEN.
+ * All rights reserved.
+ *
+ */
+
 #include "BlockScalar3D.h"
+
+#include "gv.h"
+
+template <>
+void BlockScalar3D<real>::ImposeBlockBoundaryCondition_X_M_POISEUILLE_U() {
+	::Vec3r c = g_pconf->boundaryValuePoiseuilleCenter;
+	real center[3] = {c.x, c.y, c.z};
+	bc_x3_poiseuille_u_(this->blockData, &(this->blockBoundaryValue[X_M]), this->size, (int*)&(this->vc), center, this->origin, this->blockSize, this->cellSize);
+}
+template <>
+void BlockScalar3D<real>::ImposeBlockBoundaryCondition_Aw_POISEUILLE_U(real* Ap, real* Aw, real* Ae, real* b) {
+	::Vec3r c = g_pconf->boundaryValuePoiseuilleCenter;
+	real center[3] = {c.x, c.y, c.z};
+	bc_aw_poiseuille_u_(Ap, Aw, b, &(this->blockBoundaryValue[X_M]), this->size, (int*)&(this->vc), center, this->origin, this->blockSize, this->cellSize);
+}
+template <>
+void BlockScalar3D<real>::ImposeBlockBoundaryCondition_X_M_POISEUILLE_P() {
+	::Vec3r c = g_pconf->boundaryValuePoiseuilleCenter;
+	real center[3] = {c.x, c.y, c.z};
+	bc_x3_poiseuille_p_(this->blockData, &(this->blockBoundaryValue[X_M]), this->size, (int*)&(this->vc), center, this->origin, this->blockSize, this->cellSize);
+}
+template <>
+void BlockScalar3D<real>::ImposeBlockBoundaryCondition_Aw_POISEUILLE_P(real* Ap, real* Aw, real* Ae, real* b) {
+	::Vec3r c = g_pconf->boundaryValuePoiseuilleCenter;
+	real center[3] = {c.x, c.y, c.z};
+	bc_aw_poiseuille_p_(Ap, Aw, b, &(this->blockBoundaryValue[X_M]), this->size, (int*)&(this->vc), center, this->origin, this->blockSize, this->cellSize);
+}
 
 template <>
 void BlockScalar3D<int>::ImposeBlockBoundaryCondition_Dummy() {

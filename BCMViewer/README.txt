@@ -1,7 +1,13 @@
-
-                           BCMViewer
-                                                         2012/12/27
-                                                    日本SGI株式会社
+/*
+ * BCMViewer - BCM mesh viewer
+ *
+ * Copyright (C) 2011-2013 Institute of Industrial Science, The University of Tokyo.
+ * All rights reserved.
+ *
+ * Copyright (c) 2012-2013 Advanced Institute for Computational Science, RIKEN.
+ * All rights reserved.
+ *
+ */
 
 
 1. はじめに

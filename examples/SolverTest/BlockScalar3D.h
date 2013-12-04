@@ -1,3 +1,14 @@
+/*
+ * BCMTools
+ *
+ * Copyright (C) 2011-2013 Institute of Industrial Science, The University of Tokyo.
+ * All rights reserved.
+ *
+ * Copyright (c) 2012-2013 Advanced Institute for Computational Science, RIKEN.
+ * All rights reserved.
+ *
+ */
+
 #ifndef BLOCKSCALAR3D_H
 #define BLOCKSCALAR3D_H
 
@@ -321,19 +332,28 @@ private:
 
 
 	void ImposeBlockBoundaryCondition_X_M_POISEUILLE_U() {
-		bc_x3_poiseuille_u_(this->blockData, &(this->blockBoundaryValue[X_M]), this->size, (int*)&(this->vc), this->origin, this->blockSize, this->cellSize);
+//		bc_x3_poiseuille_u_(this->blockData, &(this->blockBoundaryValue[X_M]), this->size, (int*)&(this->vc), this->origin, this->blockSize, this->cellSize);
 	}
 	void ImposeBlockBoundaryCondition_Aw_POISEUILLE_U(real* Ap, real* Aw, real* Ae, real* b) {
-		bc_aw_poiseuille_u_(Ap, Aw, b, &(this->blockBoundaryValue[X_M]), this->size, (int*)&(this->vc), this->origin, this->blockSize, this->cellSize);
+//		bc_aw_poiseuille_u_(Ap, Aw, b, &(this->blockBoundaryValue[X_M]), this->size, (int*)&(this->vc), this->origin, this->blockSize, this->cellSize);
 	}
-
 	void ImposeBlockBoundaryCondition_X_M_POISEUILLE_P() {
-		bc_x3_poiseuille_p_(this->blockData, &(this->blockBoundaryValue[X_M]), this->size, (int*)&(this->vc), this->origin, this->blockSize, this->cellSize);
+//		bc_x3_poiseuille_p_(this->blockData, &(this->blockBoundaryValue[X_M]), this->size, (int*)&(this->vc), this->origin, this->blockSize, this->cellSize);
 	}
 	void ImposeBlockBoundaryCondition_Aw_POISEUILLE_P(real* Ap, real* Aw, real* Ae, real* b) {
-		bc_aw_poiseuille_p_(Ap, Aw, b, &(this->blockBoundaryValue[X_M]), this->size, (int*)&(this->vc), this->origin, this->blockSize, this->cellSize);
+//		bc_aw_poiseuille_p_(Ap, Aw, b, &(this->blockBoundaryValue[X_M]), this->size, (int*)&(this->vc), this->origin, this->blockSize, this->cellSize);
 	}
 };
+
+template <>
+void BlockScalar3D<real>::ImposeBlockBoundaryCondition_X_M_POISEUILLE_U();
+template <>
+void BlockScalar3D<real>::ImposeBlockBoundaryCondition_Aw_POISEUILLE_U(real* Ap, real* Aw, real* Ae, real* b);
+template <>
+void BlockScalar3D<real>::ImposeBlockBoundaryCondition_X_M_POISEUILLE_P();
+template <>
+void BlockScalar3D<real>::ImposeBlockBoundaryCondition_Aw_POISEUILLE_P(real* Ap, real* Aw, real* Ae, real* b);
+
 
 template <>
 void BlockScalar3D<int>::ImposeBlockBoundaryCondition_Dummy();
@@ -388,7 +408,6 @@ template <>
 void BlockScalar3D<int>::ImposeBlockBoundaryCondition_Ab_D(real* Ap, real* Ab, real* At, real* b);
 template <>
 void BlockScalar3D<int>::ImposeBlockBoundaryCondition_At_D(real* Ap, real* Ab, real* At, real* b);
-
 template <>
 void BlockScalar3D<int>::ImposeBlockBoundaryCondition_Aw_N(real* Ap, real* Aw, real* Ae, real* b);
 template <>
@@ -401,7 +420,6 @@ template <>
 void BlockScalar3D<int>::ImposeBlockBoundaryCondition_Ab_N(real* Ap, real* Ab, real* At, real* b);
 template <>
 void BlockScalar3D<int>::ImposeBlockBoundaryCondition_At_N(real* Ap, real* Ab, real* At, real* b);
-
 template <>
 void BlockScalar3D<int>::ImposeBlockBoundaryCondition_Aw_P(real* Ap, real* Aw, real* Ae, real* b);
 template <>
@@ -419,7 +437,6 @@ template <>
 void BlockScalar3D<int>::ImposeBlockBoundaryCondition_X_M_POISEUILLE_U();
 template <>
 void BlockScalar3D<int>::ImposeBlockBoundaryCondition_Aw_POISEUILLE_U(real* Ap, real* Aw, real* Ae, real* b);
-
 template <>
 void BlockScalar3D<int>::ImposeBlockBoundaryCondition_X_M_POISEUILLE_P();
 template <>

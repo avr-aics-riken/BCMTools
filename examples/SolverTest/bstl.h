@@ -1,3 +1,14 @@
+/*
+ * BCMTools
+ *
+ * Copyright (C) 2011-2013 Institute of Industrial Science, The University of Tokyo.
+ * All rights reserved.
+ *
+ * Copyright (c) 2012-2013 Advanced Institute for Computational Science, RIKEN.
+ * All rights reserved.
+ *
+ */
+
 #ifndef __BSTL_H__
 #define __BSTL_H__
 
@@ -63,9 +74,14 @@ extern "C" {
 				real* c0, real* c1, real* c2, real* c3, real* c4, real* c5,
 				int* cid0, int* cid1, int* cid2, int* cid3, int* cid4, int* cid5,
 				int* count,
+				int* bClose,
 				int *sz, int *g);
-
-
+	void bstl_fill_holes_v2_(
+				real* c0, real* c1, real* c2, real* c3, real* c4, real* c5,
+				int* cid0, int* cid1, int* cid2, int* cid3, int* cid4, int* cid5,
+				int* count,
+				int* bClose,
+				int *sz, int *g);
 }
 
 #endif

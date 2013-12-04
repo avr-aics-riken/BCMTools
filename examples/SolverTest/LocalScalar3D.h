@@ -1,3 +1,14 @@
+/*
+ * BCMTools
+ *
+ * Copyright (C) 2011-2013 Institute of Industrial Science, The University of Tokyo.
+ * All rights reserved.
+ *
+ * Copyright (c) 2012-2013 Advanced Institute for Computational Science, RIKEN.
+ * All rights reserved.
+ *
+ */
+
 #ifndef LOCALSCALAR3D_H
 #define LOCALSCALAR3D_H
 
@@ -5,9 +16,11 @@
 
 #include "BlockScalar3D.h"
 #include "Scalar3DUpdater.h"
+#include "Scalar3DUpdater1.h"
 #include "Scalar3DUpdater2.h"
 #include "Config.h"
 #include "real.h"
+#include "gv.h"
 
 #include "VtkWriter.h"
 //#include "SiloWriter.h"
@@ -23,11 +36,27 @@ public:
 					T* boundaryValue,
 					int updaterType=1) {
 		this->vc = vc;
-		if( updaterType == 2 ) {
+		if( updaterType == 1 ) {
+			this->id = blockManager.setDataClass<Scalar3D<T>, Scalar3DUpdater1<T> >(this->vc);
+		} else if( updaterType == 10 ) {
+			this->id = blockManager.setDataClass<Scalar3D<T>, Scalar3DUpdater1<T>, T >(this->vc);
+		} else if( updaterType == 2 ) {
 			this->id = blockManager.setDataClass<Scalar3D<T>, Scalar3DUpdater2<T> >(this->vc);
 		} else {
 			this->id = blockManager.setDataClass<Scalar3D<T>, Scalar3DUpdater<T> >(this->vc);
 		}
+
+/*
+		blockDataTable = new T* [blockManager.getNumBlock()];
+#ifdef _BLOCK_IS_LARGE_
+#else
+#endif
+		for (int n=0; n<blockManager.getNumBlock(); n++) {
+			BlockBase* block = blockManager.getBlock(n);
+			T*    blockData = this->GetBlockData(block);
+			this->blockDataTable[n] = blockData;
+		}
+*/
 
 		this->updateMethod = VCUpdateMethod::AtOnce;
 		if (updateMethod == "AtOnce") {
@@ -41,7 +70,7 @@ public:
 		int tag = 100;
 		blockManager.prepareForVCUpdate(this->id, tag, this->updateMethod);
 		this->blockScalar3D = new BlockScalar3D<T> [blockManager.getNumBlock()];
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 #else
 #endif
 		for (int n=0; n<blockManager.getNumBlock(); ++n) {
@@ -76,34 +105,29 @@ private:
 	int id;
 	VCUpdateMethod::Type updateMethod;
 	BlockScalar3D<T>* blockScalar3D;
+/*
+	T** blockDataTable;
+*/
 
 private:
-	T sum;
-	T max;
-	T min;
-	T absmax;
-	T absmin;
+	T sum_l;
+	T max_l;
+	T min_l;
+	T absmax_l;
+	T absmin_l;
+
+	T sum_g;
+	T max_g;
+	T min_g;
+	T absmax_g;
+	T absmin_g;
 
 public:
-/*
 	friend void LSSwap(LocalScalar3D<T>& x1, LocalScalar3D<T>& x0) {
-		int vc_tmp = x1.vc;
-		x1.vc = x0.vc;
-		x0.vc = vc_tmp;
-
 		int id_tmp = x1.id;
 		x1.id = x0.id;
 		x0.id = id_tmp;
-
-		bool separateVCUpdate_tmp = x1.separateVCUpdate;
-		x1.separateVCUpdate = x0.separateVCUpdate;
-		x0.separateVCUpdate = separateVCUpdate_tmp;
-
-		BlockScalar3D<T>* blockScalar3D_tmp = x1.blockScalar3D;
-		x1.blockScalar3D = x0.blockScalar3D;
-		x0.blockScalar3D = blockScalar3D_tmp;
 	}
-*/
 
 public:
 	int GetVC() {
@@ -115,28 +139,84 @@ public:
 	}
 
 	T GetSum() {
-		return sum;
+		return sum_g;
 	}
 
 	T GetMax() {
-		return max;
+		return max_g;
 	}
 
 	T GetMin() {
-		return min;
+		return min_g;
 	}
 
 	T GetAbsMax() {
-		return absmax;
+		return absmax_g;
 	}
 
 	T GetAbsMin() {
-		return absmin;
+		return absmin_g;
 	}
+
+	T GetSumL() {
+		return sum_l;
+	}
+
+	T GetMaxL() {
+		return max_l;
+	}
+
+	T GetMinL() {
+		return min_l;
+	}
+
+	T GetAbsMaxL() {
+		return absmax_l;
+	}
+
+	T GetAbsMinL() {
+		return absmin_l;
+	}
+
 
 	T* GetBlockData(BlockBase* block) {
 		Scalar3D<T>* sdata = dynamic_cast<Scalar3D<T>*>(block->getDataClass(this->id));
 		return sdata->getData();
+	}
+
+/*
+	T* GetBlockData(int n) {
+		return this->blockDataTable[n];
+	}
+*/
+
+	void UpdateVirtualCells(
+										BlockManager& blockManager) {
+		switch(this->updateMethod) {
+			case VCUpdateMethod::AtOnce:
+				blockManager.beginUpdateVC(this->id);
+				blockManager.endUpdateVC(this->id);
+				break;
+			case VCUpdateMethod::SeparateXYZ:
+				blockManager.beginUpdateVC_X(this->id);
+				blockManager.endUpdateVC_X(this->id);
+				blockManager.beginUpdateVC_Y(this->id);
+				blockManager.endUpdateVC_Y(this->id);
+				blockManager.beginUpdateVC_Z(this->id);
+				blockManager.endUpdateVC_Z(this->id);
+				break;
+			case VCUpdateMethod::SeparateXYZ_SeparateLevelDiff:
+				blockManager.updateVC_X_F2C(this->id);
+				blockManager.updateVC_Y_F2C(this->id);
+				blockManager.updateVC_Z_F2C(this->id);
+				blockManager.updateVC_X_Flat(this->id);
+				blockManager.updateVC_Y_Flat(this->id);
+				blockManager.updateVC_Z_Flat(this->id);
+				blockManager.updateVC_X_C2F(this->id);
+				blockManager.updateVC_Y_C2F(this->id);
+				blockManager.updateVC_Z_C2F(this->id);
+				break;
+		}
 	}
 
 	void ImposeBoundaryCondition(
@@ -157,12 +237,12 @@ public:
 				ImposeBlockBoundaryCondition(blockManager);
 				break;
 			case VCUpdateMethod::SeparateXYZ_SeparateLevelDiff:
-				blockManager.updateVC_X_Flat(this->id);
-				blockManager.updateVC_Y_Flat(this->id);
-				blockManager.updateVC_Z_Flat(this->id);
 				blockManager.updateVC_X_F2C(this->id);
 				blockManager.updateVC_Y_F2C(this->id);
 				blockManager.updateVC_Z_F2C(this->id);
+				blockManager.updateVC_X_Flat(this->id);
+				blockManager.updateVC_Y_Flat(this->id);
+				blockManager.updateVC_Z_Flat(this->id);
 				blockManager.updateVC_X_C2F(this->id);
 				blockManager.updateVC_Y_C2F(this->id);
 				blockManager.updateVC_Z_C2F(this->id);
@@ -181,7 +261,7 @@ public:
 										LocalScalar3D<T>* plsAb,
 										LocalScalar3D<T>* plsAt,
 										LocalScalar3D<T>* plsb) {
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 #else
 #endif
 		for (int n=0; n<blockManager.getNumBlock(); ++n) {
@@ -202,7 +282,7 @@ public:
 									BlockManager& blockManager,
 									int i_face,
 									T boundaryValue) {
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 #else
 #endif
 		for (int n=0; n<blockManager.getNumBlock(); ++n) {
@@ -212,7 +292,7 @@ public:
 
 private:
 	void ImposeBlockBoundaryCondition(BlockManager& blockManager) {
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 #else
 #endif
 		for (int n=0; n<blockManager.getNumBlock(); ++n) {
@@ -262,8 +342,8 @@ public:
 	}
 */
 
-	void Fill(BlockManager& blockManager, T value) {
-#ifdef _LARGE_BLOCK_
+	void Fill(BlockManager& blockManager, T value, T deviation=0.0) {
+#ifdef _BLOCK_IS_LARGE_
 #else
 #endif
 		for (int n=0; n<blockManager.getNumBlock(); ++n) {
@@ -277,6 +357,7 @@ public:
 				for(int j=0; j<jx; j++) {
 					for(int i=0; i<ix; i++) {
 						int mp = i + ix*(j + jx*k);
+//						blockData[mp] = RandomNormal(value, deviation);
 						blockData[mp] = value;
 					}
 				}

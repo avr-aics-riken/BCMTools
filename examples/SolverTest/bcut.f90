@@ -1,3 +1,13 @@
+!
+! BCMTools
+!
+! Copyright (C) 2011-2013 Institute of Industrial Science, The University of Tokyo.
+! All rights reserved.
+!
+! Copyright (c) 2012-2013 Advanced Institute for Computational Science, RIKEN.
+! All rights reserved.
+!
+
 function bcut_getminmod(a, b)
 	implicit none
 	real					:: bcut_getminmod
@@ -84,7 +94,7 @@ subroutine bcut_calc_c_f_c2( &
   ix = sz(1)
   jx = sz(2)
   kx = sz(3)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k) &
 !$omp					 private(cidp) &
 !$omp					 private(cidp0, cidp1, cidp2, cidp3, cidp4, cidp5) &
@@ -235,7 +245,7 @@ subroutine bcut_calc_c_f_c2( &
   end do
   end do
   end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -286,7 +296,7 @@ subroutine bcut_calc_c_f_e3( &
   ix = sz(1)
   jx = sz(2)
   kx = sz(3)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k) &
 !$omp					 private(cidp) &
 !$omp					 private(cidp0, cidp1, cidp2, cidp3, cidp4, cidp5) &
@@ -500,7 +510,7 @@ subroutine bcut_calc_c_f_e3( &
   end do
   end do
   end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -553,7 +563,7 @@ subroutine bcut_calc_c_f_w3( &
   ix = sz(1)
   jx = sz(2)
   kx = sz(3)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k) &
 !$omp					 private(cidp) &
 !$omp					 private(cidp0, cidp1, cidp2, cidp3, cidp4, cidp5) &
@@ -783,7 +793,7 @@ subroutine bcut_calc_c_f_w3( &
   end do
   end do
   end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -834,7 +844,7 @@ subroutine bcut_calc_c_f_u1( &
   ix = sz(1)
   jx = sz(2)
   kx = sz(3)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k) &
 !$omp					 private(cidp) &
 !$omp					 private(cidp0, cidp1, cidp2, cidp3, cidp4, cidp5) &
@@ -982,7 +992,7 @@ subroutine bcut_calc_c_f_u1( &
   end do
   end do
   end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -1035,7 +1045,7 @@ subroutine bcut_calc_c_f_blend( &
   ix = sz(1)
   jx = sz(2)
   kx = sz(3)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k) &
 !$omp					 private(cidp) &
 !$omp					 private(cidp0, cidp1, cidp2, cidp3, cidp4, cidp5) &
@@ -1183,7 +1193,7 @@ subroutine bcut_calc_c_f_blend( &
   end do
   end do
   end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -1226,7 +1236,7 @@ subroutine bcut_calc_d_u( &
   ix = sz(1)
   jx = sz(2)
   kx = sz(3)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k) &
 !$omp					 private(cidp) &
 !$omp					 private(cidp0, cidp1, cidp2, cidp3, cidp4, cidp5) &
@@ -1349,7 +1359,7 @@ subroutine bcut_calc_d_u( &
   end do
   end do
   end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -1394,7 +1404,7 @@ subroutine bcut_calc_d_t( &
   ix = sz(1)
   jx = sz(2)
   kx = sz(3)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k) &
 !$omp					 private(cidp) &
 !$omp					 private(cidp0, cidp1, cidp2, cidp3, cidp4, cidp5) &
@@ -1514,7 +1524,7 @@ subroutine bcut_calc_d_t( &
   end do
   end do
   end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -1558,7 +1568,7 @@ subroutine bcut_calc_ab_u_1st( &
   ix = sz(1)
   jx = sz(2)
   kx = sz(3)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k) &
 !$omp					 private(cidp) &
 !$omp					 private(cidp0, cidp1, cidp2, cidp3, cidp4, cidp5) &
@@ -1680,7 +1690,7 @@ subroutine bcut_calc_ab_u_1st( &
   end do
   end do
   end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -1734,7 +1744,7 @@ subroutine bcut_calc_ab_u_2nd( &
   ix = sz(1)
   jx = sz(2)
   kx = sz(3)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k) &
 !$omp					 private(cidp) &
 !$omp					 private(cidp0, cidp1, cidp2, cidp3, cidp4, cidp5) &
@@ -1935,7 +1945,7 @@ subroutine bcut_calc_ab_u_2nd( &
   end do
   end do
   end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -1956,6 +1966,7 @@ subroutine bcut_calc_ab_u( &
 								mu, &
 								dx, dt, &
 								Us, &
+								gx, gy, gz, &
 								sz, g)
   implicit none
   integer                 :: i, j, k
@@ -1978,6 +1989,7 @@ subroutine bcut_calc_ab_u( &
 	real										:: mu
   real                    :: dx, dt
 	real										:: Us
+	real										:: gx, gy, gz
 	real										:: d0, d1, d2, d3, d4, d5
 	real										:: mu0, mu1, mu2, mu3, mu4, mu5
 	real										:: m0, m1, m2, m3, m4, m5
@@ -1990,7 +2002,7 @@ subroutine bcut_calc_ab_u( &
   ix = sz(1)
   jx = sz(2)
   kx = sz(3)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k) &
 !$omp					 private(cidp) &
 !$omp					 private(cidp0, cidp1, cidp2, cidp3, cidp4, cidp5) &
@@ -2052,12 +2064,12 @@ subroutine bcut_calc_ab_u( &
 		r4 = 1.0d0/rhof
 		r5 = 1.0d0/rhof
 
-		rdpx0 = r0*dpx0
-		rdpx1 = r1*dpx1
-		rdpy2 = r2*dpy2
-		rdpy3 = r3*dpy3
-		rdpz4 = r4*dpz4
-		rdpz5 = r5*dpz5
+		rdpx0 = r0*dpx0 + gx
+		rdpx1 = r1*dpx1 + gx
+		rdpy2 = r2*dpy2 + gy
+		rdpy3 = r3*dpy3 + gy
+		rdpz4 = r4*dpz4 + gz
+		rdpz5 = r5*dpz5 + gz
 
 		m0 = 0.0d0
 		m1 = 0.0d0
@@ -2199,7 +2211,7 @@ subroutine bcut_calc_ab_u( &
   end do
   end do
   end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -2254,7 +2266,7 @@ subroutine bcut_calc_ab_u_e1( &
   ix = sz(1)
   jx = sz(2)
   kx = sz(3)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k) &
 !$omp					 private(cidp) &
 !$omp					 private(cidp0, cidp1, cidp2, cidp3, cidp4, cidp5) &
@@ -2462,7 +2474,7 @@ subroutine bcut_calc_ab_u_e1( &
   end do
   end do
   end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -2503,7 +2515,7 @@ subroutine bcut_remove_p( &
   ix = sz(1)
   jx = sz(2)
   kx = sz(3)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k) &
 !$omp					 private(cidp) &
 !$omp					 private(cidp0, cidp1, cidp2, cidp3, cidp4, cidp5) &
@@ -2646,7 +2658,7 @@ subroutine bcut_remove_p( &
   end do
   end do
   end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -2690,7 +2702,7 @@ subroutine bcut_calc_ab_p( &
   ix = sz(1)
   jx = sz(2)
   kx = sz(3)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k) &
 !$omp					 private(vx0, vx1, vy2, vy3, vz4, vz5) &
 !$omp					 private(cidp) &
@@ -2853,13 +2865,13 @@ subroutine bcut_calc_ab_p( &
 		vt(i, j, k) = vz5
 
 		if( pidp /= 1 ) then
-			Ap(i, j, k) = 1.0d0
-			Aw(i, j, k) = 0.0d0
-			Ae(i, j, k) = 0.0d0
-			As(i, j, k) = 0.0d0
-			An(i, j, k) = 0.0d0
-			Ab(i, j, k) = 0.0d0
-			At(i, j, k) = 0.0d0
+			Ap(i, j, k) =-6.0d0
+			Aw(i, j, k) = 1.0d0
+			Ae(i, j, k) = 1.0d0
+			As(i, j, k) = 1.0d0
+			An(i, j, k) = 1.0d0
+			Ab(i, j, k) = 1.0d0
+			At(i, j, k) = 1.0d0
 			b (i, j, k) = 0.0d0
 			vw(i, j, k) = 0.0d0
 			ve(i, j, k) = 0.0d0
@@ -2872,7 +2884,7 @@ subroutine bcut_calc_ab_p( &
   end do
   end do
   end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -2917,7 +2929,7 @@ subroutine bcut_corr_u( &
   ix = sz(1)
   jx = sz(2)
   kx = sz(3)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k) &
 !$omp					 private(cidp) &
 !$omp					 private(cidp0, cidp1, cidp2, cidp3, cidp4, cidp5) &
@@ -3109,7 +3121,7 @@ subroutine bcut_corr_u( &
   end do
   end do
   end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -3155,7 +3167,7 @@ subroutine bcut_calc_ab_t_1st( &
   ix = sz(1)
   jx = sz(2)
   kx = sz(3)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k) &
 !$omp					 private(cidp) &
 !$omp					 private(cidp0, cidp1, cidp2, cidp3, cidp4, cidp5) &
@@ -3276,7 +3288,7 @@ subroutine bcut_calc_ab_t_1st( &
   end do
   end do
   end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -3324,7 +3336,7 @@ subroutine bcut_calc_ab_t( &
   ix = sz(1)
   jx = sz(2)
   kx = sz(3)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k) &
 !$omp					 private(cidp) &
 !$omp					 private(cidp0, cidp1, cidp2, cidp3, cidp4, cidp5) &
@@ -3413,23 +3425,23 @@ subroutine bcut_calc_ab_t( &
 		l4 = k4/(rhof*cpf)*dt/(dx*dx)
 		l5 = k5/(rhof*cpf)*dt/(dx*dx)
 
-		Ap(i, j, k) = 1.0d0 + (l0 + l1) &
-												+ (l2 + l3) &
-												+ (l4 + l5)
-		Aw(i, j, k) = -l0*(1.0d0 - m0)
-		Ae(i, j, k) = -l1*(1.0d0 - m1)
-		As(i, j, k) = -l2*(1.0d0 - m2)
-		An(i, j, k) = -l3*(1.0d0 - m3)
-		Ab(i, j, k) = -l4*(1.0d0 - m4)
-		At(i, j, k) = -l5*(1.0d0 - m5)
-		 b(i, j, k) = t0_(i, j, k) &
-									+ l0*Tc*m0 &
-									+ l1*Tc*m1 &
-									+ l2*Tc*m2 &
-									+ l3*Tc*m3 &
-									+ l4*Tc*m4 &
-									+ l5*Tc*m5 &
-									- (1.5d0*tc0_(i, j, k) - 0.5d0*tcp_(i, j, k))*dt 
+!		Ap(i, j, k) = 1.0d0 + (l0 + l1) &
+!												+ (l2 + l3) &
+!												+ (l4 + l5)
+!		Aw(i, j, k) = -l0*(1.0d0 - m0)
+!		Ae(i, j, k) = -l1*(1.0d0 - m1)
+!		As(i, j, k) = -l2*(1.0d0 - m2)
+!		An(i, j, k) = -l3*(1.0d0 - m3)
+!		Ab(i, j, k) = -l4*(1.0d0 - m4)
+!		At(i, j, k) = -l5*(1.0d0 - m5)
+!		 b(i, j, k) = t0_(i, j, k) &
+!									+ l0*Tc*m0 &
+!									+ l1*Tc*m1 &
+!									+ l2*Tc*m2 &
+!									+ l3*Tc*m3 &
+!									+ l4*Tc*m4 &
+!									+ l5*Tc*m5 &
+!									- (1.5d0*tc0_(i, j, k) - 0.5d0*tcp_(i, j, k))*dt 
 
 		Ap(i, j, k) = 1.0d0 + 0.5d0*(l0 + l1) &
 												+ 0.5d0*(l2 + l3) &
@@ -3464,7 +3476,7 @@ subroutine bcut_calc_ab_t( &
   end do
   end do
   end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -3507,7 +3519,7 @@ subroutine bcut_calc_f_p( &
 	fsx = 0.0
 	fsy = 0.0
 	fsz = 0.0
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k) &
 !$omp					 private(cidp) &
 !$omp					 private(cidp0, cidp1, cidp2, cidp3, cidp4, cidp5) &
@@ -3657,7 +3669,7 @@ subroutine bcut_calc_f_p( &
 	end do
 	end do
 	end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -3713,7 +3725,7 @@ subroutine bcut_calc_f_v( &
 	fsx = 0.0
 	fsy = 0.0
 	fsz = 0.0
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k) &
 !$omp					 private(cidp) &
 !$omp					 private(cidp0, cidp1, cidp2, cidp3, cidp4, cidp5) &
@@ -3870,7 +3882,7 @@ subroutine bcut_calc_f_v( &
 	end do
 	end do
 	end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -3924,7 +3936,7 @@ subroutine bcut_calc_f_v_2( &
 	fsx = 0.0
 	fsy = 0.0
 	fsz = 0.0
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k) &
 !$omp					 private(cidp) &
 !$omp					 private(cidp0, cidp1, cidp2, cidp3, cidp4, cidp5) &
@@ -4068,7 +4080,7 @@ subroutine bcut_calc_f_v_2( &
 	end do
 	end do
 	end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -4077,6 +4089,148 @@ subroutine bcut_calc_f_v_2( &
 	fsv(2) = fsy
 	fsv(3) = fsz
 end subroutine bcut_calc_f_v_2
+
+subroutine bcut_calc_q( &
+								qx, &
+								qy, &
+								qz, &
+								q, &
+								t, &
+								c0, c1, c2, c3, c4, c5, &
+								cid0, cid1, cid2, cid3, cid4, cid5, &
+								pid, &
+								rhof, &
+								cpf, &
+								kf, &
+								dx, dt, &
+								Tc, &
+								sz, g)
+	implicit none
+	integer									:: i, j, k
+	integer									:: ix, jx, kx
+	integer									:: g
+	integer, dimension(3)		:: sz
+	real, dimension(1-g:sz(1)+g, 1-g:sz(2)+g, 1-g:sz(3)+g)	:: qx, qy, qz
+	real, dimension(1:3)		:: q
+	real, dimension(1-g:sz(1)+g, 1-g:sz(2)+g, 1-g:sz(3)+g)	:: t
+  real, dimension(1-g:sz(1)+g, 1-g:sz(2)+g, 1-g:sz(3)+g)  :: c0, c1, c2, c3, c4, c5
+  integer, dimension(1-g:sz(1)+g, 1-g:sz(2)+g, 1-g:sz(3)+g)  :: cid0, cid1, cid2, cid3, cid4, cid5
+  integer, dimension(1-g:sz(1)+g, 1-g:sz(2)+g, 1-g:sz(3)+g)  :: pid
+	real										:: rhof
+	real										:: cpf
+	real										:: kf
+  real                    :: dx, dt
+	real										:: Tc
+	real										:: tp, tw, te, ts, tn, tb, tt
+	integer									:: cidp
+	integer									:: cidp0, cidp1, cidp2, cidp3, cidp4, cidp5
+	integer									:: pidp, pidw, pide, pids, pidn, pidb, pidt
+	real										:: d0, d1, d2, d3, d4, d5
+	real										:: m0, m1, m2, m3, m4, m5
+	real										:: qx0, qy0, qz0
+	ix = sz(1)
+	jx = sz(2)
+	kx = sz(3)
+	qx0 = 0.0
+	qy0 = 0.0
+	qz0 = 0.0
+#ifdef _BLOCK_IS_LARGE_
+!$omp parallel private(i, j, k) 
+!$omp do schedule(static, 1), &
+!$omp		 reduction(+:qx0, qy0, qz0)
+#else
+#endif
+	do k=1, kx
+	do j=1, jx
+!ocl nouxsimd
+	do i=1, ix
+		tp = t(i, j, k)
+		tw = t(i-1, j, k)
+		te = t(i+1, j, k)
+		ts = t(i, j-1, k)
+		tn = t(i, j+1, k)
+		tb = t(i, j, k-1)
+		tt = t(i, j, k+1)
+
+		m0 = 0.0d0
+		m1 = 0.0d0
+		m2 = 0.0d0
+		m3 = 0.0d0
+		m4 = 0.0d0
+		m5 = 0.0d0
+
+		d0 = c0(i, j, k)
+		d1 = c1(i, j, k)
+		d2 = c2(i, j, k)
+		d3 = c3(i, j, k)
+		d4 = c4(i, j, k)
+		d5 = c5(i, j, k)
+
+		cidp0 = cid0(i, j, k)
+		cidp1 = cid1(i, j, k)
+		cidp2 = cid2(i, j, k)
+		cidp3 = cid3(i, j, k)
+		cidp4 = cid4(i, j, k)
+		cidp5 = cid5(i, j, k)
+
+		pidp = pid(i, j, k)
+
+		if( cidp0 /= 0 ) then
+			tw  = (1.0d0 - 1.0d0/d0)*tp + (1.0d0/d0)*Tc
+			m0 = 1.0d0
+		endif
+		if( cidp1 /= 0 ) then
+			te  = (1.0d0 - 1.0d0/d1)*tp + (1.0d0/d1)*Tc
+			m1 = 1.0d0
+		endif
+		if( cidp2 /= 0 ) then
+			ts  = (1.0d0 - 1.0d0/d2)*tp + (1.0d0/d2)*Tc
+			m2 = 1.0d0
+		endif
+		if( cidp3 /= 0 ) then
+			tn  = (1.0d0 - 1.0d0/d3)*tp + (1.0d0/d3)*Tc
+			m3 = 1.0d0
+		endif
+		if( cidp4 /= 0 ) then
+			tb  = (1.0d0 - 1.0d0/d4)*tp + (1.0d0/d4)*Tc
+			m4 = 1.0d0
+		endif
+		if( cidp5 /= 0 ) then
+			tt  = (1.0d0 - 1.0d0/d5)*tp + (1.0d0/d5)*Tc
+			m5 = 1.0d0
+		endif
+
+		if( pidp /= 1 ) then
+			m0 = 0.0d0
+			m1 = 0.0d0
+			m2 = 0.0d0
+			m3 = 0.0d0
+			m4 = 0.0d0
+			m5 = 0.0d0
+		endif
+
+		qx(i, j, k) = - kf*(tp - tw)/dx*m0 &
+									+ kf*(te - tp)/dx*m1
+		qy(i, j, k) = - kf*(tp - ts)/dx*m2 &
+									+ kf*(tn - tp)/dx*m3
+		qz(i, j, k) = - kf*(tp - tb)/dx*m4 &
+									+ kf*(tt - tp)/dx*m5
+
+		qx0 = qx0 + qx(i, j, k)
+		qy0 = qy0 + qy(i, j, k)
+		qz0 = qz0 + qz(i, j, k)
+	end do
+	end do
+	end do
+#ifdef _BLOCK_IS_LARGE_
+!$omp end do
+!$omp end parallel
+#else
+#endif
+	q(1) = qx0
+	q(2) = qy0
+	q(3) = qz0
+end subroutine bcut_calc_q
 
 subroutine bcut_set_a( &
 								ux, uy, uz, &
@@ -4109,7 +4263,7 @@ subroutine bcut_set_a( &
   ix = sz(1)
   jx = sz(2)
   kx = sz(3)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k) &
 !$omp					 private(x, y, z) &
 !$omp					 private(r) &
@@ -4136,7 +4290,7 @@ subroutine bcut_set_a( &
   end do
   end do
   end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -4164,7 +4318,7 @@ subroutine bcut_set_fluidseed( &
   ix = sz(1)
   jx = sz(2)
   kx = sz(3)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k) &
 !$omp					 private(x0, y0, z0) &
 !$omp					 private(x1, y1, z1) &
@@ -4195,7 +4349,7 @@ subroutine bcut_set_fluidseed( &
   end do
   end do
   end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else

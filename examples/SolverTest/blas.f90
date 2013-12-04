@@ -1,3 +1,13 @@
+!
+! BCMTools
+!
+! Copyright (C) 2011-2013 Institute of Industrial Science, The University of Tokyo.
+! All rights reserved.
+!
+! Copyright (c) 2012-2013 Advanced Institute for Computational Science, RIKEN.
+! All rights reserved.
+!
+
 subroutine fill(x, a, sz, g)
   implicit none
   integer, dimension(3)   :: sz
@@ -9,7 +19,7 @@ subroutine fill(x, a, sz, g)
   ix = sz(1)
   jx = sz(2)
   kx = sz(3)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k)
 !$omp do
 #else
@@ -21,7 +31,7 @@ subroutine fill(x, a, sz, g)
   end do
   end do
   end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -41,7 +51,7 @@ subroutine fill_vf3d(x, a, sz, g, ne)
   ix = sz(1)
   jx = sz(2)
   kx = sz(3)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(l, i, j, k)
 !$omp do
 #else
@@ -55,7 +65,7 @@ subroutine fill_vf3d(x, a, sz, g, ne)
   end do
   end do
   end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -73,7 +83,7 @@ subroutine copy(y, x, sz, g)
 	ix = sz(1)
 	jx = sz(2)
 	kx = sz(3)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k)
 !$omp do
 #else
@@ -85,12 +95,42 @@ subroutine copy(y, x, sz, g)
 	end do
 	end do
 	end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
 #endif
 end subroutine copy
+
+subroutine copy_integer(y, x, sz, g)
+	implicit none
+	integer, dimension(3)		:: sz
+	integer									:: g
+	integer									:: i, j, k
+	integer									:: ix, jx, kx
+	integer, dimension(1-g:sz(1)+g, 1-g:sz(2)+g, 1-g:sz(3)+g)	:: y
+	integer, dimension(1-g:sz(1)+g, 1-g:sz(2)+g, 1-g:sz(3)+g)	:: x
+	ix = sz(1)
+	jx = sz(2)
+	kx = sz(3)
+#ifdef _BLOCK_IS_LARGE_
+!$omp parallel private(i, j, k)
+!$omp do
+#else
+#endif
+	do k=1-g, kx+g
+	do j=1-g, jx+g
+	do i=1-g, ix+g
+		y(i, j, k) = x(i, j, k)
+	end do
+	end do
+	end do
+#ifdef _BLOCK_IS_LARGE_
+!$omp end do
+!$omp end parallel
+#else
+#endif
+end subroutine copy_integer
 
 subroutine add(C, A, B, sz, g)
 	implicit none
@@ -103,7 +143,7 @@ subroutine add(C, A, B, sz, g)
 	ix = sz(1)
 	jx = sz(2)
 	kx = sz(3)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k)
 !$omp do
 #else
@@ -118,7 +158,7 @@ subroutine add(C, A, B, sz, g)
 	end do
 	end do
 	end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -137,7 +177,7 @@ subroutine triad(C, A, B, d, sz, g)
 	ix = sz(1)
 	jx = sz(2)
 	kx = sz(3)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k)
 !$omp do
 #else
@@ -152,7 +192,7 @@ subroutine triad(C, A, B, d, sz, g)
 	end do
 	end do
 	end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -170,7 +210,7 @@ subroutine scal(y, a, sz, g)
 	ix = sz(1)
 	jx = sz(2)
 	kx = sz(3)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k)
 !$omp do
 #else
@@ -185,7 +225,7 @@ subroutine scal(y, a, sz, g)
 	end do
 	end do
 	end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -204,7 +244,7 @@ subroutine axpy(y, x, a, sz, g)
 	ix = sz(1)
 	jx = sz(2)
 	kx = sz(3)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k)
 !$omp do
 #else
@@ -219,7 +259,7 @@ subroutine axpy(y, x, a, sz, g)
 	end do
 	end do
 	end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -238,7 +278,7 @@ subroutine xpay(y, x, a, sz, g)
 	ix = sz(1)
 	jx = sz(2)
 	kx = sz(3)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k)
 !$omp do
 #else
@@ -253,7 +293,7 @@ subroutine xpay(y, x, a, sz, g)
 	end do
 	end do
 	end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -273,7 +313,7 @@ subroutine axpyz(z, x, y, a, sz, g)
 	ix = sz(1)
 	jx = sz(2)
 	kx = sz(3)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k)
 !$omp do
 #else
@@ -288,7 +328,7 @@ subroutine axpyz(z, x, y, a, sz, g)
 	end do
 	end do
 	end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -307,7 +347,7 @@ subroutine axpbypz(z, x, y, a, b, sz, g)
 	ix = sz(1)
 	jx = sz(2)
 	kx = sz(3)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k)
 !$omp do
 #else
@@ -322,7 +362,7 @@ subroutine axpbypz(z, x, y, a, b, sz, g)
 	end do
 	end do
 	end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -342,9 +382,9 @@ subroutine dot(xy, x, y, sz, g)
 	jx = sz(2)
 	kx = sz(3)
 	xy = 0.0
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k)
-!$omp do reduction(+:xy), schedule(dynamic,1)
+!$omp do reduction(+:xy)
 #else
 !ocl nouxsimd
 !ocl serial
@@ -357,7 +397,7 @@ subroutine dot(xy, x, y, sz, g)
 	end do
 	end do
 	end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -379,9 +419,9 @@ subroutine dotx2(xy, xz, x, y, z, sz, g)
 	kx = sz(3)
 	xy = 0.0
 	xz = 0.0
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k)
-!$omp do reduction(+:xy,xz), schedule(dynamic,1)
+!$omp do reduction(+:xy,xz)
 #else
 !ocl nouxsimd
 !ocl serial
@@ -395,7 +435,7 @@ subroutine dotx2(xy, xz, x, y, z, sz, g)
 	end do
 	end do
 	end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -422,10 +462,10 @@ subroutine jacobi_smoother( &
 	ix = sz(1)
 	jx = sz(2)
 	kx = sz(3)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k) &
 !$omp					 private(r, x_tmp)
-!$omp do schedule(dynamic,1)
+!$omp do schedule(static,1)
 #else
 !ocl nouxsimd
 !ocl serial
@@ -447,7 +487,7 @@ subroutine jacobi_smoother( &
 	end do
 	end do
 	end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -474,10 +514,10 @@ subroutine jacobi_smoother2( &
 	ix = sz(1)
 	jx = sz(2)
 	kx = sz(3)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k) &
 !$omp					 private(r, x_tmp)
-!$omp do schedule(dynamic,1)
+!$omp do schedule(static,1)
 #else
 !ocl nouxsimd
 !ocl serial
@@ -499,7 +539,7 @@ subroutine jacobi_smoother2( &
 	end do
 	end do
 	end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -522,9 +562,9 @@ subroutine calc_ax( &
 	ix = sz(1)
 	jx = sz(2)
 	kx = sz(3)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel
-!$omp do schedule(dynamic, 1) &
+!$omp do schedule(static, 1) &
 !$omp		,private(i, j, k) 
 #else
 !ocl nouxsimd
@@ -545,7 +585,7 @@ subroutine calc_ax( &
 	end do
 	end do
 	end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -570,9 +610,9 @@ subroutine calc_r( &
 	ix = sz(1)
 	jx = sz(2)
 	kx = sz(3)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel
-!$omp do schedule(dynamic, 1) &
+!$omp do schedule(static, 1) &
 !$omp		,private(i, j, k) 
 #else
 !ocl nouxsimd
@@ -593,7 +633,7 @@ subroutine calc_r( &
 	end do
 	end do
 	end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -620,9 +660,9 @@ subroutine calc_r2( &
 	jx = sz(2)
 	kx = sz(3)
 	rr = 0.0
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel
-!$omp do schedule(dynamic, 1) &
+!$omp do schedule(static, 1) &
 !$omp		 private(i, j, k) &
 !$omp		 private(r) &
 !$omp		 reduction(+:rr)
@@ -643,7 +683,7 @@ subroutine calc_r2( &
 	end do
 	end do
 	end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -664,7 +704,7 @@ subroutine setup_mask( &
 	ix = sz(1)
 	jx = sz(2)
 	kx = sz(3)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k)
 !$omp do
 #else
@@ -677,13 +717,13 @@ subroutine setup_mask( &
 	end do
 	end do
 	end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
 #endif
 
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j, k)
 !$omp do
 #else
@@ -696,7 +736,7 @@ subroutine setup_mask( &
 	end do
 	end do
 	end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -890,9 +930,15 @@ subroutine jacobi_smoother_mask( &
   cz = sz(3) + 2*g
   ijk0 = cx*cy*g + cx*g + g + 1
   ijkx = cx*cy*cz - ijk0 + 1
+#ifdef _BLOCK_IS_LARGE_
+!$omp parallel private(ijk) &
+!$omp					 private(r, x_tmp)
+!$omp do 
+#else
 !ocl serial
 !ocl nouxsimd
 !dir$ simd
+#endif
 	do ijk=ijk0, ijkx
 		if( mask(ijk) == 1 ) then	
 			r = b(ijk) &
@@ -906,7 +952,37 @@ subroutine jacobi_smoother_mask( &
 			x1(ijk) = x0(ijk) - omega*(x0(ijk) - x_tmp)
     end if
 	end do
+#ifdef _BLOCK_IS_LARGE_
+!$omp end do
+!$omp end parallel
+#else
+#endif
 end subroutine jacobi_smoother_mask
+
+subroutine copy_mask(y, x, mask, sz, g)
+	implicit none
+	integer									:: cx, cy, cz
+	integer									:: ijk
+	integer									:: ijk0, ijkx
+	integer, dimension(3)		:: sz
+	integer									:: g
+	real, dimension(1:(sz(1)+2*g)*(sz(2)+2*g)*(sz(3)+2*g))	:: y
+	real, dimension(1:(sz(1)+2*g)*(sz(2)+2*g)*(sz(3)+2*g))	:: x
+	integer, dimension(1:(sz(1)+2*g)*(sz(2)+2*g)*(sz(3)+2*g))	:: mask
+  cx = sz(1) + 2*g
+  cy = sz(2) + 2*g
+  cz = sz(3) + 2*g
+  ijk0 = cx*cy*g + cx*g + g + 1
+  ijkx = cx*cy*cz - ijk0 + 1
+!ocl serial
+!ocl nouxsimd
+!dir$ simd
+	do ijk=ijk0, ijkx
+		if( mask(ijk) == 1 ) then	
+      y(ijk) = x(ijk)
+    end if
+	end do
+end subroutine copy_mask
 
 subroutine calc_ax_mask( &
 								Ax, &

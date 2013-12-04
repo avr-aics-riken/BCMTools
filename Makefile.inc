@@ -1,29 +1,40 @@
+# For GCC
+CXX        = g++
+OPT_FLAGS  = -O3 
+OMP_FLAGS  = -fopenmp
+MPI_DIR    = /usr/lib/openmpi
+DEFINES    = #-DDEBUG
+DEFINES   += -D_BLOCK_IS_LARGE
+CFLAGS     = $(OPT_FLAGS) $(OMP_FLAGS) $(DEFINES) -I$(MPI_DIR)/include
+AR     = ar cru
+RANLIB = ranlib
+RM     = \rm -f
 
-DEFINES = -DDEBUG
+# For K/FX10
+CXX        = mpiFCCpx
+OPT_FLAGS  = -Kfast,ocl,preex,simd=2,uxsimd,array_private,parallel,optmsg=1 -V -Nsrc -Xg
+OMP_FLAGS  = -Kopenmp
+MPI_DIR    =
+DEFINES    = #-DDEBUG
+DEFINES   += -D_BLOCK_IS_LARGE
+CFLAGS     = $(OPT_FLAGS) $(OMP_FLAGS) $(DEFINES) -I$(MPI_DIR)/include
+AR     = ar cr
+RANLIB = ranlib
+RM     = \rm -f
 
-CXX = mpic++
-OPTIONS = $(DEFINES) -DTIMING -O3 -ftree-vectorize -g -Wall -Wno-sign-compare -Wunknown-pragmas -fopenmp
+# For Intel compiler
+CXX        = icpc
+OPT_FLAGS  = -O3 #-xAVX
+OMP_FLAGS  = -openmp
+MPI_DIR    = /usr/lib/openmpi
+DEFINES    = #-DDEBUG
+DEFINES   += -D_BLOCK_IS_LARGE
+CFLAGS     = $(OPT_FLAGS) $(OMP_FLAGS) $(DEFINES) -I$(MPI_DIR)/include
+AR     = ar cru
+RANLIB = ranlib
+RM     = \rm -f
 
-#CXX = mpiFCCpx
-#OPTIONS = $(DEFINES) -Xg -Kfast,openmp,ocl,optmsg=2 -Nsrc
-
-
-#可視化用出力を利用するには，次の設定も必要
-#  SILO_INC: Siloライブラリのインクルードファイルディレクトリ指定
-#  SILO_LIB: Siloライブラリのリンクオプション
-
-#SILO_INC = -I$(HOME)/silo-4.8-bsd/include
-#SILO_LIB = -L$(HOME)/silo-4.8-bsd/lib -L$(HOME)/hdf5-1.8.9/hdf5/lib -lsiloh5 -lhdf5 -lz
-
-#SILO_INC = -I$(HOME)/opt/include
-#SILO_LIB = -L$(HOME)/opt/lib -lsiloh5 -lhdf5 -lz
-
-#SILO_INC = -I$(HOME)/FX10/include
-#SILO_LIB = -L$(HOME)/FX10/lib -lsiloh5 -lhdf5 -lz
-
-#SILO_INC = -I$(HOME)/K/include
-#SILO_LIB = -L$(HOME)/K/lib -lsiloh5 -lhdf5 -lz
-
-SILO_INC = 
-SILO_LIB = -lsiloh5 -lhdf5 -lz
-
+# マクロ: _BLOCK_IS_LARGE_
+#  BCMブロックが大きく（ブロック内セル数が多い），数が少ない場合に，
+#  高速化が期待できる．
+#  BCMブロックが小さく，数が多い場合は，逆効果．

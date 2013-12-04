@@ -1,3 +1,14 @@
+/*
+ * BCMTools
+ *
+ * Copyright (C) 2011-2013 Institute of Industrial Science, The University of Tokyo.
+ * All rights reserved.
+ *
+ * Copyright (c) 2012-2013 Advanced Institute for Computational Science, RIKEN.
+ * All rights reserved.
+ *
+ */
+
 ///
 /// @file Vec3.h
 /// @brief 3次元ベクトル テンプレートクラス.
@@ -123,21 +134,21 @@ public:
 };
 
 template <typename T>
-inline std::ostream& operator<<(std::ostream& os, const Vec3<T>& v) {
+inline std::ostream& operator<<(std::ostream& os, const ::Vec3<T>& v) {
     return os << "(" << v.x << ", " << v.y << ", " << v.z << ")";
 }
 
 template <typename T>
-inline std::istream& operator>>(std::istream& is, Vec3<T>& v) {
+inline std::istream& operator>>(std::istream& is, ::Vec3<T>& v) {
     return is >> v.x >> v.y >> v.z;
 }
 
 
 /// 3次元整数ベクトルクラス.
-typedef Vec3<int> Vec3i;
+typedef ::Vec3<int> Vec3i;
 
 /// 3次元実数ベクトルクラス.
-typedef Vec3<double> Vec3r;
+typedef ::Vec3<double> Vec3r;
 
 
 inline double dotProduct(const Vec3r& u, const Vec3r& v) {

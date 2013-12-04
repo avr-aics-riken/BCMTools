@@ -1,3 +1,14 @@
+/*
+ * BCMTools
+ *
+ * Copyright (C) 2011-2013 Institute of Industrial Science, The University of Tokyo.
+ * All rights reserved.
+ *
+ * Copyright (c) 2012-2013 Advanced Institute for Computational Science, RIKEN.
+ * All rights reserved.
+ *
+ */
+
 #ifndef CONFIG_H
 #define CONFIG_H
 
@@ -35,10 +46,15 @@ inline std::istream& operator>>(std::istream& is,
 class Config : public ConfigBase {
 
 public:
+	string operatorname;
+
   Vec3r origin;        ///< 原点座標
   double rootLength;   ///< ルートノードボックスの辺長
   Vec3i rootN;         ///< ルートノード配置
   Vec3r seed;
+	bool periodicX;
+	bool periodicY;
+	bool periodicZ;
 
   int minLevel;  ///< 最小分割レベル
   int maxLevel;  ///< 最大分割レベル
@@ -81,6 +97,7 @@ public:
 	double epsilonP;
 	int countPreConditionerP;
 
+	bool bHeat;
 	double omegaT;
 	int countMaxT;
 	double epsilonT;
@@ -94,6 +111,12 @@ public:
 	double kf;
 	double ks;
 	double mu;
+	double gx;
+	double gy;
+	double gz;
+	double uxs0;
+	double uys0;
+	double uzs0;
 
 	int StepStart;
 	int StepEnd;
@@ -112,6 +135,9 @@ public:
 	double cutoff_epsilon;
 	bool voxelization;
 	bool symmetrization;
+	bool holefilling;
+	bool holefilling2;
+	bool masking;
 
 	int AccelDuration;
 	int STEP_ACCELDURATION;
@@ -119,6 +145,7 @@ public:
 	bool vtkWriteForce;
 
 	bool BCMFileSave;
+	bool PLOT3DSave;
 
 	int boundaryTypeUX_X_M;
 	int boundaryTypeUX_X_P;
@@ -185,15 +212,24 @@ public:
 	double boundaryValueT_Z_M;
 	double boundaryValueT_Z_P;
 
+	Vec3r boundaryValuePoiseuilleCenter;
+
 	bool GridGenerationMode;
+	bool BenchMode;
 
 private:
 
   void parse() {
+		operatorname = read<string>("OperatorName", "v(^_^)v");
+
     origin = read<Vec3r>("origin", Vec3r(0, 0, 0));
     rootLength = read<double>("rootLength", 1.0);
     rootN = read<Vec3i>("rootGrid", Vec3i(1, 1, 1));
     seed   = read<Vec3r>("seed", Vec3r(origin.x, origin.y, origin.z));
+
+		periodicX = read<bool>("PeriodicX", false);
+		periodicY = read<bool>("PeriodicY", false);
+		periodicZ = read<bool>("PeriodicZ", false);
 
     minLevel = read<int>("minLevel", 0);
     maxLevel = read<int>("maxLevel");
@@ -238,6 +274,7 @@ private:
 		countPreConditionerP
 							= read<int>("countPreConditionerP", 1);
 
+		bHeat     = read<bool>("HeatProblem", true);
     omegaT    = read<double>("omegaT", 1.0);
 		countMaxT = read<int>("countMaxT", 1000);
 		epsilonT  = read<double>("epsilonT", 1.0e-5);
@@ -258,6 +295,12 @@ private:
 		kf		= read<double>("kf");
 		ks		= read<double>("ks");
 		mu		= read<double>("mu");
+		gx    = read<double>("gx", 0.0);
+		gy    = read<double>("gy", 0.0);
+		gz    = read<double>("gz", 0.0);
+		uxs0  = read<double>("uxs0", 0.0);
+		uys0  = read<double>("uys0", 0.0);
+		uzs0  = read<double>("uzs0", 0.0);
 
 		StepStart      = read<int>("StepStart");
 		StepEnd        = read<int>("StepEnd");
@@ -273,6 +316,9 @@ private:
 		cutoff_epsilon = read<double>("cutoff_epsilon", 0.0);
     voxelization   = read<bool>("voxelization", false);
 		symmetrization = read<bool>("symmetrization", false);
+		holefilling    = read<bool>("holefilling", true);
+		holefilling2   = read<bool>("holefilling2", true);
+		masking        = read<bool>("masking", true);
 
 		AccelDuration  = read<int>("AccelDuration", 0);
 		STEP_ACCELDURATION
@@ -281,6 +327,7 @@ private:
 		vtkWriteForce  = read<bool>("VtkWriteForce", false);
 
 		BCMFileSave    = read<bool>("BCMFileSave", false);
+		PLOT3DSave     = read<bool>("PLOT3DSave", false);
 
 		boundaryTypeUX_X_M = read<int>("boundaryTypeUX_X_M");
 		boundaryTypeUX_X_P = read<int>("boundaryTypeUX_X_P");
@@ -347,7 +394,10 @@ private:
 		boundaryValueT_Z_M = read<double>("boundaryValueT_Z_M");
 		boundaryValueT_Z_P = read<double>("boundaryValueT_Z_P");
 
+		boundaryValuePoiseuilleCenter = read<Vec3r>("boundaryValuePoiseuilleCenter", Vec3r(0.0, 0.0, 0.0));
+
 		GridGenerationMode = read<bool>("GridGenerationMode", false);
+		BenchMode          = read<bool>("BenchMode", false);
   }
 
   bool validate() {

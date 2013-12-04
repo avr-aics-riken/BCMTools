@@ -1,7 +1,19 @@
+##############################
+#
+# BCMTools
+#
+# Copyright (C) 2011-2013 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2013 Advanced Institute for Computational Science, RIKEN.
+# All rights reserved.
+#
+##############################
+
 PROGRAM = a.out
 
 BCMLIB = ../../lib/libbcm.a
-UTIL = ../util
+UTIL = ../../Utils
 
 vpath %.cpp $(UTIL)/src
 
@@ -10,10 +22,10 @@ UTIL_OBJS = ConfigFile.o ConfigBase.o BCMOctree.o
 
 include ../../Makefile.inc
 
-CFLAGS = -I../../include -I$(UTIL)/include $(OPTIONS)
+CFLAGS += -I../../include -I$(UTIL)/include $(OPTIONS)
 
 LDFLAGS = 
-LIBS = $(BCMLIB) 
+LIBS = $(BCMLIB) -lmpi -lmpi_cxx
 
 PROGRAM: $(OBJS) $(UTIL_OBJS)
 	$(CXX) $(CFLAGS) $(LDFLAGS) -o $(PROGRAM) $(OBJS) $(UTIL_OBJS) $(LIBS)

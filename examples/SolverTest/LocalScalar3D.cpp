@@ -1,9 +1,32 @@
+/*
+ * BCMTools
+ *
+ * Copyright (C) 2011-2013 Institute of Industrial Science, The University of Tokyo.
+ * All rights reserved.
+ *
+ * Copyright (c) 2012-2013 Advanced Institute for Computational Science, RIKEN.
+ * All rights reserved.
+ *
+ */
+
 #include "LocalScalar3D.h"
 
 #include "bsf3d.h"
+#include "comm.h"
 
 template <>
 void LocalScalar3D<real>::CalcStats(BlockManager& blockManager) {
+	BlockBase* block0 = blockManager.getBlock(0);
+	::Vec3i size = block0->getSize();
+	real* pData0 = GetBlockData(block0);
+
+	int m0 = vc + (size.x+2*vc)*(vc + (size.y+2*vc)*vc);
+	sum_l = 0.0;
+	max_l = pData0[m0];
+	min_l = pData0[m0];
+	absmax_l = abs(pData0[m0]);
+	absmin_l = abs(pData0[m0]);
+
 	for (int id = 0; id < blockManager.getNumBlock(); ++id) {
 		BlockBase* block = blockManager.getBlock(id);
 		::Vec3i size = block->getSize();
@@ -16,76 +39,40 @@ void LocalScalar3D<real>::CalcStats(BlockManager& blockManager) {
 		real dx = cellSize.x;
 	
 		real* pData = GetBlockData(block);
-		if( id==0 ) {
-			int m0 = vc + (size.x+2*vc)*(vc + (size.y+2*vc)*vc);
-			sum = 0.0;
-			max = pData[m0];
-			min = pData[m0];
-			absmax = abs(pData[m0]);
-			absmin = abs(pData[m0]);
-		}
+		real sum_b = 0.0;
+		real max_b = 0.0;
+		real min_b = 0.0;
+		real absmax_b = 0.0;
+		real absmin_b = 0.0;
 		sf3d_calc_stats_(
-					&sum,
-					&max,
-					&min,
-					&absmax,
-					&absmin,
+					&sum_b,
+					&max_b,
+					&min_b,
+					&absmax_b,
+					&absmin_b,
 					pData,
 					sz, g);
+
+		sum_l += sum_b;
+		if( max_b > max_l ) {
+			max_l = max_b;
+		}
+		if( min_b < min_l ) {
+			min_l = min_b;
+		}
+		if( absmax_b > absmax_l ) {
+			absmax_l = absmax_b;
+		}
+		if( absmin_b < absmin_l ) {
+			absmin_l = absmin_b;
+		}
 	}
 
-	real sum_tmp = sum;
-#ifdef _REAL_IS_DOUBLE_		
-	MPI_Allreduce(&sum_tmp, &sum, 1, MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_WORLD);
-#else
-	MPI_Allreduce(&sum_tmp, &sum, 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
-#endif
-
-	real max_tmp = max;
-#ifdef _REAL_IS_DOUBLE_		
-	MPI_Allreduce(&max_tmp, &max, 1, MPI_DOUBLE_PRECISION, MPI_MAX, MPI_COMM_WORLD);
-#else
-	MPI_Allreduce(&max_tmp, &max, 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
-#endif
-
-	real min_tmp = min;
-#ifdef _REAL_IS_DOUBLE_		
-	MPI_Allreduce(&min_tmp, &min, 1, MPI_DOUBLE_PRECISION, MPI_MIN, MPI_COMM_WORLD);
-#else
-	MPI_Allreduce(&min_tmp, &min, 1, MPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
-#endif
-
-	real absmax_tmp = absmax;
-#ifdef _REAL_IS_DOUBLE_		
-	MPI_Allreduce(&absmax_tmp, &absmax, 1, MPI_DOUBLE_PRECISION, MPI_MAX, MPI_COMM_WORLD);
-#else
-	MPI_Allreduce(&absmax_tmp, &absmax, 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
-#endif
-
-	real absmin_tmp = absmin;
-#ifdef _REAL_IS_DOUBLE_		
-	MPI_Allreduce(&absmin_tmp, &absmin, 1, MPI_DOUBLE_PRECISION, MPI_MIN, MPI_COMM_WORLD);
-#else
-	MPI_Allreduce(&absmin_tmp, &absmin, 1, MPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
-#endif
-
-/*
-	real n_grids = (real)(m_iNX*m_iNY*m_iNZ);
-	real n_grids_tmp = n_grids;
-#ifdef _REAL_IS_DOUBLE_
-	MPI_Allreduce(&n_grids_tmp, &n_grids, 1, MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_WORLD);
-#else
-	MPI_Allreduce(&n_grids_tmp, &n_grids, 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
-#endif
-*/
-
-/*
-	m_rAve = sum/n_grids;
-	m_rMax = max;
-	m_rMin = min;
-	m_rAbsMax = absmax;
-	m_rAbsMin = absmin;
-*/
+	allreduce_(&sum_g, &sum_l);
+	allreduce_max_(&max_g, &max_l);
+	allreduce_min_(&min_g, &min_l);
+	allreduce_max_(&absmax_g, &absmax_l);
+	allreduce_min_(&absmin_g, &absmin_l);
 }
 
 template <>
@@ -93,7 +80,11 @@ void LocalScalar3D<real>::Dump(BlockManager& blockManager, const int step, const
 	ImposeBoundaryCondition(blockManager);
 	MPI::Intracomm comm = blockManager.getCommunicator();
 
-#ifdef _LARGE_BLOCK_
+	ostringstream ossFileNameTime;
+	ossFileNameTime << "./BIN/";
+	mkdir(ossFileNameTime.str().c_str(), 0755);
+
+#ifdef _BLOCK_IS_LARGE_
 #else
 #endif
 	for (int id = 0; id < blockManager.getNumBlock(); ++id) {
@@ -149,7 +140,7 @@ template <>
 void LocalScalar3D<real>::Load(BlockManager& blockManager, const int step, const char* label) {
 	MPI::Intracomm comm = blockManager.getCommunicator();
 
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 #else
 #endif
 	for (int id = 0; id < blockManager.getNumBlock(); ++id) {
@@ -231,6 +222,10 @@ void LocalScalar3D<real>::Dump2(BlockManager& blockManager, const int step, cons
 	ImposeBoundaryCondition(blockManager);
 	MPI::Intracomm comm = blockManager.getCommunicator();
 
+	ostringstream ossFileNameTime;
+	ossFileNameTime << "./BIN/";
+	mkdir(ossFileNameTime.str().c_str(), 0755);
+
 	ostringstream ossFileName;
 	ossFileName << "./BIN/";
 	ossFileName << "dump-";
@@ -264,7 +259,7 @@ void LocalScalar3D<real>::Dump2(BlockManager& blockManager, const int step, cons
 	ofs.write((char*)&iNE   , sizeof(int));
 	ofs.write((char*)&iNB   , sizeof(int));
 
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 #else
 #endif
 	for (int id = 0; id < blockManager.getNumBlock(); ++id) {
@@ -360,7 +355,11 @@ void LocalScalar3D<real>::Dump3(BlockManager& blockManager, const int step, cons
 	ImposeBoundaryCondition(blockManager);
 	MPI::Intracomm comm = blockManager.getCommunicator();
 
-#ifdef _LARGE_BLOCK_
+	ostringstream ossFileNameTime;
+	ossFileNameTime << "./BIN/";
+	mkdir(ossFileNameTime.str().c_str(), 0755);
+
+#ifdef _BLOCK_IS_LARGE_
 #else
 #endif
 	for (int id = 0; id < blockManager.getNumBlock(); ++id) {
@@ -411,7 +410,7 @@ template <>
 void LocalScalar3D<real>::Load3(BlockManager& blockManager, const int step, const char* label, Partition* partition, int myrank) {
 	MPI::Intracomm comm = blockManager.getCommunicator();
 
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 #else
 #endif
 	for (int id = 0; id < blockManager.getNumBlock(); ++id) {

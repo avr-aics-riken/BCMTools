@@ -1,3 +1,14 @@
+/*
+ * BCMTools
+ *
+ * Copyright (C) 2011-2013 Institute of Industrial Science, The University of Tokyo.
+ * All rights reserved.
+ *
+ * Copyright (c) 2012-2013 Advanced Institute for Computational Science, RIKEN.
+ * All rights reserved.
+ *
+ */
+
 #ifndef SOLVER_H
 #define SOLVER_H
 
@@ -13,6 +24,8 @@
 #include "SiloWriter.h"
 
 */
+#include "VtkWriter.h"
+#include "Plot3DWriter.h"
 #include "BCMFileSaver.h"
 
 class Solver {
@@ -22,9 +35,11 @@ public:
 
 private:
 	BlockManager& blockManager;
-	int rank;
+	int myrank;
 	int vc;
 	int diffLevel;
+	int maxLevel;
+	int minLevel;
 
 	RootGrid* rootGrid;
 	BCMOctree* tree;
@@ -69,7 +84,7 @@ private:
 	LocalScalar3D<real> *plsVt;
 
 	LocalScalar3D<real> *plsP0;
-	LocalScalar3D<real> *plsPD;
+	LocalScalar3D<real> *plsP1;
 	LocalScalar3D<real> *plsLapP;
 
 	LocalScalar3D<real> *plsT0;
@@ -100,8 +115,6 @@ private:
 	LocalScalar3D<real> *plsAb;
 	LocalScalar3D<real> *plsAt;
 	LocalScalar3D<real> *plsb;
-
-	LocalScalar3D<real> *plsx0;
 
 	LocalScalar3D<real> *plsr;
 	LocalScalar3D<real> *plsr0;
@@ -164,11 +177,14 @@ private:
 	void UpdateU();
 	void UpdateT();
 
-	int Print(int step, double* times);
-	void PrintTime(int step, double* times);
+	int Print(int step);
+	double times[32];
+	void PrintTime(int step);
+	void PrintILS(int step);
 	void PrintStats(int step);
 	void PrintForce(int step);
 	void PrintData(int step);
+	void PrintLog(int level, const char* format, ...);
 
 	void WritePolygon(std::ofstream& ofs, float *pv);
 	void PrintCut();
@@ -185,6 +201,22 @@ private:
 		VtkWriter writer;
 
 		writer.writePUT<real>(
+						this->plsP0->GetID(),
+						this->plsUX0->GetID(),
+						this->plsUY0->GetID(),
+						this->plsUZ0->GetID(),
+						this->plsLapP->GetID(),
+						this->vc,
+						string(dataname),
+						step,
+						difflevel,
+						rootGrid,
+						tree,
+						partition,
+						conf.origin,
+						conf.rootLength);
+
+		writer.writeVtkOverlappingAMR_PUT<real>(
 						this->plsP0->GetID(),
 						this->plsUX0->GetID(),
 						this->plsUY0->GetID(),
@@ -234,13 +266,42 @@ private:
 							conf.rootLength);
 		}
 
-/*
-		writer.writeVtkOverlappingAMR_PUT<real>(
+	}
+
+	void WriteXYZInPlot3DFormat(
+						const char* dataname,
+						int difflevel,
+						RootGrid* rootGrid,
+						BCMOctree* tree,
+						Partition* partition,
+						Config& conf) {
+		Plot3DWriter writer;
+		writer.writeXYZ(
+						this->plsPhaseId->GetID(),
+						this->vc,
+						string(dataname),
+						difflevel,
+						rootGrid,
+						tree,
+						partition,
+						conf.origin,
+						conf.rootLength);
+	}
+
+	void WriteDataInPlot3DFormat(
+						const char* dataname,
+						int step,
+						int difflevel,
+						RootGrid* rootGrid,
+						BCMOctree* tree,
+						Partition* partition,
+						Config& conf) {
+		Plot3DWriter writer;
+		writer.writeData<real>(
 						this->plsP0->GetID(),
 						this->plsUX0->GetID(),
 						this->plsUY0->GetID(),
 						this->plsUZ0->GetID(),
-						this->plsLapP->GetID(),
 						this->vc,
 						string(dataname),
 						step,
@@ -250,8 +311,6 @@ private:
 						partition,
 						conf.origin,
 						conf.rootLength);
-*/
-
 	}
 
 /*
@@ -410,6 +469,13 @@ private:
 private:
 	double GetTime();
 	void SetValues();
+
+private:
+	string GetSolverName() {
+		ostringstream ossSolverName;
+		ossSolverName << "FFV-BCM(alpha)";
+		return ossSolverName.str();
+	}
 };
 
 

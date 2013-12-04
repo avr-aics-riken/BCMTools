@@ -1,3 +1,14 @@
+!
+! BCMTools
+!
+! Copyright (C) 2011-2013 Institute of Industrial Science, The University of Tokyo.
+! All rights reserved.
+!
+! Copyright (c) 2012-2013 Advanced Institute for Computational Science, RIKEN.
+! All rights reserved.
+!
+
+
 subroutine bc_Aw_d(Ap, Aw, b, xc, sz, g)
 	implicit none
 	integer									:: i, j, k
@@ -11,7 +22,7 @@ subroutine bc_Aw_d(Ap, Aw, b, xc, sz, g)
 	jx = sz(2)
 	kx = sz(3)
 	i = 1
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(j, k)
 !$omp do
 #else
@@ -23,7 +34,7 @@ subroutine bc_Aw_d(Ap, Aw, b, xc, sz, g)
 		Aw(i, j, k) = 0.0d0
 	end do
 	end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -43,7 +54,7 @@ subroutine bc_Ae_d(Ap, Ae, b, xc, sz, g)
 	jx = sz(2)
 	kx = sz(3)
 	i = sz(1)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(j, k)
 !$omp do
 #else
@@ -55,7 +66,7 @@ subroutine bc_Ae_d(Ap, Ae, b, xc, sz, g)
 		Ae(i, j, k) = 0.0d0
 	end do
 	end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -75,7 +86,7 @@ subroutine bc_As_d(Ap, As, b, xc, sz, g)
 	jx = sz(2)
 	kx = sz(3)
 	j = 1
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, k)
 !$omp do
 #else
@@ -87,7 +98,7 @@ subroutine bc_As_d(Ap, As, b, xc, sz, g)
 		As(i, j, k) = 0.0d0
 	end do
 	end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -107,7 +118,7 @@ subroutine bc_An_d(Ap, An, b, xc, sz, g)
 	jx = sz(2)
 	kx = sz(3)
 	j = sz(2)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, k)
 !$omp do
 #else
@@ -119,7 +130,7 @@ subroutine bc_An_d(Ap, An, b, xc, sz, g)
 		An(i, j, k) = 0.0d0
 	end do
 	end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -139,7 +150,7 @@ subroutine bc_Ab_d(Ap, Ab, b, xc, sz, g)
 	jx = sz(2)
 	kx = sz(3)
 	k = 1
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j)
 !$omp do
 #else
@@ -151,7 +162,7 @@ subroutine bc_Ab_d(Ap, Ab, b, xc, sz, g)
 		Ab(i, j, k) = 0.0d0
 	end do
 	end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -171,7 +182,7 @@ subroutine bc_At_d(Ap, At, b, xc, sz, g)
 	jx = sz(2)
 	kx = sz(3)
 	k = sz(3)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j)
 !$omp do
 #else
@@ -183,7 +194,7 @@ subroutine bc_At_d(Ap, At, b, xc, sz, g)
 		At(i, j, k) = 0.0d0
 	end do
 	end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -203,7 +214,7 @@ subroutine bc_Aw_n(Ap, Aw, b, xc, sz, g)
 	jx = sz(2)
 	kx = sz(3)
 	i = 1
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(j, k)
 !$omp do
 #else
@@ -215,7 +226,7 @@ subroutine bc_Aw_n(Ap, Aw, b, xc, sz, g)
 		Aw(i, j, k) = 0.0d0
 	end do
 	end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -235,7 +246,7 @@ subroutine bc_Ae_n(Ap, Ae, b, xc, sz, g)
 	jx = sz(2)
 	kx = sz(3)
 	i = sz(1)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(j, k)
 !$omp do
 #else
@@ -247,7 +258,7 @@ subroutine bc_Ae_n(Ap, Ae, b, xc, sz, g)
 		Ae(i, j, k) = 0.0d0
 	end do
 	end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -267,7 +278,7 @@ subroutine bc_As_n(Ap, As, b, xc, sz, g)
 	jx = sz(2)
 	kx = sz(3)
 	j = 1
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, k)
 !$omp do
 #else
@@ -279,7 +290,7 @@ subroutine bc_As_n(Ap, As, b, xc, sz, g)
 		As(i, j, k) = 0.0d0
 	end do
 	end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -299,7 +310,7 @@ subroutine bc_An_n(Ap, An, b, xc, sz, g)
 	jx = sz(2)
 	kx = sz(3)
 	j = sz(2)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, k)
 !$omp do
 #else
@@ -311,7 +322,7 @@ subroutine bc_An_n(Ap, An, b, xc, sz, g)
 		An(i, j, k) = 0.0d0
 	end do
 	end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -331,7 +342,7 @@ subroutine bc_Ab_n(Ap, Ab, b, xc, sz, g)
 	jx = sz(2)
 	kx = sz(3)
 	k = 1
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j)
 !$omp do
 #else
@@ -343,7 +354,7 @@ subroutine bc_Ab_n(Ap, Ab, b, xc, sz, g)
 		Ab(i, j, k) = 0.0d0
 	end do
 	end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else
@@ -363,7 +374,7 @@ subroutine bc_At_n(Ap, At, b, xc, sz, g)
 	jx = sz(2)
 	kx = sz(3)
 	k = sz(3)
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(i, j)
 !$omp do
 #else
@@ -375,7 +386,7 @@ subroutine bc_At_n(Ap, At, b, xc, sz, g)
 		At(i, j, k) = 0.0d0
 	end do
 	end do
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 !$omp end do
 !$omp end parallel
 #else

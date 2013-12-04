@@ -1,3 +1,14 @@
+/*
+ * BCMTools
+ *
+ * Copyright (C) 2011-2013 Institute of Industrial Science, The University of Tokyo.
+ * All rights reserved.
+ *
+ * Copyright (c) 2012-2013 Advanced Institute for Computational Science, RIKEN.
+ * All rights reserved.
+ *
+ */
+
 ///
 /// @file BlockManager.h
 /// @brief ブロックマネージャクラス
@@ -176,6 +187,7 @@ public:
 
   /// ブロック配置情報を出力.
   void printBlockLayoutInfo();
+  void printBlockLayoutInfo(const char* filename);
 
   /// データクラスDの生成・登録.
   ///
@@ -213,6 +225,42 @@ public:
       BlockBase* block = *it;
       Vec3i size = block->getSize();
       D* dataClass = new D(size, vc);
+      U* updater = new U(block->getNeighborInfo());
+      dataClass->setUpdater(updater);
+      int id0 = block->setDataClass(dataClass); 
+      if (it == blockList.begin()) {
+        id = id0;
+      } else {
+        if (id != id0) {
+          std::cout << "error: DataClass register inconsistency" << std::endl;
+          Exit(EX_FAILURE);
+        }
+      }
+    }
+    return id;
+  }
+
+  /// 仮想セルアップデータUを持つデータクラスDの生成・登録(for contiguous memory access).
+  ///
+  ///  @param[in] vc 仮想セル幅
+  ///
+  template <typename D, typename U, typename T>
+  int setDataClass(int vc) {
+    int id = -1;
+    BlockList::const_iterator it = blockList.begin();
+		int nb = blockList.size();
+    BlockBase* block = *it;
+    Vec3i size = block->getSize();
+    int nx0 = size[0] + 2*vc;
+    int ny0 = size[1] + 2*vc;
+    int nz0 = size[2] + 2*vc;
+		T* data = new T[nx0*ny0*nz0*nb];
+		int n = 0;
+    for (; it != blockList.end(); ++it) {
+      BlockBase* block = *it;
+      Vec3i size = block->getSize();
+      D* dataClass = new D(size, vc, &data[nx0*ny0*nz0*n]);
+			n++;
       U* updater = new U(block->getNeighborInfo());
       dataClass->setUpdater(updater);
       int id0 = block->setDataClass(dataClass); 

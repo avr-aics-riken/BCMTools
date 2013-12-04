@@ -1,3 +1,15 @@
+##############################
+#
+# BCMViewer - BCM mesh viewer
+#
+# Copyright (C) 2011-2013 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2013 Advanced Institute for Computational Science, RIKEN.
+# All rights reserved.
+#
+##############################
+
 UNAME = $(shell uname -s)
 PTYPE = $(shell uname -p) 
 

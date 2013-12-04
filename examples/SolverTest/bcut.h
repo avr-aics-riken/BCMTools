@@ -1,3 +1,14 @@
+/*
+ * BCMTools
+ *
+ * Copyright (C) 2011-2013 Institute of Industrial Science, The University of Tokyo.
+ * All rights reserved.
+ *
+ * Copyright (c) 2012-2013 Advanced Institute for Computational Science, RIKEN.
+ * All rights reserved.
+ *
+ */
+
 #ifndef __BCUT_H__
 #define __BCUT_H__
 
@@ -105,6 +116,7 @@ extern "C" {
 				real* mu,
 				real* dx, real* dt,
 				real* Us,
+				real* gx, real* gy, real* gz,
 				int *sz, int *g);
 
 	void bcut_calc_ab_u_e1_(

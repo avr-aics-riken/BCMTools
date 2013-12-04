@@ -1,3 +1,14 @@
+/*
+ * BCMTools
+ *
+ * Copyright (C) 2011-2013 Institute of Industrial Science, The University of Tokyo.
+ * All rights reserved.
+ *
+ * Copyright (c) 2012-2013 Advanced Institute for Computational Science, RIKEN.
+ * All rights reserved.
+ *
+ */
+
 ///
 /// @file Scalar3DUpdater2.h
 /// @brief スカラデータクラス仮想セルアップデータ
@@ -243,7 +254,8 @@ private:
   ///
   void linearInterpolate(int i, int n, int& I, double& r) {
 #if 1
-    I = std::min(std::max(i/2 - 1 + i%2, 0), n - 2);
+//    I = std::min(std::max(i/2 - 1 + i%2, 0), n - 2);
+    I = i/2 - 1 + i%2;
     r = -0.25 + 0.5 * i - double(I);
 #else
     if (i == 0) {

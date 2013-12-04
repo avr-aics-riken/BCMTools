@@ -1,3 +1,14 @@
+/*
+ * BCMTools
+ *
+ * Copyright (C) 2011-2013 Institute of Industrial Science, The University of Tokyo.
+ * All rights reserved.
+ *
+ * Copyright (c) 2012-2013 Advanced Institute for Computational Science, RIKEN.
+ * All rights reserved.
+ *
+ */
+
 ///
 /// @file Scalar3D.h
 /// @brief スカラーデータクラス
@@ -43,6 +54,23 @@ public:
     ny0 = size[1] + 2*vc;
     nz0 = size[2] + 2*vc;
     data = new T[nx0*ny0*nz0];
+		vc0 = vc;
+
+    c_j = nx0;
+    c_k = nx0 * ny0;
+    c_0 = (1 + nx0 + nx0 * ny0) * vc;
+  }
+
+  /// コンストラクタ(for contiguous memory access).
+  ///
+  ///  @param[in] size 分割数
+  ///  @param[in] vc 仮想セル幅
+  ///
+  Scalar3D(const ::Vec3i& size, int vc, T* data0) : UpdatableDataClass(size, vc), index(size, vc) {
+    nx0 = size[0] + 2*vc;
+    ny0 = size[1] + 2*vc;
+    nz0 = size[2] + 2*vc;
+    data = data0;
 		vc0 = vc;
 
     c_j = nx0;

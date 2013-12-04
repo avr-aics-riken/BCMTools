@@ -1,28 +1,19 @@
-# Default environment
-FFVC=intel
+##############################
+#
+# BCMViewer - BCM mesh viewer
+#
+# Copyright (C) 2011-2013 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2013 Advanced Institute for Computational Science, RIKEN.
+# All rights reserved.
+#
+##############################
 
-### compiler detection
-
-ifeq ($(FFVC),gnu)
-include ../make_setting.gnu
-endif
-
-ifeq ($(FFVC),fx)
-include ../make_setting.fx
-endif
-
-ifeq ($(FFVC),ibm)
-include ../make_setting.ibm
-endif
-
-ifeq ($(FFVC),intel)
-include ../make_setting.intel
-endif
-
-#####
-
+include ../Makefile.inc
 
 BCMLIB = ../lib/libbcm.a
+CFLAGS += -I. -I../include 
 
 all: $(BCMLIB)
 
@@ -32,15 +23,12 @@ OBJS = CommBuffer/CommBuffer.o Block/BlockManager.o \
 #include ../Makefile.inc
 #DATACLASS_OPT = $(shell awk '/^ *[^\#]/{ printf " -DUSE_%s", $$1}' $(DATACLASS_LIST))
 #CFLAGS = -I. -I../include $(OPTIONS) $(DATACLASS_OPT)
-
-CFLAGS += -I. -I../include 
-
-DATACLASS_LIST = ./DataClass.list
-DataClasss/Scalar3D.o: $(DATACLASS_LIST)
-DataClasss/Vector3D.o: $(DATACLASS_LIST)
-DataClasss/Scalar3DUpdater.o: $(DATACLASS_LIST)
-DataClasss/Vector3DUpdater.o: $(DATACLASS_LIST)
-
+#
+#DATACLASS_LIST = ./DataClass.list
+#DataClasss/Scalar3D.o: $(DATACLASS_LIST)
+#DataClasss/Vector3D.o: $(DATACLASS_LIST)
+#DataClasss/Scalar3DUpdater.o: $(DATACLASS_LIST)
+#DataClasss/Vector3DUpdater.o: $(DATACLASS_LIST)
 
 $(BCMLIB): $(OBJS)
 	$(AR) $@ $(OBJS)
@@ -59,3 +47,4 @@ depend: $(OBJS:.o=.cpp)
 	done
 
 -include depend.inc
+

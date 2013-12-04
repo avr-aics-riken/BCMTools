@@ -1,3 +1,14 @@
+/*
+ * BCMTools
+ *
+ * Copyright (C) 2011-2013 Institute of Industrial Science, The University of Tokyo.
+ * All rights reserved.
+ *
+ * Copyright (c) 2012-2013 Advanced Institute for Computational Science, RIKEN.
+ * All rights reserved.
+ *
+ */
+
 #ifndef __BLAS_H__
 #define __BLAS_H__
 
@@ -17,6 +28,9 @@ extern "C" {
 
 	void copy_(
 					real *y, real *x
+				, int *sz, int *g);
+	void copy_integer_(
+					int *y, int *x
 				, int *sz, int *g);
 	void add_(
 					real *C, real *A, real *B
@@ -82,7 +96,20 @@ extern "C" {
 					real* m,
 					int* mask,
 					int* sz, int* g);
-
+	void copy_mask_(
+					real *y, real *x,
+					int* mask,
+					int *sz, int *g);
+	void dot_mask_(
+					real *xy, real *y, real *x,
+					int* mask,
+					int *sz, int *g);
+	void calc_ax_mask_( 
+					real* Ax,
+					real* Ap, real* Aw, real* Ae, real* As, real* An, real* Ab, real* At,
+					real* x,
+					int* mask,
+					int* sz, int* g);
 	void jacobi_smoother_mask_(
 					real* x1, real* x0,
 					real* Ap, real* Aw, real* Ae, real* As, real* An, real* Ab, real* At,

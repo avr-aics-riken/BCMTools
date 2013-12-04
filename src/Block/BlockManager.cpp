@@ -1,3 +1,14 @@
+/*
+ * BCMTools
+ *
+ * Copyright (C) 2011-2013 Institute of Industrial Science, The University of Tokyo.
+ * All rights reserved.
+ *
+ * Copyright (c) 2012-2013 Advanced Institute for Computational Science, RIKEN.
+ * All rights reserved.
+ *
+ */
+
 #include "BlockManager.h"
 #include "limits.h"   // for INT_MAX
 
@@ -5,6 +16,7 @@
 namespace BCMT_NAMESPACE {
 #endif
 
+#include <fstream>
 
 /// ブロックを登録.
 void BlockManager::registerBlock(BlockBase* block)
@@ -103,7 +115,7 @@ void BlockManager::printBlockLayoutInfo()
   int nprocs = comm.Get_size();
 
   if (myrank == 0) {
-    std::cout << std::endl << "Block Layout Information" << std::endl;
+    std::cout << "Block Layout Information" << std::endl;
   }
 
   // check level of blocks
@@ -268,6 +280,186 @@ void BlockManager::printBlockLayoutInfo()
   }
 }
 
+/// ブロック配置情報を出力(ファイル).
+void BlockManager::printBlockLayoutInfo(const char* filename)
+{
+  int myrank = comm.Get_rank();
+  int nprocs = comm.Get_size();
+
+	std::ofstream ofs;
+  if (myrank == 0) {
+		ofs.open(filename, std::ios::out);
+	}
+
+  if (myrank == 0) {
+    ofs << "Block Layout Information" << std::endl;
+  }
+
+  // check level of blocks
+
+  int levelMin = INT_MAX;
+  int levelMax = 0;
+  for (int localID = 0; localID < numBlock; localID++) {
+    int level = blockList[localID]->getLevel();
+    levelMin = std::min(level, levelMin);
+    levelMax = std::max(level, levelMax);
+  }
+
+//ofs << myrank << ": Lmin=" << levelMin << " Lmax=" << levelMax << std::endl;
+  
+  comm.Allreduce(MPI_IN_PLACE, &levelMin, 1, MPI::INT, MPI::MIN);
+  comm.Allreduce(MPI_IN_PLACE, &levelMax, 1, MPI::INT, MPI::MAX);
+
+  if (myrank == 0) {
+    ofs << "  Min level: " << levelMin << std::endl;
+    ofs << "  Max level: " << levelMax << std::endl;
+  }
+
+
+  // count blocks
+
+  int nLevel = levelMax - levelMin + 1;
+  int* nBlock = new int[nLevel];
+  for (int i = 0; i < nLevel; i++) nBlock[i] = 0;
+
+  for (int localID = 0; localID < numBlock; localID++) {
+    BlockBase* block = blockList[localID];
+    int level = block->getLevel();
+    nBlock[level-levelMin]++;
+  }
+
+  int numBlockSum;
+  comm.Reduce(&numBlock, &numBlockSum, 1, MPI::INT, MPI::SUM, 0);
+  if (myrank == 0) {
+    comm.Reduce(MPI_IN_PLACE, nBlock, nLevel, MPI::INT, MPI::SUM, 0);
+  } else {
+    comm.Reduce(nBlock, nBlock, nLevel, MPI::INT, MPI::SUM, 0);
+  }
+
+  if (myrank == 0) {
+    ofs << "  Number of blocks" << std::endl;
+    for (int level = levelMin; level <= levelMax; level++) {
+      ofs << "    L=" << level << ": " << nBlock[level-levelMin] << std::endl;
+    }
+    ofs << "    total: " << numBlockSum << std::endl;
+  }
+
+  delete[] nBlock;
+
+  int numBlockMin, numBlockMax;
+  comm.Reduce(&numBlock, &numBlockMin, 1, MPI::INT, MPI::MIN, 0);
+  comm.Reduce(&numBlock, &numBlockMax, 1, MPI::INT, MPI::MAX, 0);
+  int numBlock2Sum = numBlock * numBlock;
+  if (myrank == 0) {
+    comm.Reduce(MPI_IN_PLACE, &numBlock2Sum, 1, MPI::INT, MPI::SUM, 0);
+  } else {
+    comm.Reduce(&numBlock2Sum, &numBlock2Sum, 1, MPI::INT, MPI::SUM, 0);
+  }
+
+  if (myrank == 0) {
+    ofs << "  Number of total blocks / node" << std::endl;
+    double ave = (double)numBlockSum / nprocs;
+    ofs << "    ave: " << ave << std::endl;
+    ofs << "    min: " << numBlockMin << std::endl;
+    ofs << "    max: " << numBlockMax << std::endl;
+    ofs << "     sd: " << sqrt((double)numBlock2Sum/nprocs - ave*ave)<< std::endl;
+  }
+
+
+  // count faces
+
+  int nFaceInter[3] = { 0, 0, 0 };
+  int nFaceIntra[3] = { 0, 0, 0 };
+
+  for (int localID = 0; localID < numBlock; localID++) {
+    BlockBase* block = blockList[localID];
+    const NeighborInfo* neighborInfo = block->getNeighborInfo();
+    for (int i = 0; i < NUM_FACE; i++) {
+      Face face = Face(i);
+      if (neighborInfo[face].exists()) {
+        int levelDiff = neighborInfo[face].getLevelDifference();
+        if (levelDiff == 0) {
+          if (neighborInfo[face].getRank() == myrank) {
+            nFaceIntra[LD_0]++;
+          } else {
+            nFaceInter[LD_0]++;
+          }
+        }
+        else if (levelDiff == 1) {
+          for (int j = 0; j < NUM_SUBFACE; j++) {
+            Subface subface = Subface(j);
+            if (neighborInfo[face].getRank(subface) == myrank) {
+              nFaceIntra[LD_P1]++;
+            } else {
+              nFaceInter[LD_P1]++;
+            }
+          }
+        }
+        else if (levelDiff == -1) {
+          if (neighborInfo[face].getRank() == myrank) {
+            nFaceIntra[LD_M1]++;
+          } else {
+            nFaceInter[LD_M1]++;
+          }
+        }
+        else {
+          Exit(EX_FAILURE);
+        }
+      }
+    }
+  }
+
+  int nFaceInterSum[3] = { 0, 0, 0 };
+  int nFaceIntraSum[3] = { 0, 0, 0 };
+
+  comm.Reduce(nFaceInter, nFaceInterSum, 3, MPI::INT, MPI::SUM, 0);
+  comm.Reduce(nFaceIntra, nFaceIntraSum, 3, MPI::INT, MPI::SUM, 0);
+
+  if (myrank == 0) {
+    ofs << "  Number of faces" << std::endl;
+    ofs << "    intra-node " << std::endl;
+    ofs << "        dLevel=-1: " << nFaceIntraSum[LD_M1] << std::endl;
+    ofs << "        dLevel= 0: " << nFaceIntraSum[LD_0] << std::endl;
+    ofs << "        dLevel=+1: " << nFaceIntraSum[LD_P1] << std::endl;
+    ofs << "            total: "
+           << nFaceIntraSum[LD_M1] + nFaceIntraSum[LD_0] + nFaceIntraSum[LD_P1] 
+           << std::endl;
+    ofs << "    inter-node " << std::endl;
+    ofs << "        dLevel=-1: " << nFaceInterSum[LD_M1] << std::endl;
+    ofs << "        dLevel= 0: " << nFaceInterSum[LD_0] << std::endl;
+    ofs << "        dLevel=+1: " << nFaceInterSum[LD_P1] << std::endl;
+    ofs << "            total: "
+           << nFaceInterSum[LD_M1] + nFaceInterSum[LD_0] + nFaceInterSum[LD_P1] 
+           << std::endl;
+  }
+
+  int nFaceInterTotal = nFaceInter[LD_M1] + nFaceInter[LD_0] + nFaceInter[LD_P1];
+
+  int nFaceInterTotalMin, nFaceInterTotalMax;
+  comm.Reduce(&nFaceInterTotal, &nFaceInterTotalMin, 1, MPI::INT, MPI::MIN, 0);
+  comm.Reduce(&nFaceInterTotal, &nFaceInterTotalMax, 1, MPI::INT, MPI::MAX, 0);
+
+  int nFaceInterTotal2Sum = nFaceInterTotal * nFaceInterTotal;
+  if (myrank == 0) {
+    comm.Reduce(MPI_IN_PLACE, &nFaceInterTotal2Sum, 1, MPI::INT, MPI::SUM, 0);
+  } else {
+    comm.Reduce(&nFaceInterTotal2Sum, &nFaceInterTotal2Sum, 1, MPI::INT, MPI::SUM, 0);
+  }
+
+  if (myrank == 0) {
+    ofs << "  Number of total inter-node faces / node" << std::endl;
+    double ave
+      = (double)(nFaceInterSum[LD_M1] + nFaceInterSum[LD_0] + nFaceInterSum[LD_P1]) / nprocs;
+    ofs << "    ave: " << ave << std::endl;
+    ofs << "    min: " << nFaceInterTotalMin << std::endl;
+    ofs << "    max: " << nFaceInterTotalMax << std::endl;
+    ofs << "     sd: " << sqrt((double)nFaceInterTotal2Sum/nprocs - ave*ave) << std::endl;
+  }
+
+	if( myrank == 0 ) {
+		ofs.close();
+	}
+}
 
 /// フェイスリストの設定.
 void BlockManager::setFaceLists()
@@ -516,6 +708,21 @@ void BlockManager::setRecvBufferPointers(RecvBuffer* recvBuffer, int dataClassID
 /// 各ブロックで，指定したデータクラスの仮想セルデータを隣接ブロックからコピー.
 void BlockManager::copyVCFromNeighbor(int dataClassID, const FaceList& faceList)
 {
+	int nf = faceList.size();
+#ifdef _BLOCK_IS_LARGE_
+#else
+#pragma omp parallel for
+#endif
+  for (int n=0; n<nf; n++) {
+    int id = faceList[n].id;
+    Face face = faceList[n].face;
+    Subface subface = faceList[n].subface;
+    UpdatableDataClass* dataClass
+      = dynamic_cast<UpdatableDataClass*>(
+                          blockList[id]->getDataClass(dataClassID));
+    dataClass->copyFromNeighbor(face, subface);
+	}
+/*
   FaceList::const_iterator it = faceList.begin();
   for (; it != faceList.end(); ++it) {
     int id = it->id;
@@ -526,12 +733,33 @@ void BlockManager::copyVCFromNeighbor(int dataClassID, const FaceList& faceList)
                           blockList[id]->getDataClass(dataClassID));
     dataClass->copyFromNeighbor(face, subface);
   }
+*/
 }
   
 
 /// 各ブロックで，指定したデータクラスの仮想セルデータを送信バッファにコピー.
 void BlockManager::copyVCToSendBuffer(int dataClassID, const FaceListMap& faceListMap)
 {
+  FaceListMap::const_iterator it_map = faceListMap.begin();
+  for (; it_map != faceListMap.end(); ++it_map) {
+		FaceList faceList = it_map->second;
+		int nf = faceList.size();
+#ifdef _BLOCK_IS_LARGE_
+#else
+#pragma omp parallel for
+#endif
+		for(int n=0; n<nf; n++) {
+			int id = faceList[n].id;
+			Face face = faceList[n].face;
+			Subface subface = faceList[n].subface;
+			UpdatableDataClass* dataClass
+				= dynamic_cast<UpdatableDataClass*>(
+														blockList[id]->getDataClass(dataClassID));
+      dataClass->copyToCommBuffer(face, subface);
+		}
+	}
+
+/*
   FaceListMap::const_iterator it_map = faceListMap.begin();
   for (; it_map != faceListMap.end(); ++it_map) {
     FaceList::const_iterator it = it_map->second.begin();
@@ -545,12 +773,33 @@ void BlockManager::copyVCToSendBuffer(int dataClassID, const FaceListMap& faceLi
       dataClass->copyToCommBuffer(face, subface);
     }
   }
+*/
 }
 
 
 /// 各ブロックで，指定したデータクラスの仮想セルデータを受信バッファからコピー.
 void BlockManager::copyVCFromRecvBuffer(int dataClassID, const FaceListMap& faceListMap)
 {
+  FaceListMap::const_iterator it_map = faceListMap.begin();
+  for (; it_map != faceListMap.end(); ++it_map) {
+		FaceList faceList = it_map->second;
+		int nf = faceList.size();
+#ifdef _BLOCK_IS_LARGE_
+#else
+#pragma omp parallel for
+#endif
+		for(int n=0; n<nf; n++) {
+			int id = faceList[n].id;
+			Face face = faceList[n].face;
+			Subface subface = faceList[n].subface;
+			UpdatableDataClass* dataClass
+				= dynamic_cast<UpdatableDataClass*>(
+														blockList[id]->getDataClass(dataClassID));
+      dataClass->copyFromCommBuffer(face, subface);
+		}
+	}
+
+/*
   FaceListMap::const_iterator it_map = faceListMap.begin();
   for (; it_map != faceListMap.end(); ++it_map) {
     FaceList::const_iterator it = it_map->second.begin();
@@ -564,6 +813,7 @@ void BlockManager::copyVCFromRecvBuffer(int dataClassID, const FaceListMap& face
       dataClass->copyFromCommBuffer(face, subface);
     }
   }
+*/
 }
 
 

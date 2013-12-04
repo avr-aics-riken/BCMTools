@@ -1,3 +1,14 @@
+/*
+ * BCMTools
+ *
+ * Copyright (C) 2011-2013 Institute of Industrial Science, The University of Tokyo.
+ * All rights reserved.
+ *
+ * Copyright (c) 2012-2013 Advanced Institute for Computational Science, RIKEN.
+ * All rights reserved.
+ *
+ */
+
 #ifndef ILS3D_H
 #define ILS3D_H
 
@@ -9,10 +20,8 @@
 
 #include "real.h"
 #include "blas.h"
-
-#ifdef __K_FAPP
-#include <fj_tool/fapp.h>
-#endif
+#include "comm.h"
+#include "PM.h"
 
 class ILS3D {
 public:
@@ -61,16 +70,23 @@ private:
 						LocalScalar3D<real>* plsx0,
 						real omega) {
 		int vc = plsx->GetVC();
+PM_Start(tm_JacobiSmoother, 0, 0, true);
 
-#ifdef __K_FAPP
-fapp_start("jacobi_smoother", 0, 0);
-#endif 
-		for (int n=0; n<blockManager.getNumBlock(); ++n) {
+		int NB = blockManager.getNumBlock();
+		BlockBase* block0 = blockManager.getBlock(0);
+		::Vec3i size = block0->getSize();
+		int NX = size.x;
+		int NY = size.y;
+		int NZ = size.z;
+		int sz[3] = {NX, NY, NZ};
+
+PM_Start(tm_JacobiSmoother_Calc, 0, 0, true);
+#ifdef _BLOCK_IS_LARGE_
+#else
+#pragma omp parallel for
+#endif
+		for (int n=0; n<NB; ++n) {
 			BlockBase* block = blockManager.getBlock(n);
-			::Vec3i blockSize = block->getSize();
-			::Vec3r cellSize  = block->getCellSize();
-			int sz[3] = {blockSize.x, blockSize.y, blockSize.z};
-
 			real* x  = plsx ->GetBlockData(block);
 			real* Ap = plsAp->GetBlockData(block);
 			real* Aw = plsAw->GetBlockData(block);
@@ -90,116 +106,18 @@ fapp_start("jacobi_smoother", 0, 0);
 							&pomega,
 							sz, &vc);
 		}
-#ifdef __K_FAPP
-fapp_stop("jacobi_smoother", 0, 0);
-#endif
+PM_Stop(tm_JacobiSmoother_Calc, 0, 0, 16.0*NX*NY*NZ, NB);
 
-#ifdef _LARGE_BLOCK_
-#else
-#pragma omp parallel for
-#endif
-		for (int n=0; n<blockManager.getNumBlock(); ++n) {
-			BlockBase* block = blockManager.getBlock(n);
-			::Vec3i blockSize = block->getSize();
-			::Vec3r cellSize  = block->getCellSize();
-			int sz[3] = {blockSize.x, blockSize.y, blockSize.z};
+PM_Start(tm_JacobiSmoother_Swap, 0, 0, true);
+		LSSwap(*plsx, *plsx0);
+PM_Stop(tm_JacobiSmoother_Swap);
 
-			real* x  = plsx ->GetBlockData(block);
-			real* Ap = plsAp->GetBlockData(block);
-			real* Aw = plsAw->GetBlockData(block);
-			real* Ae = plsAe->GetBlockData(block);
-			real* As = plsAs->GetBlockData(block);
-			real* An = plsAn->GetBlockData(block);
-			real* Ab = plsAb->GetBlockData(block);
-			real* At = plsAt->GetBlockData(block);
-			real* b  = plsb ->GetBlockData(block);
-			real* x0 = plsx0->GetBlockData(block);
-			real pomega = omega;
-
-			copy_(x, x0, sz, &vc);
-		}
+PM_Start(tm_JacobiSmoother_Comm, 0, 0, true);
 		plsx->ImposeBoundaryCondition(blockManager);
+PM_Stop(tm_JacobiSmoother_Comm);
+
+PM_Stop(tm_JacobiSmoother);
 	}
-
-	void Jacobi_Smoother_Mask(
-						BlockManager& blockManager,
-						LocalScalar3D<real>* plsx,
-						LocalScalar3D<real>* plsAp,
-						LocalScalar3D<real>* plsAw,
-						LocalScalar3D<real>* plsAe,
-						LocalScalar3D<real>* plsAs,
-						LocalScalar3D<real>* plsAn,
-						LocalScalar3D<real>* plsAb,
-						LocalScalar3D<real>* plsAt,
-						LocalScalar3D<real>* plsb,
-						LocalScalar3D<real>* plsx0,
-						LocalScalar3D<int>* plsMaskId,
-						real omega) {
-		int vc = plsx->GetVC();
-
-#ifdef __K_FAPP
-fapp_start("jacobi_smoother_mask", 0, 0);
-#endif 
-#pragma omp parallel for
-		for (int n=0; n<blockManager.getNumBlock(); ++n) {
-			BlockBase* block = blockManager.getBlock(n);
-			::Vec3i blockSize = block->getSize();
-			::Vec3r cellSize  = block->getCellSize();
-			int sz[3] = {blockSize.x, blockSize.y, blockSize.z};
-
-			real* x  = plsx ->GetBlockData(block);
-			real* Ap = plsAp->GetBlockData(block);
-			real* Aw = plsAw->GetBlockData(block);
-			real* Ae = plsAe->GetBlockData(block);
-			real* As = plsAs->GetBlockData(block);
-			real* An = plsAn->GetBlockData(block);
-			real* Ab = plsAb->GetBlockData(block);
-			real* At = plsAt->GetBlockData(block);
-			real* b  = plsb ->GetBlockData(block);
-			real* x0 = plsx0->GetBlockData(block);
-			int* mask = plsMaskId->GetBlockData(block);
-			real pomega = omega;
-
-			jacobi_smoother_mask_(
-							x0, x,
-							Ap, Aw, Ae, As, An, Ab, At,
-							b,
-							mask,
-							&pomega,
-							sz, &vc);
-		}
-#ifdef __K_FAPP
-fapp_stop("jacobi_smoother_mask", 0, 0);
-#endif
-
-#ifdef _LARGE_BLOCK_
-#else
-#pragma omp parallel for
-#endif
-		for (int n=0; n<blockManager.getNumBlock(); ++n) {
-			BlockBase* block = blockManager.getBlock(n);
-			::Vec3i blockSize = block->getSize();
-			::Vec3r cellSize  = block->getCellSize();
-			int sz[3] = {blockSize.x, blockSize.y, blockSize.z};
-
-			real* x  = plsx ->GetBlockData(block);
-			real* Ap = plsAp->GetBlockData(block);
-			real* Aw = plsAw->GetBlockData(block);
-			real* Ae = plsAe->GetBlockData(block);
-			real* As = plsAs->GetBlockData(block);
-			real* An = plsAn->GetBlockData(block);
-			real* Ab = plsAb->GetBlockData(block);
-			real* At = plsAt->GetBlockData(block);
-			real* b  = plsb ->GetBlockData(block);
-			real* x0 = plsx0->GetBlockData(block);
-			real pomega = omega;
-
-			copy_(x, x0, sz, &vc);
-		}
-
-		plsx->ImposeBoundaryCondition(blockManager);
-	}
-
 
 	void CalcAx(
 						BlockManager& blockManager,
@@ -213,7 +131,7 @@ fapp_stop("jacobi_smoother_mask", 0, 0);
 						LocalScalar3D<real>* plsAt,
 						LocalScalar3D<real>* plsx) {
 		int vc = plsx->GetVC();
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 #else
 #pragma omp parallel for
 #endif
@@ -241,7 +159,6 @@ fapp_stop("jacobi_smoother_mask", 0, 0);
 		}
 	}
 
-
 	void CalcR(
 						BlockManager& blockManager,
 						LocalScalar3D<real>* plsr,
@@ -255,7 +172,7 @@ fapp_stop("jacobi_smoother_mask", 0, 0);
 						LocalScalar3D<real>* plsx,
 						LocalScalar3D<real>* plsb) {
 		int vc = plsx->GetVC();
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 #else
 #pragma omp parallel for
 #endif
@@ -299,7 +216,7 @@ fapp_stop("jacobi_smoother_mask", 0, 0);
 						LocalScalar3D<real>* plsb) {
 		int vc = plsx->GetVC();
 		double rr_local = 0.0;
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 #else
 #pragma omp parallel for reduction(+: rr_local)
 #endif
@@ -334,7 +251,14 @@ fapp_stop("jacobi_smoother_mask", 0, 0);
 		const MPI::Intracomm& comm = blockManager.getCommunicator();
 
 		double rr_global = 0.0;
+		allreduce_(&rr_global, &rr_local);
+/*
+#ifdef _REAL_IS_DOUBLE_		
 		comm.Allreduce(&rr_local, &rr_global, 1, MPI_DOUBLE_PRECISION, MPI_SUM);
+#else
+		comm.Allreduce(&rr_local, &rr_global, 1, MPI_FLOAT, MPI_SUM);
+#endif
+*/
 
 		rr = rr_global;
 	}
@@ -346,7 +270,7 @@ fapp_stop("jacobi_smoother_mask", 0, 0);
 						LocalScalar3D<real>* plsy) {
 		int vc = plsx->GetVC();
 		double xy_local = 0.0;
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 #else
 #pragma omp parallel for reduction(+: xy_local)
 #endif
@@ -368,7 +292,14 @@ fapp_stop("jacobi_smoother_mask", 0, 0);
 		const MPI::Intracomm& comm = blockManager.getCommunicator();
 
 		double xy_global = 0.0;
+		allreduce_(&xy_global, &xy_local);
+/*
+#ifdef _REAL_IS_DOUBLE_		
 		comm.Allreduce(&xy_local, &xy_global, 1, MPI_DOUBLE_PRECISION, MPI_SUM);
+#else
+		comm.Allreduce(&xy_local, &xy_global, 1, MPI_FLOAT, MPI_SUM);
+#endif
+*/
 
 		xy = xy_global;
 	}
@@ -379,7 +310,7 @@ fapp_stop("jacobi_smoother_mask", 0, 0);
 						LocalScalar3D<real>* plsx,
 						real a) {
 		int vc = plsx->GetVC();
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 #else
 #pragma omp parallel for
 #endif
@@ -401,7 +332,7 @@ fapp_stop("jacobi_smoother_mask", 0, 0);
 						LocalScalar3D<real>* plsx,
 						real a) {
 		int vc = plsx->GetVC();
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 #else
 #pragma omp parallel for
 #endif
@@ -424,7 +355,7 @@ fapp_stop("jacobi_smoother_mask", 0, 0);
 						LocalScalar3D<real>* plsy,
 						real a) {
 		int vc = plsx->GetVC();
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 #else
 #pragma omp parallel for
 #endif
@@ -449,7 +380,7 @@ fapp_stop("jacobi_smoother_mask", 0, 0);
 						real a,
 						real b) {
 		int vc = plsx->GetVC();
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 #else
 #pragma omp parallel for
 #endif
@@ -473,7 +404,7 @@ public:
 						LocalScalar3D<real>* plsx,
 						real value) {
 		int vc = plsx->GetVC();
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 #else
 #pragma omp parallel for
 #endif
@@ -495,7 +426,7 @@ public:
 						LocalScalar3D<real>* plsy,
 						LocalScalar3D<real>* plsx) {
 		int vc = plsx->GetVC();
-#ifdef _LARGE_BLOCK_
+#ifdef _BLOCK_IS_LARGE_
 #else
 #pragma omp parallel for
 #endif
@@ -533,33 +464,6 @@ public:
 							plsAp, plsAw, plsAe, plsAs, plsAn, plsAb, plsAt,
 							plsb,
 							plsx0,
-							omega);
-		}
-	}
-
-	void Jacobi_PreConditioner_Mask(
-						BlockManager& blockManager,
-						LocalScalar3D<real>* plsx,
-						LocalScalar3D<real>* plsAp,
-						LocalScalar3D<real>* plsAw,
-						LocalScalar3D<real>* plsAe,
-						LocalScalar3D<real>* plsAs,
-						LocalScalar3D<real>* plsAn,
-						LocalScalar3D<real>* plsAb,
-						LocalScalar3D<real>* plsAt,
-						LocalScalar3D<real>* plsb,
-						LocalScalar3D<real>* plsx0,
-						LocalScalar3D<int>* plsMaskId,
-						real omega,
-						int countPreConditioner ) {
-		for(int count=0; count<countPreConditioner; count++) {
-			Jacobi_Smoother_Mask(
-							blockManager,
-							plsx,
-							plsAp, plsAw, plsAe, plsAs, plsAn, plsAb, plsAt,
-							plsb,
-							plsx0,
-							plsMaskId,
 							omega);
 		}
 	}
@@ -933,6 +837,61 @@ public:
 		plsx->ImposeBoundaryCondition(blockManager);
 	}
 
+	void Jacobi_Mask(
+						BlockManager& blockManager,
+						LocalScalar3D<real>* plsx,
+						LocalScalar3D<real>* plsAp,
+						LocalScalar3D<real>* plsAw,
+						LocalScalar3D<real>* plsAe,
+						LocalScalar3D<real>* plsAs,
+						LocalScalar3D<real>* plsAn,
+						LocalScalar3D<real>* plsAb,
+						LocalScalar3D<real>* plsAt,
+						LocalScalar3D<real>* plsb,
+						LocalScalar3D<real>* plsx0,
+						LocalScalar3D<int>* plsMaskId,
+						real omega,
+						int countMax,
+						real epsilon,
+						int& count,
+						real& residual) {
+		real bb = 0.0;
+		DOT(blockManager, bb, plsb, plsb);
+
+		for(count=1; count<=countMax; ++count) {
+			Jacobi_Smoother_Mask(
+							blockManager,
+							plsx, 
+							plsAp, plsAw, plsAe, plsAs, plsAn, plsAb, plsAt,
+							plsb,
+							plsx0,
+							plsMaskId,
+							omega);
+
+			real rr = 0.0;
+			CalcR2(
+							blockManager,
+							rr,
+							plsAp, plsAw, plsAe, plsAs, plsAn, plsAb, plsAt,
+							plsx,
+							plsb);
+
+			bool bResult = IsConverged(
+							blockManager,
+							residual,
+							rr,
+							bb,
+							epsilon,
+							count,
+							countMax);
+			if( bResult == true ) {
+				break;
+			}
+
+		}
+		plsx->ImposeBoundaryCondition(blockManager);
+	}
+
 	void BiCGSTAB_Mask(
 						BlockManager& blockManager,
 						LocalScalar3D<real>* plsx,
@@ -960,8 +919,9 @@ public:
 						real epsilon,
 						int& count,
 						real& residual) {
+
 		real bb = 0.0;
-		DOT(blockManager, bb, plsb, plsb);
+		DOT_Mask(blockManager, bb, plsb, plsb, plsMaskId);
 
 		if( fabs(bb) < FLT_MIN ) {
 			residual = 0.0;
@@ -986,7 +946,7 @@ public:
 		real gamma = 1.0;
 		for(count=1; count<=countMax; ++count) {
 			real rr1 = 0.0;
-			DOT(blockManager, rr1, plsr, plsr0);
+			DOT_Mask(blockManager, rr1, plsr, plsr0, plsMaskId);
 
 			if( fabs(rr1) < FLT_MIN ) {
 				residual = rr1;
@@ -1015,6 +975,7 @@ public:
 			plsp->ImposeBoundaryCondition(blockManager);
 
 			Fill(blockManager, plsp_, 0.0);
+
 			Jacobi_PreConditioner_Mask(
 							blockManager,
 							plsp_,
@@ -1025,18 +986,20 @@ public:
 							omega,
 							countPreConditioner);
 
-			CalcAx(
+			CalcAx_Mask(
 							blockManager,
 							plsq_,
 							plsAp, plsAw, plsAe, plsAs, plsAn, plsAb, plsAt,
-							plsp_);
+							plsp_,
+							plsMaskId);
 
 			real q_r0 = 0.0;
-			DOT(
+			DOT_Mask(
 							blockManager,
 							q_r0,
 							plsq_,
-							plsr0);
+							plsr0,
+							plsMaskId);
 
 			alpha = rr1/q_r0;
 
@@ -1046,9 +1009,11 @@ public:
 							plsq_,
 							plsr,
 							-alpha);
+
 			plss->ImposeBoundaryCondition(blockManager);
 
 			Fill(blockManager, plss_, 0.0);
+
 			Jacobi_PreConditioner_Mask(
 							blockManager,
 							plss_,
@@ -1059,25 +1024,28 @@ public:
 							omega,
 							countPreConditioner);
 
-			CalcAx(
+			CalcAx_Mask(
 							blockManager,
 							plst_,
 							plsAp, plsAw, plsAe, plsAs, plsAn, plsAb, plsAt,
-							plss_);
+							plss_,
+							plsMaskId);
 
 			real t_s = 0.0;
-			DOT(
+			DOT_Mask(
 							blockManager,
 							t_s,
 							plst_,
-							plss);
+							plss,
+							plsMaskId);
 
 			real t_t_ = 0.0;
-			DOT(
+			DOT_Mask(
 							blockManager,
 							t_t_,
 							plst_,
-							plst_);
+							plst_,
+							plsMaskId);
 
 			gamma = t_s/t_t_;
 
@@ -1096,11 +1064,12 @@ public:
 							-gamma);
 
 			real rr = 0.0;
-			DOT(
+			DOT_Mask(
 							blockManager,
 							rr,
 							plsr,
-							plsr);
+							plsr,
+							plsMaskId);
 
 			bool bResult = IsConverged(
 							blockManager,
@@ -1116,9 +1085,281 @@ public:
 
 			rr0 = rr1;
 		}
+
 		plsx->ImposeBoundaryCondition(blockManager);
+
 	}
 
+	void DOT_Mask(
+						BlockManager& blockManager,
+						real& xy,
+						LocalScalar3D<real>* plsx,
+						LocalScalar3D<real>* plsy,
+						LocalScalar3D<int>* plsMaskId) {
+PM_Start(tm_DOT, 0, 0, true);
+
+		int vc = plsx->GetVC();
+		double xy_local = 0.0;
+
+		int NB = blockManager.getNumBlock();
+		BlockBase* block0 = blockManager.getBlock(0);
+		::Vec3i size = block0->getSize();
+		int NX = size.x;
+		int NY = size.y;
+		int NZ = size.z;
+		int sz[3] = {size.x, size.y, size.z};
+
+PM_Start(tm_DOT_Calc, 0, 0, true);
+#ifdef _BLOCK_IS_LARGE_
+#else
+#pragma omp parallel for reduction(+: xy_local)
+#endif
+		for (int n=0; n<blockManager.getNumBlock(); ++n) {
+			BlockBase* block = blockManager.getBlock(n);
+			real* x = plsx->GetBlockData(block);
+			real* y = plsy->GetBlockData(block);
+			int* mask = plsMaskId->GetBlockData(block);
+
+			real xy_block = 0.0;
+			dot_mask_(&xy_block, x, y, mask, sz, &vc);
+
+			xy_local += xy_block;
+		}
+PM_Stop(tm_DOT_Calc, 0, 0, 2.0*NX*NY*NZ, NB);
+
+		const MPI::Intracomm& comm = blockManager.getCommunicator();
+		double xy_global = 0.0;
+
+PM_Start(tm_DOT_Comm, 0, 0, true);
+		allreduce_(&xy_global, &xy_local);
+PM_Stop(tm_DOT_Comm);
+
+		xy = xy_global;
+
+PM_Stop(tm_DOT);
+	}
+
+	void Jacobi_PreConditioner_Mask(
+						BlockManager& blockManager,
+						LocalScalar3D<real>* plsx,
+						LocalScalar3D<real>* plsAp,
+						LocalScalar3D<real>* plsAw,
+						LocalScalar3D<real>* plsAe,
+						LocalScalar3D<real>* plsAs,
+						LocalScalar3D<real>* plsAn,
+						LocalScalar3D<real>* plsAb,
+						LocalScalar3D<real>* plsAt,
+						LocalScalar3D<real>* plsb,
+						LocalScalar3D<real>* plsx0,
+						LocalScalar3D<int>* plsMaskId,
+						real omega,
+						int countPreConditioner ) {
+		for(int count=0; count<countPreConditioner; count++) {
+			Jacobi_Smoother_Mask(
+							blockManager,
+							plsx,
+							plsAp, plsAw, plsAe, plsAs, plsAn, plsAb, plsAt,
+							plsb,
+							plsx0,
+							plsMaskId,
+							omega);
+		}
+	}
+
+	void Jacobi_Smoother_Mask(
+						BlockManager& blockManager,
+						LocalScalar3D<real>* plsx,
+						LocalScalar3D<real>* plsAp,
+						LocalScalar3D<real>* plsAw,
+						LocalScalar3D<real>* plsAe,
+						LocalScalar3D<real>* plsAs,
+						LocalScalar3D<real>* plsAn,
+						LocalScalar3D<real>* plsAb,
+						LocalScalar3D<real>* plsAt,
+						LocalScalar3D<real>* plsb,
+						LocalScalar3D<real>* plsx0,
+						LocalScalar3D<int>* plsMaskId,
+						real omega) {
+		int vc = plsx->GetVC();
+PM_Start(tm_JacobiSmoother, 0, 0, true);
+
+		int NB = blockManager.getNumBlock();
+		BlockBase* block0 = blockManager.getBlock(0);
+		::Vec3i size = block0->getSize();
+		int NX = size.x;
+		int NY = size.y;
+		int NZ = size.z;
+		int sz[3] = {size.x, size.y, size.z};
+
+PM_Start(tm_JacobiSmoother_Calc, 0, 0, true);
+#ifdef _BLOCK_IS_LARGE_
+#else
+#pragma omp parallel for
+#endif
+		for (int n=0; n<blockManager.getNumBlock(); ++n) {
+			BlockBase* block = blockManager.getBlock(n);
+			real* x  = plsx ->GetBlockData(block);
+			real* Ap = plsAp->GetBlockData(block);
+			real* Aw = plsAw->GetBlockData(block);
+			real* Ae = plsAe->GetBlockData(block);
+			real* As = plsAs->GetBlockData(block);
+			real* An = plsAn->GetBlockData(block);
+			real* Ab = plsAb->GetBlockData(block);
+			real* At = plsAt->GetBlockData(block);
+			real* b  = plsb ->GetBlockData(block);
+			real* x0 = plsx0->GetBlockData(block);
+			int* mask = plsMaskId->GetBlockData(block);
+			real pomega = omega;
+
+			jacobi_smoother_mask_(
+							x0, x,
+							Ap, Aw, Ae, As, An, Ab, At,
+							b,
+							mask,
+							&pomega,
+							sz, &vc);
+		}
+PM_Stop(tm_JacobiSmoother_Calc, 0, 0, 16.0*NX*NY*NZ, NB);
+
+PM_Start(tm_JacobiSmoother_Swap, 0, 0, true);
+		LSSwap(*plsx, *plsx0);
+PM_Stop(tm_JacobiSmoother_Swap);
+
+PM_Start(tm_JacobiSmoother_Comm, 0, 0, true);
+		plsx->ImposeBoundaryCondition(blockManager);
+PM_Stop(tm_JacobiSmoother_Comm);
+
+PM_Stop(tm_JacobiSmoother);
+	}
+
+	void Jacobi_Smoother_Mask_2(
+						BlockManager& blockManager,
+						LocalScalar3D<real>* plsx,
+						LocalScalar3D<real>* plsAp,
+						LocalScalar3D<real>* plsAw,
+						LocalScalar3D<real>* plsAe,
+						LocalScalar3D<real>* plsAs,
+						LocalScalar3D<real>* plsAn,
+						LocalScalar3D<real>* plsAb,
+						LocalScalar3D<real>* plsAt,
+						LocalScalar3D<real>* plsb,
+						LocalScalar3D<real>* plsx0,
+						LocalScalar3D<int>* plsMaskId,
+						real omega) {
+		int vc = plsx->GetVC();
+
+#ifdef _BLOCK_IS_LARGE_
+#else
+#pragma omp parallel for
+#endif
+		for (int n=0; n<blockManager.getNumBlock(); ++n) {
+			BlockBase* block = blockManager.getBlock(n);
+			::Vec3i blockSize = block->getSize();
+			::Vec3r cellSize  = block->getCellSize();
+			int sz[3] = {blockSize.x, blockSize.y, blockSize.z};
+
+			real* x  = plsx ->GetBlockData(block);
+			real* Ap = plsAp->GetBlockData(block);
+			real* Aw = plsAw->GetBlockData(block);
+			real* Ae = plsAe->GetBlockData(block);
+			real* As = plsAs->GetBlockData(block);
+			real* An = plsAn->GetBlockData(block);
+			real* Ab = plsAb->GetBlockData(block);
+			real* At = plsAt->GetBlockData(block);
+			real* b  = plsb ->GetBlockData(block);
+			real* x0 = plsx0->GetBlockData(block);
+			int* mask = plsMaskId->GetBlockData(block);
+			real pomega = omega;
+
+			jacobi_smoother_mask_(
+							x0, x,
+							Ap, Aw, Ae, As, An, Ab, At,
+							b,
+							mask,
+							&pomega,
+							sz, &vc);
+		}
+
+		plsx0->UpdateVirtualCells(blockManager);
+
+#ifdef _BLOCK_IS_LARGE_
+#else
+#pragma omp parallel for
+#endif
+		for (int n=0; n<blockManager.getNumBlock(); ++n) {
+			BlockBase* block = blockManager.getBlock(n);
+			::Vec3i blockSize = block->getSize();
+			::Vec3r cellSize  = block->getCellSize();
+			int sz[3] = {blockSize.x, blockSize.y, blockSize.z};
+
+			real* x  = plsx ->GetBlockData(block);
+			real* Ap = plsAp->GetBlockData(block);
+			real* Aw = plsAw->GetBlockData(block);
+			real* Ae = plsAe->GetBlockData(block);
+			real* As = plsAs->GetBlockData(block);
+			real* An = plsAn->GetBlockData(block);
+			real* Ab = plsAb->GetBlockData(block);
+			real* At = plsAt->GetBlockData(block);
+			real* b  = plsb ->GetBlockData(block);
+			real* x0 = plsx0->GetBlockData(block);
+			int* mask = plsMaskId->GetBlockData(block);
+			real pomega = omega;
+
+			jacobi_smoother_mask_(
+							x, x0,
+							Ap, Aw, Ae, As, An, Ab, At,
+							b,
+							mask,
+							&pomega,
+							sz, &vc);
+		}
+
+		plsx->ImposeBoundaryCondition(blockManager);
+
+	}
+
+	void CalcAx_Mask(
+						BlockManager& blockManager,
+						LocalScalar3D<real>* plsAx,
+						LocalScalar3D<real>* plsAp,
+						LocalScalar3D<real>* plsAw,
+						LocalScalar3D<real>* plsAe,
+						LocalScalar3D<real>* plsAs,
+						LocalScalar3D<real>* plsAn,
+						LocalScalar3D<real>* plsAb,
+						LocalScalar3D<real>* plsAt,
+						LocalScalar3D<real>* plsx,
+						LocalScalar3D<int>* plsMaskId) {
+		int vc = plsx->GetVC();
+#ifdef _BLOCK_IS_LARGE_
+#else
+#pragma omp parallel for
+#endif
+		for (int n=0; n<blockManager.getNumBlock(); ++n) {
+			BlockBase* block = blockManager.getBlock(n);
+			::Vec3i blockSize = block->getSize();
+			::Vec3r cellSize  = block->getCellSize();
+			int sz[3] = {blockSize.x, blockSize.y, blockSize.z};
+
+			real* Ax = plsAx->GetBlockData(block);
+			real* Ap = plsAp->GetBlockData(block);
+			real* Aw = plsAw->GetBlockData(block);
+			real* Ae = plsAe->GetBlockData(block);
+			real* As = plsAs->GetBlockData(block);
+			real* An = plsAn->GetBlockData(block);
+			real* Ab = plsAb->GetBlockData(block);
+			real* At = plsAt->GetBlockData(block);
+			real* x  = plsx ->GetBlockData(block);
+			int* mask = plsMaskId->GetBlockData(block);
+
+			calc_ax_mask_(
+							Ax,
+							Ap, Aw, Ae, As, An, Ab, At,
+							x,
+							mask,
+							sz, &vc);
+		}
+	}
 
 };
 
