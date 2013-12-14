@@ -22,10 +22,14 @@ UTIL_OBJS = ConfigFile.o ConfigBase.o BCMOctree.o
 
 include ../../Makefile.inc
 
+SILO = $(HOME)/opt_intel
+SILO_INC = -I$(SILO)/include
+SILO_LIB = -L$(SILO)/lib -lsiloh5 -lhdf5 -lz
+
 CFLAGS += -I../../include -I$(UTIL)/include $(SILO_INC) $(OPTIONS)
 
 LDFLAGS = 
-LIBS = $(BCMLIB) $(SILO_LIB) -lmpi -lmpi_cxx -lsiloh5
+LIBS = $(BCMLIB) $(SILO_LIB) -lmpi -lmpi_cxx
 
 PROGRAM: $(OBJS) $(UTIL_OBJS)
 	$(CXX) $(CFLAGS) $(LDFLAGS) -o $(PROGRAM) $(OBJS) $(UTIL_OBJS) $(LIBS)
