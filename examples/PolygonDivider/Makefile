@@ -14,8 +14,17 @@ PROGRAM = a.out
 
 BCMLIB = ../../lib/libbcm.a
 UTIL = ../../Utils
-POLYLIB = ../Polylib_2_0_3_Rel_search_nearest
-XML2LIB = /home/jonishi/MyLib/libxml2-2.7.8
+
+POLYLIB = $(HOME)/opt_intel/Polylib
+TP = $(HOME)/opt_intel/TextParser
+SILO = $(HOME)/opt_intel
+
+POLYLIB_INC = -I$(POLYLIB)/include
+POLYLIB_LIB = -L$(POLYLIB)/lib -lPOLY
+TP_INC = -I$(TP)/include
+TP_LIB = -L$(TP)/lib -lTP
+SILO_INC = -I$(SILO)/include
+SILO_LIB = -L$(SILO)/lib -lsiloh5 -lhdf5 -lz
 
 vpath %.cpp $(UTIL)/src
 
@@ -24,11 +33,11 @@ UTIL_OBJS = ConfigFile.o ConfigBase.o BCMOctree.o
 
 include ../../Makefile.inc
 
-CFLAGS += -I../../include -I$(UTIL)/include $(SILO_INC) -I$(XML2LIB)/include \
-         -I$(POLYLIB)/include -I/usr/include/libxml2 $(OPTIONS)
+CFLAGS += -I../../include -I$(UTIL)/include $(SILO_INC) $(POLYLIB_INC) \
+           $(TP_INC) $(OPTIONS)
 
 LDFLAGS = -L$(POLYLIB)/lib
-LIBS = $(BCMLIB) $(SILO_LIB) -L$(POLYLIB)/lib -L$(XML2LIB)/lib -lPolylib -lxml2 -lmpi -lmpi_cxx -lsiloh5
+LIBS = $(BCMLIB) $(SILO_LIB) $(POLYLIB_LIB) $(TP_LIB) -lmpi -lmpi_cxx
 
 PROGRAM: $(OBJS) $(UTIL_OBJS)
 	$(CXX) $(CFLAGS) $(LDFLAGS) -o $(PROGRAM) $(OBJS) $(UTIL_OBJS) $(LIBS)
