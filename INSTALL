@@ -14,8 +14,6 @@ SOFTWARE REQUIREMENT
 ====================
 
 - MPI library
-- Text parsing library
-
 
 
 
@@ -47,7 +45,7 @@ Configure options:
     Specify the directory path that TextParser library is installed.
 
  --without-MPI=(yes|no)
-    If you compile CIO library for parallel environment with MPI library, specify 'yes',
+    If you compile BCMTools for parallel environment with MPI library, specify 'yes',
     otherwise 'no'.
 
 
@@ -59,43 +57,32 @@ Configure options:
  CXXFLAGS=CXX_OPTIONS
     Specify C++ compiler options.
 
- F90=FORTRAN90_COMPILER
-    Specify fortran90 compiler.
-
- F90FLAGS=FORTRAN90_OPTIONS
-    Specify fortran90 compiler options.
-
 
 Here is examples. 
 
 ## for the combination of Intel compiler and OpenMPI.
 
   $ ./configure --with-ompi=/opt/openmpi \
-                --with-parser=/usr/local/FFV/TextParser \
                 CXX=icpc \
-                CXXFLAGS="-O3 -Wall" \
-                F90=ifort \
-                F90FLAGS=-O3
+                CXXFLAGS="-O3 -Wall"
+
 
 
 ## OpenMPI with wrapper compiler, assume that mpicxx is a wrapper compiler for OpenMPI.
 
-  $ ./configure --with-parser=/usr/local/FFV/TextParser CXX=mpicxx CXXFLAGS=-O3
+  $ ./configure CXX=mpicxx CXXFLAGS=-O3
 
 
 ## K-computer
 
   $ ./configure --prefix=$1 \
-                --with-parser=hoge \
                 --host=sparc64-unknown-linux-gnu \
                 CXX=mpiFCCpx \
-                CXXFLAGS=-Kfast \
-                F90=mpifrtpx \
-                F90FLAGS=-Kfast
+                CXXFLAGS=-Kfast
 
 
 2. Hand compile
 
 If a provided configure does not work, use Makefile_hand to build this library. At first,
-edit MACRO to tell your machine environment.
+edit MACRO in Makefile.inc to tell your machine environment.
 

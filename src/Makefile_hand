@@ -1,6 +1,6 @@
 ##############################
 #
-# BCMViewer - BCM mesh viewer
+# BCMTools
 #
 # Copyright (C) 2011-2013 Institute of Industrial Science, The University of Tokyo.
 # All rights reserved.
@@ -12,13 +12,17 @@
 
 include ../Makefile.inc
 
-BCMLIB = ../lib/libbcm.a
+BCMLIB = libbcm.a
 CFLAGS += -I. -I../include 
 
 all: $(BCMLIB)
 
-OBJS = CommBuffer/CommBuffer.o Block/BlockManager.o \
-  DataClass/Scalar3D.o DataClass/Vector3D.o DataClass/Scalar3DUpdater.o DataClass/Vector3DUpdater.o
+OBJS = CommBuffer.o \
+       Block/BlockManager.o \
+       Scalar3D.o \
+       Vector3D.o \
+       Scalar3DUpdater.o \
+       Vector3DUpdater.o
 
 #include ../Makefile.inc
 #DATACLASS_OPT = $(shell awk '/^ *[^\#]/{ printf " -DUSE_%s", $$1}' $(DATACLASS_LIST))
