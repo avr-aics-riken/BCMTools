@@ -14,6 +14,11 @@ REVISION HISTORY
 ================
 
 ------------------
+2013-12-16
+- r8 add Utils/include/*.h to install-dir/include
+ - remove copyright from ConfigFile.h/cpp
+
+------------------
 2013-12-15
 - r7 build only libBCM.a
 

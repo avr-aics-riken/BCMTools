@@ -40,6 +40,29 @@ BCM_include_HEADERS = \
     $(top_builddir)/include/Vec3.h \
     $(top_builddir)/include/Vector3D.h \
     $(top_builddir)/include/Vector3DUpdater.h \
-    $(top_builddir)/include/bcm_Version.h
+    $(top_builddir)/include/bcm_Version.h \
+    $(top_builddir)/Utils/include/BBDivider.h \
+    $(top_builddir)/Utils/include/BCMOctree.h \
+    $(top_builddir)/Utils/include/BCMPolylib.h \
+    $(top_builddir)/Utils/include/Block.h \
+    $(top_builddir)/Utils/include/BlockFactory.h \
+    $(top_builddir)/Utils/include/BoundaryConditionSetterBase.h \
+    $(top_builddir)/Utils/include/BoundaryInfo.h \
+    $(top_builddir)/Utils/include/BoundingBox.h \
+    $(top_builddir)/Utils/include/ConfigBase.h \
+    $(top_builddir)/Utils/include/ConfigFile.h \
+    $(top_builddir)/Utils/include/CylinderDivider.h \
+    $(top_builddir)/Utils/include/Divider.h \
+    $(top_builddir)/Utils/include/MultiRootDivider.h \
+    $(top_builddir)/Utils/include/Node.h \
+    $(top_builddir)/Utils/include/Partition.h \
+    $(top_builddir)/Utils/include/Pedigree.h \
+    $(top_builddir)/Utils/include/PolygonBBoxDivider.h \
+    $(top_builddir)/Utils/include/PolygonDivider.h \
+    $(top_builddir)/Utils/include/RectangleDivider.h \
+    $(top_builddir)/Utils/include/RootGrid.h \
+    $(top_builddir)/Utils/include/SiloWriter.h \
+    $(top_builddir)/Utils/include/SimpleDivider.h \
+    $(top_builddir)/Utils/include/SphereDivider.h
     
 EXTRA_DIST = Makefile_hand

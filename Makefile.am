@@ -14,7 +14,7 @@ SUBDIRS = @MAKE_SUB_DIRS@
 
 bin_SCRIPTS= bcm-config
 CLEANFILES = $(bin_SCRIPTS)
-EXTRA_DIST = bcm-config.in LICENSE Utils examples FileIO BCMViewer Makefile.inc
+EXTRA_DIST = bcm-config.in LICENSE Utils/src examples FileIO BCMViewer Makefile.inc
 dist_data_DATA = AUTHORS COPYING ChangeLog README README.md LICENSE NEWS
 
 clean-local:

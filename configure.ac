@@ -14,7 +14,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([BCMTools], [0.9.1], [jonishi@iis.u-tokyo.ac.jp], [BCMTools])
+AC_INIT([BCMTools], [0.9.2], [jonishi@iis.u-tokyo.ac.jp], [BCMTools])
 AM_INIT_AUTOMAKE()
 AC_CONFIG_SRCDIR([src/BlockManager.cpp])
 AC_CONFIG_HEADERS([config.h])
@@ -23,7 +23,7 @@ AC_CONFIG_HEADERS([config.h])
 #
 # revision No.
 #
-BCM_REVISION="20131215_1600"
+BCM_REVISION="20131216_1700"
 AC_SUBST(BCM_REVISION)
 
 

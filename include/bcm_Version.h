@@ -18,10 +18,10 @@
 #define _BCM_VERSION_H_
 
 /** BCMToolsのバージョン */
-#define BCM_VERSION_NO  "0.9.1"
+#define BCM_VERSION_NO  "0.9.2"
 
 /** BCMToolsのリビジョン */
-#define BCM_REVISION    "20131215_1600"
+#define BCM_REVISION    "20131216_1700"
 
 #endif /* _BCM_VERSION_H_ */
 

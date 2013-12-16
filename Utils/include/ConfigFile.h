@@ -1,14 +1,3 @@
-/*
- * BCMTools
- *
- * Copyright (C) 2011-2013 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2013 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
-
 // ConfigFile.h
 // Class for reading named values from configuration files
 // Richard J. Wagner  v2.1  24 May 2004  wagnerr@umich.edu
