@@ -18,7 +18,7 @@ CFLAGS += -I. -I../include
 all: $(BCMLIB)
 
 OBJS = CommBuffer.o \
-       Block/BlockManager.o \
+       BlockManager.o \
        Scalar3D.o \
        Vector3D.o \
        Scalar3DUpdater.o \
