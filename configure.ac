@@ -2,10 +2,10 @@
 #
 # BCMTools
 #
-# Copyright (C) 2011-2013 Institute of Industrial Science, The University of Tokyo.
+# Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
 # All rights reserved.
 #
-# Copyright (c) 2012-2013 Advanced Institute for Computational Science, RIKEN.
+# Copyright (c) 2012-2014 Advanced Institute for Computational Science, RIKEN.
 # All rights reserved.
 #
 ##############################
@@ -13,8 +13,8 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.69])
-AC_INIT([BCMTools], [0.9.2], [jonishi@iis.u-tokyo.ac.jp], [BCMTools])
+AC_PREREQ([2.57])
+AC_INIT([BCMTools], [0.9.3], [jonishi@iis.u-tokyo.ac.jp], [BCMTools])
 AM_INIT_AUTOMAKE()
 AC_CONFIG_SRCDIR([src/BlockManager.cpp])
 AC_CONFIG_HEADERS([config.h])
@@ -23,7 +23,7 @@ AC_CONFIG_HEADERS([config.h])
 #
 # revision No.
 #
-BCM_REVISION="20131216_1700"
+BCM_REVISION="20140125_1730"
 AC_SUBST(BCM_REVISION)
 
 
