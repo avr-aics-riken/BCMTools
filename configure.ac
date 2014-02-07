@@ -128,6 +128,44 @@ fi
 
 
 #
+# TextParser environment
+#
+AC_ARG_WITH(parser, [AC_HELP_STRING([--with-parser=dir],[Specify TextParser install directory])], , with_parser=none)
+AC_SUBST(TP_DIR)
+AC_SUBST(TP_CFLAGS)
+AC_SUBST(TP_LDFLAGS)
+
+if test "$with_parser" != "none" ; then
+  TP_DIR=$with_parser;
+  TP_CFLAGS=`$TP_DIR/bin/tp-config --cflags`
+  TP_LDFLAGS=`$TP_DIR/bin/tp-config --libs`
+else
+  echo "  Error: TextParser library is not specified."
+  echo "         Specify --with-parser option."
+  exit 1
+fi
+
+
+#
+# Polylib
+#
+AC_ARG_WITH(polylib, [AC_HELP_STRING([--with-polylib=dir],[Specify Polylib install directory])], , with_polylib=none)
+AC_SUBST(PL_DIR)
+AC_SUBST(PL_CFLAGS)
+AC_SUBST(PL_LDFLAGS)
+
+if test "$with_polylib" != "none" ; then
+  PL_DIR=$with_polylib;
+  PL_CFLAGS=`$PL_DIR/bin/polylib-config --cflags`
+  PL_LDFLAGS=`$PL_DIR/bin/polylib-config --libs`
+else
+  echo "  Error: Polylib is not specified."
+  echo "         Specify --with-polylib option."
+  exit 1
+fi
+
+
+#
 # Warning
 #
 

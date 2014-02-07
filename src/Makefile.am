@@ -14,7 +14,9 @@
 
 lib_LIBRARIES = libBCM.a
 
-libBCM_a_CXXFLAGS = @MPI_CFLAGS@ -I$(top_builddir)/include
+libBCM_a_CXXFLAGS = @PL_CFLAGS@ @TP_CFLAGS@ @MPI_CFLAGS@ -I$(top_builddir)/include
+
+AUTOMAKE_OPTIONS = subdir-objects
 
 libBCM_a_SOURCES = \
     BlockManager.cpp \
@@ -22,7 +24,10 @@ libBCM_a_SOURCES = \
     Scalar3D.cpp \
     Scalar3DUpdater.cpp \
     Vector3D.cpp \
-    Vector3DUpdater.cpp
+    Vector3DUpdater.cpp \
+    ../Utils/src/BCMOctree.cpp \
+    ../Utils/src/BCMPolylib.cpp 
+libBCM_a_CPPFLAGS = -I../Utils/include
 
 BCM_includedir = $(includedir)
 BCM_include_HEADERS = \
@@ -66,3 +71,4 @@ BCM_include_HEADERS = \
     $(top_builddir)/Utils/include/SphereDivider.h
     
 EXTRA_DIST = Makefile_hand
+
