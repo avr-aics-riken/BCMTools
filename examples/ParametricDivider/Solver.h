@@ -22,6 +22,8 @@
 #include "Vector3D.h"
 #include "Vec3.h"
 
+using namespace Vec3class;
+
 class BlockManager;
 
 class Solver {

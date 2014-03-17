@@ -84,7 +84,7 @@ int CompStr( const std::string& str1, const std::string& str2, bool ignorecase=t
 	return lstr1.compare(lstr2);
 }
 
-int ReadVec3( TextParser* tp, const std::string& label, Vec3r& v)
+int ReadVec3( TextParser* tp, const std::string& label, Vec3d& v)
 {
 	using namespace std;
 
@@ -96,7 +96,7 @@ int ReadVec3( TextParser* tp, const std::string& label, Vec3r& v)
 	if( (err = tp->getValue(label, valStr)) != TP_NO_ERROR){ return err; }
 	tp->splitVector(valStr, vec_valStr);
 
-	Vec3r ret_v;
+	Vec3d ret_v;
 	ret_v.x = tp->convertDouble(vec_valStr[0], &err);
 	ret_v.y = tp->convertDouble(vec_valStr[1], &err);
 	ret_v.z = tp->convertDouble(vec_valStr[2], &err);
@@ -276,7 +276,7 @@ namespace BCMFileIO {
 	}
 	
 	bool LoadIndex(const std::string& filename, const std::string& targetDir, 
-	               Vec3r& globalOrigin, Vec3r& globalRegion, std::string& octreeFilename,
+	               Vec3d& globalOrigin, Vec3d& globalRegion, std::string& octreeFilename,
 	               Vec3i& blockSize, std::vector<IdxProc>& idxProcList, std::vector<IdxBlock>& idxBlockList)
 	{
 		using namespace std;
@@ -387,7 +387,7 @@ namespace BCMFileIO {
 
 
 namespace {
-	void BoxSetter(const Vec3r& org, const Vec3r& rgn, 
+	void BoxSetter(const Vec3d& org, const Vec3d& rgn, 
 	               SG::VertexLineFormat* vertex, SG::IndexFormat* index, size_t idxOffset)
 	{
 		SG::VertexLineFormat vrt[8] = {
@@ -416,7 +416,7 @@ namespace {
 	}
 
 
-	void CellSetter(const Vec3r& org, const Vec3r& rgn, const GridBCM::AXIS axis, const int divU, const int divV, 
+	void CellSetter(const Vec3d& org, const Vec3d& rgn, const GridBCM::AXIS axis, const int divU, const int divV, 
 					const int texIdx_u, const int texIdx_v, const int texSize_u, int texSize_v,
 	                SG::VertexFaceFormat* vertex, SG::IndexFormat* index, size_t idxOffset)
 	{
@@ -463,7 +463,7 @@ namespace {
 
 	}
 
-	void BlockSetter(const Vec3r& org, const Vec3r& sz, const GridBCM::AXIS axis,
+	void BlockSetter(const Vec3d& org, const Vec3d& sz, const GridBCM::AXIS axis,
 	                 SG::VertexLineFormat* vertex, SG::IndexFormat* index, size_t idxOffset)
 	{
 		if( axis == GridBCM::AXIS_X ){
@@ -506,7 +506,7 @@ namespace {
 	}
 
 
-	void GridSetter(const Vec3r& org, const Vec3r& rgn, const GridBCM::AXIS axis, const int divU, const int divV,
+	void GridSetter(const Vec3d& org, const Vec3d& rgn, const GridBCM::AXIS axis, const int divU, const int divV,
 	                     SG::VertexLineFormat* vertex, SG::IndexFormat* index, size_t idxOffset)
 	{
 		if( axis == GridBCM::AXIS_X) {
@@ -890,7 +890,7 @@ public:
 
 	void CreateSlice(const BCMOctree* octree, const size_t maxLevel, 
 	                 const LeafBlocks* leafBlocks,
-	                 const Vec3r& globalOrigin, const Vec3r& globalRegion, const size_t position)
+	                 const Vec3d& globalOrigin, const Vec3d& globalRegion, const size_t position)
 	{
 		using namespace BCMFileIO;
 		int iaxis = 0;
@@ -923,7 +923,7 @@ public:
 			}
 		}
 
-		Vec3r rootRegion( globalRegion.x / static_cast<double>(rootDims[0]),
+		Vec3d rootRegion( globalRegion.x / static_cast<double>(rootDims[0]),
 		                  globalRegion.y / static_cast<double>(rootDims[1]),
 						  globalRegion.z / static_cast<double>(rootDims[2]) );
 
@@ -968,14 +968,14 @@ public:
 
 			const Pedigree p = leafNodes[cnt]->getPedigree();
 			
-			Vec3r rootOrg(globalOrigin.x + (rootRegion.x * rootGrid->rootID2indexX(p.getRootID())),
+			Vec3d rootOrg(globalOrigin.x + (rootRegion.x * rootGrid->rootID2indexX(p.getRootID())),
 			              globalOrigin.y + (rootRegion.y * rootGrid->rootID2indexY(p.getRootID())),
 						  globalOrigin.z + (rootRegion.z * rootGrid->rootID2indexZ(p.getRootID())));
 
 			unsigned int lv = p.getLevel();
 
-			Vec3r rgn( rootRegion.x / (1 << lv),     rootRegion.y / (1 << lv),     rootRegion.z / (1 << lv)     );
-			Vec3r org( rootOrg.x + p.getX() * rgn.x, rootOrg.y + p.getY() * rgn.y, rootOrg.z + p.getZ() * rgn.z );
+			Vec3d rgn( rootRegion.x / (1 << lv),     rootRegion.y / (1 << lv),     rootRegion.z / (1 << lv)     );
+			Vec3d org( rootOrg.x + p.getX() * rgn.x, rootOrg.y + p.getY() * rgn.y, rootOrg.z + p.getZ() * rgn.z );
 			if( m_axis == GridBCM::AXIS_X) org.x = globalOrigin.x + position * cellPitch;
 			if( m_axis == GridBCM::AXIS_Y) org.y = globalOrigin.y + position * cellPitch;
 			if( m_axis == GridBCM::AXIS_Z) org.z = globalOrigin.z + position * cellPitch;
@@ -1335,7 +1335,7 @@ bool GridBCM::LoadFileOctree(const std::string& filename)
 		}
 	}
 
-	Vec3r rootRegion( header.rgn[0] / static_cast<double>(header.rootDims[0]),
+	Vec3d rootRegion( header.rgn[0] / static_cast<double>(header.rootDims[0]),
 	                  header.rgn[1] / static_cast<double>(header.rootDims[1]),
 			          header.rgn[2] / static_cast<double>(header.rootDims[2]));
 	
@@ -1348,8 +1348,8 @@ bool GridBCM::LoadFileOctree(const std::string& filename)
 	m_octree  = new BCMOctree(rootGrid, pedigrees);
 
 
-	m_globalOrigin = Vec3r(header.org);
-	m_globalRegion = Vec3r(header.rgn);
+	m_globalOrigin = Vec3d(header.org);
+	m_globalRegion = Vec3d(header.rgn);
 	m_maxLevel = header.maxLevel;
 	m_rootDims[0] = header.rootDims[0];
 	m_rootDims[1] = header.rootDims[1];

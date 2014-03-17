@@ -14,7 +14,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.57])
-AC_INIT([BCMTools], [0.9.3], [jonishi@iis.u-tokyo.ac.jp], [BCMTools])
+AC_INIT([BCMTools], [0.9.4], [jonishi@iis.u-tokyo.ac.jp], [BCMTools])
 AM_INIT_AUTOMAKE()
 AC_CONFIG_SRCDIR([src/BlockManager.cpp])
 AC_CONFIG_HEADERS([config.h])
@@ -23,7 +23,7 @@ AC_CONFIG_HEADERS([config.h])
 #
 # revision No.
 #
-BCM_REVISION="20140125_1730"
+BCM_REVISION="20140317_1600"
 AC_SUBST(BCM_REVISION)
 
 
@@ -124,44 +124,6 @@ else
     MPI_LIBS=-lmpi
     enable_mpi="ompi"
   fi
-fi
-
-
-#
-# TextParser environment
-#
-AC_ARG_WITH(parser, [AC_HELP_STRING([--with-parser=dir],[Specify TextParser install directory])], , with_parser=none)
-AC_SUBST(TP_DIR)
-AC_SUBST(TP_CFLAGS)
-AC_SUBST(TP_LDFLAGS)
-
-if test "$with_parser" != "none" ; then
-  TP_DIR=$with_parser;
-  TP_CFLAGS=`$TP_DIR/bin/tp-config --cflags`
-  TP_LDFLAGS=`$TP_DIR/bin/tp-config --libs`
-else
-  echo "  Error: TextParser library is not specified."
-  echo "         Specify --with-parser option."
-  exit 1
-fi
-
-
-#
-# Polylib
-#
-AC_ARG_WITH(polylib, [AC_HELP_STRING([--with-polylib=dir],[Specify Polylib install directory])], , with_polylib=none)
-AC_SUBST(PL_DIR)
-AC_SUBST(PL_CFLAGS)
-AC_SUBST(PL_LDFLAGS)
-
-if test "$with_polylib" != "none" ; then
-  PL_DIR=$with_polylib;
-  PL_CFLAGS=`$PL_DIR/bin/polylib-config --cflags`
-  PL_LDFLAGS=`$PL_DIR/bin/polylib-config --libs`
-else
-  echo "  Error: Polylib is not specified."
-  echo "         Specify --with-polylib option."
-  exit 1
 fi
 
 

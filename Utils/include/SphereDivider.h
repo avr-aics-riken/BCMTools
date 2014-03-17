@@ -41,7 +41,7 @@ class SphereDivider : public MultiRootDivider {
 
   const double r2;  ///< r^2
 
-  Vec3r margin;  ///< 追加マージン
+  Vec3d margin;  ///< 追加マージン
 
 public:
 
@@ -63,13 +63,13 @@ public:
   SphereDivider(const RootGrid* rootGrid, int minLevel, int maxLevel,
                 double ox, double oy, double oz, double r,
                 double extraMarginRatio = 0.0)
-    : MultiRootDivider(Vec3r(0.0,0.0,0.0), 1.0, rootGrid),
+    : MultiRootDivider(Vec3d(0.0,0.0,0.0), 1.0, rootGrid),
       minLevel(minLevel), maxLevel(maxLevel),
       ox(ox), oy(oy), oz(oz), r(r), r2(r*r) {
     assert(minLevel >= 0);
     assert(maxLevel >= minLevel);
 
-    margin = Vec3r(extraMarginRatio / (1 << maxLevel));
+    margin = Vec3d(extraMarginRatio / (1 << maxLevel));
   }
 
   /// デストラクタ.
@@ -87,8 +87,8 @@ public:
 
     BoundingBox region = defineSearchRegion(pedigree, maxLevel);
 
-    Vec3r min = region.getMin() - margin;
-    Vec3r max = region.getMax() + margin;
+    Vec3d min = region.getMin() - margin;
+    Vec3d max = region.getMax() + margin;
 
   //std::cout << "(x0,y0,z0) = " << min << std::endl;
   //std::cout << "(x1,y1,z1) = " << max << std::endl;

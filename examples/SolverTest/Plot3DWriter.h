@@ -73,7 +73,7 @@ public:
 						RootGrid* rootGrid,
 						BCMOctree* tree,
 						Partition* partition,
-						Vec3r rootOrigin,
+						Vec3d rootOrigin,
 						double rootLength) {
 		ostringstream ossFileNameTime;
 		ossFileNameTime << "./PLOT3D/";
@@ -130,9 +130,9 @@ public:
     for (int id = 0; id < blockManager.getNumBlock(); ++id) {
       BlockBase* block = blockManager.getBlock(id);
 			::Vec3i size = block->getSize();
-			Vec3r origin = block->getOrigin();
-			Vec3r blockSize = block->getBlockSize();
-			Vec3r cellSize = block->getCellSize();
+			Vec3d origin = block->getOrigin();
+			Vec3d blockSize = block->getBlockSize();
+			Vec3d cellSize = block->getCellSize();
 			int level = block->getLevel();
 			double dx = cellSize.x;
 
@@ -181,7 +181,7 @@ public:
 						RootGrid* rootGrid,
 						BCMOctree* tree,
 						Partition* partition,
-						Vec3r rootOrigin,
+						Vec3d rootOrigin,
 						double rootLength) {
 		ostringstream ossFileNameTime;
 		ossFileNameTime << "./PLOT3D/";
@@ -238,9 +238,9 @@ public:
     for (int id = 0; id < blockManager.getNumBlock(); ++id) {
       BlockBase* block = blockManager.getBlock(id);
 			::Vec3i size = block->getSize();
-			Vec3r origin = block->getOrigin();
-			Vec3r blockSize = block->getBlockSize();
-			Vec3r cellSize = block->getCellSize();
+			Vec3d origin = block->getOrigin();
+			Vec3d blockSize = block->getBlockSize();
+			Vec3d cellSize = block->getCellSize();
 			int level = block->getLevel();
 			double dx = cellSize.x;
 
@@ -293,7 +293,7 @@ public:
 						RootGrid* rootGrid,
 						BCMOctree* tree,
 						Partition* partition,
-						Vec3r rootOrigin,
+						Vec3d rootOrigin,
 						double rootLength) {
 		ostringstream ossFileNameTime;
 		ossFileNameTime << "./PLOT3D/";
@@ -364,9 +364,9 @@ public:
     for (int id = 0; id < blockManager.getNumBlock(); ++id) {
       BlockBase* block = blockManager.getBlock(id);
 			::Vec3i size = block->getSize();
-			Vec3r origin = block->getOrigin();
-			Vec3r blockSize = block->getBlockSize();
-			Vec3r cellSize = block->getCellSize();
+			Vec3d origin = block->getOrigin();
+			Vec3d blockSize = block->getBlockSize();
+			Vec3d cellSize = block->getCellSize();
 			int level = block->getLevel();
 			double dx = cellSize.x;
 
@@ -425,7 +425,7 @@ public:
 						RootGrid* rootGrid,
 						BCMOctree* tree,
 						Partition* partition,
-						Vec3r rootOrigin,
+						Vec3d rootOrigin,
 						double rootLength) {
 		ostringstream ossFileNameTime;
 		ossFileNameTime << "./PLOT3D/";
@@ -486,9 +486,9 @@ public:
     for (int id = 0; id < blockManager.getNumBlock(); ++id) {
       BlockBase* block = blockManager.getBlock(id);
 			::Vec3i size = block->getSize();
-			Vec3r origin = block->getOrigin();
-			Vec3r blockSize = block->getBlockSize();
-			Vec3r cellSize = block->getCellSize();
+			Vec3d origin = block->getOrigin();
+			Vec3d blockSize = block->getBlockSize();
+			Vec3d cellSize = block->getCellSize();
 			int level = block->getLevel();
 			double dx = cellSize.x;
 
@@ -543,7 +543,7 @@ public:
 						RootGrid* rootGrid,
 						BCMOctree* tree,
 						Partition* partition,
-						Vec3r rootOrigin,
+						Vec3d rootOrigin,
 						double rootLength) {
 		ostringstream ossFileNameTime;
 		ossFileNameTime << "./PLOT3D/";
@@ -604,9 +604,9 @@ public:
     for (int id = 0; id < blockManager.getNumBlock(); ++id) {
       BlockBase* block = blockManager.getBlock(id);
 			::Vec3i size = block->getSize();
-			Vec3r origin = block->getOrigin();
-			Vec3r blockSize = block->getBlockSize();
-			Vec3r cellSize = block->getCellSize();
+			Vec3d origin = block->getOrigin();
+			Vec3d blockSize = block->getBlockSize();
+			Vec3d cellSize = block->getCellSize();
 			int level = block->getLevel();
 			double dx = cellSize.x;
 

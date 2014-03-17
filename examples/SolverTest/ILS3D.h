@@ -138,7 +138,7 @@ PM_Stop(tm_JacobiSmoother);
 		for (int n=0; n<blockManager.getNumBlock(); ++n) {
 			BlockBase* block = blockManager.getBlock(n);
 			::Vec3i blockSize = block->getSize();
-			::Vec3r cellSize  = block->getCellSize();
+			::Vec3d cellSize  = block->getCellSize();
 			int sz[3] = {blockSize.x, blockSize.y, blockSize.z};
 
 			real* Ax = plsAx->GetBlockData(block);
@@ -179,7 +179,7 @@ PM_Stop(tm_JacobiSmoother);
 		for (int n=0; n<blockManager.getNumBlock(); ++n) {
 			BlockBase* block = blockManager.getBlock(n);
 			::Vec3i blockSize = block->getSize();
-			::Vec3r cellSize  = block->getCellSize();
+			::Vec3d cellSize  = block->getCellSize();
 			int sz[3] = {blockSize.x, blockSize.y, blockSize.z};
 
 			real* r  = plsr ->GetBlockData(block);
@@ -223,7 +223,7 @@ PM_Stop(tm_JacobiSmoother);
 		for (int n=0; n<blockManager.getNumBlock(); ++n) {
 			BlockBase* block = blockManager.getBlock(n);
 			::Vec3i blockSize = block->getSize();
-			::Vec3r cellSize  = block->getCellSize();
+			::Vec3d cellSize  = block->getCellSize();
 			int sz[3] = {blockSize.x, blockSize.y, blockSize.z};
 
 			real* Ap = plsAp->GetBlockData(block);
@@ -277,7 +277,7 @@ PM_Stop(tm_JacobiSmoother);
 		for (int n=0; n<blockManager.getNumBlock(); ++n) {
 			BlockBase* block = blockManager.getBlock(n);
 			::Vec3i blockSize = block->getSize();
-			::Vec3r cellSize  = block->getCellSize();
+			::Vec3d cellSize  = block->getCellSize();
 			int sz[3] = {blockSize.x, blockSize.y, blockSize.z};
 
 			real* x = plsx->GetBlockData(block);
@@ -317,7 +317,7 @@ PM_Stop(tm_JacobiSmoother);
 		for (int n=0; n<blockManager.getNumBlock(); ++n) {
 			BlockBase* block = blockManager.getBlock(n);
 			::Vec3i blockSize = block->getSize();
-			::Vec3r cellSize  = block->getCellSize();
+			::Vec3d cellSize  = block->getCellSize();
 			int sz[3] = {blockSize.x, blockSize.y, blockSize.z};
 
 			real* y = plsy->GetBlockData(block);
@@ -339,7 +339,7 @@ PM_Stop(tm_JacobiSmoother);
 		for (int n=0; n<blockManager.getNumBlock(); ++n) {
 			BlockBase* block = blockManager.getBlock(n);
 			::Vec3i blockSize = block->getSize();
-			::Vec3r cellSize  = block->getCellSize();
+			::Vec3d cellSize  = block->getCellSize();
 			int sz[3] = {blockSize.x, blockSize.y, blockSize.z};
 
 			real* y = plsy->GetBlockData(block);
@@ -362,7 +362,7 @@ PM_Stop(tm_JacobiSmoother);
 		for (int n=0; n<blockManager.getNumBlock(); ++n) {
 			BlockBase* block = blockManager.getBlock(n);
 			::Vec3i blockSize = block->getSize();
-			::Vec3r cellSize  = block->getCellSize();
+			::Vec3d cellSize  = block->getCellSize();
 			int sz[3] = {blockSize.x, blockSize.y, blockSize.z};
 
 			real* z = plsz->GetBlockData(block);
@@ -387,7 +387,7 @@ PM_Stop(tm_JacobiSmoother);
 		for (int n=0; n<blockManager.getNumBlock(); ++n) {
 			BlockBase* block = blockManager.getBlock(n);
 			::Vec3i blockSize = block->getSize();
-			::Vec3r cellSize  = block->getCellSize();
+			::Vec3d cellSize  = block->getCellSize();
 			int sz[3] = {blockSize.x, blockSize.y, blockSize.z};
 
 			real* z = plsz->GetBlockData(block);
@@ -411,7 +411,7 @@ public:
 		for (int n=0; n<blockManager.getNumBlock(); ++n) {
 			BlockBase* block = blockManager.getBlock(n);
 			::Vec3i blockSize = block->getSize();
-			::Vec3r cellSize  = block->getCellSize();
+			::Vec3d cellSize  = block->getCellSize();
 			int sz[3] = {blockSize.x, blockSize.y, blockSize.z};
 
 			real* x = plsx->GetBlockData(block);
@@ -433,7 +433,7 @@ public:
 		for (int n=0; n<blockManager.getNumBlock(); ++n) {
 			BlockBase* block = blockManager.getBlock(n);
 			::Vec3i blockSize = block->getSize();
-			::Vec3r cellSize  = block->getCellSize();
+			::Vec3d cellSize  = block->getCellSize();
 			int sz[3] = {blockSize.x, blockSize.y, blockSize.z};
 
 			real* x = plsx->GetBlockData(block);
@@ -1255,7 +1255,7 @@ PM_Stop(tm_JacobiSmoother);
 		for (int n=0; n<blockManager.getNumBlock(); ++n) {
 			BlockBase* block = blockManager.getBlock(n);
 			::Vec3i blockSize = block->getSize();
-			::Vec3r cellSize  = block->getCellSize();
+			::Vec3d cellSize  = block->getCellSize();
 			int sz[3] = {blockSize.x, blockSize.y, blockSize.z};
 
 			real* x  = plsx ->GetBlockData(block);
@@ -1289,7 +1289,7 @@ PM_Stop(tm_JacobiSmoother);
 		for (int n=0; n<blockManager.getNumBlock(); ++n) {
 			BlockBase* block = blockManager.getBlock(n);
 			::Vec3i blockSize = block->getSize();
-			::Vec3r cellSize  = block->getCellSize();
+			::Vec3d cellSize  = block->getCellSize();
 			int sz[3] = {blockSize.x, blockSize.y, blockSize.z};
 
 			real* x  = plsx ->GetBlockData(block);
@@ -1338,7 +1338,7 @@ PM_Stop(tm_JacobiSmoother);
 		for (int n=0; n<blockManager.getNumBlock(); ++n) {
 			BlockBase* block = blockManager.getBlock(n);
 			::Vec3i blockSize = block->getSize();
-			::Vec3r cellSize  = block->getCellSize();
+			::Vec3d cellSize  = block->getCellSize();
 			int sz[3] = {blockSize.x, blockSize.y, blockSize.z};
 
 			real* Ax = plsAx->GetBlockData(block);

@@ -273,15 +273,15 @@ int Solver::Init(int argc, char** argv){
   // ブロック内のセル数
 	::Vec3i size(conf.size, conf.size, conf.size);
 
-	Vec3r rootOrigin = conf.origin;
+	Vec3d rootOrigin = conf.origin;
 	double rootLength = conf.rootLength;
 
   std::vector<Node*>& leafNodeArray = tree->getLeafNodeArray();
   for (int id = partition->getStart(myrank); id < partition->getEnd(myrank); id++) {
     Node* node = leafNodeArray[id];
 		int level = node->getLevel();
-		Vec3r origin = tree->getOrigin(node) * rootLength + rootOrigin;
-		Vec3r blockSize = node->getBlockSize() * rootLength;
+		Vec3d origin = tree->getOrigin(node) * rootLength + rootOrigin;
+		Vec3d blockSize = node->getBlockSize() * rootLength;
 		NeighborInfo* neighborInfo = tree->makeNeighborInfo(node, partition);
 
 		for (int i = 0; i < NUM_FACE; ++i) {
@@ -510,9 +510,9 @@ int Solver::Init(int argc, char** argv){
 	for (int n=0; n<blockManager.getNumBlock(); ++n) {
 		BlockBase* block = blockManager.getBlock(n);
 		::Vec3i size      = block->getSize();
-		::Vec3r origin    = block->getOrigin();
-		::Vec3r blockSize = block->getBlockSize();
-		::Vec3r cellSize  = block->getCellSize();
+		::Vec3d origin    = block->getOrigin();
+		::Vec3d blockSize = block->getBlockSize();
+		::Vec3d cellSize  = block->getCellSize();
 
 		int sz[3] = {size.x, size.y, size.z};
 		int g[1] = {vc};
@@ -646,9 +646,9 @@ int Solver::Init(int argc, char** argv){
 		for (int n=0; n<blockManager.getNumBlock(); ++n) {
 			BlockBase* block = blockManager.getBlock(n);
 			::Vec3i size = block->getSize();
-			::Vec3r origin = block->getOrigin();
-			::Vec3r blockSize = block->getBlockSize();
-			::Vec3r cellSize = block->getCellSize();
+			::Vec3d origin = block->getOrigin();
+			::Vec3d blockSize = block->getBlockSize();
+			::Vec3d cellSize = block->getCellSize();
 
 			int sz[3] = {size.x, size.y, size.z};
 			int g[1] = {vc};
@@ -703,9 +703,9 @@ int Solver::Init(int argc, char** argv){
 		for (int n=0; n<blockManager.getNumBlock(); ++n) {
 			BlockBase* block = blockManager.getBlock(n);
 			::Vec3i size = block->getSize();
-			::Vec3r origin = block->getOrigin();
-			::Vec3r blockSize = block->getBlockSize();
-			::Vec3r cellSize = block->getCellSize();
+			::Vec3d origin = block->getOrigin();
+			::Vec3d blockSize = block->getBlockSize();
+			::Vec3d cellSize = block->getCellSize();
 
 			int sz[3] = {size.x, size.y, size.z};
 			int g[1] = {vc};
@@ -770,9 +770,9 @@ int Solver::Init(int argc, char** argv){
 			for (int n=0; n<blockManager.getNumBlock(); ++n) {
 				BlockBase* block = blockManager.getBlock(n);
 				::Vec3i size = block->getSize();
-				::Vec3r origin = block->getOrigin();
-				::Vec3r blockSize = block->getBlockSize();
-				::Vec3r cellSize = block->getCellSize();
+				::Vec3d origin = block->getOrigin();
+				::Vec3d blockSize = block->getBlockSize();
+				::Vec3d cellSize = block->getCellSize();
 
 				int sz[3] = {size.x, size.y, size.z};
 				int g[1] = {vc};
@@ -841,9 +841,9 @@ int Solver::Init(int argc, char** argv){
 	for (int n=0; n<blockManager.getNumBlock(); ++n) {
 		BlockBase* block = blockManager.getBlock(n);
 		::Vec3i size = block->getSize();
-		::Vec3r origin = block->getOrigin();
-		::Vec3r blockSize = block->getBlockSize();
-		::Vec3r cellSize = block->getCellSize();
+		::Vec3d origin = block->getOrigin();
+		::Vec3d blockSize = block->getBlockSize();
+		::Vec3d cellSize = block->getCellSize();
 
 		int sz[3] = {size.x, size.y, size.z};
 		int g[1] = {vc};
@@ -874,9 +874,9 @@ int Solver::Init(int argc, char** argv){
 			for (int n=0; n<blockManager.getNumBlock(); ++n) {
 				BlockBase* block = blockManager.getBlock(n);
 				::Vec3i size = block->getSize();
-				::Vec3r origin = block->getOrigin();
-				::Vec3r blockSize = block->getBlockSize();
-				::Vec3r cellSize = block->getCellSize();
+				::Vec3d origin = block->getOrigin();
+				::Vec3d blockSize = block->getBlockSize();
+				::Vec3d cellSize = block->getCellSize();
 
 				int sz[3] = {size.x, size.y, size.z};
 				int g[1] = {vc};
@@ -951,9 +951,9 @@ int Solver::Init(int argc, char** argv){
 		for (int n=0; n<blockManager.getNumBlock(); ++n) {
 			BlockBase* block = blockManager.getBlock(n);
 			::Vec3i size = block->getSize();
-			::Vec3r origin = block->getOrigin();
-			::Vec3r blockSize = block->getBlockSize();
-			::Vec3r cellSize = block->getCellSize();
+			::Vec3d origin = block->getOrigin();
+			::Vec3d blockSize = block->getBlockSize();
+			::Vec3d cellSize = block->getCellSize();
 
 			int sz[3] = {size.x, size.y, size.z};
 			int g[1] = {vc};
@@ -1003,9 +1003,9 @@ int Solver::Init(int argc, char** argv){
 	for (int n=0; n<blockManager.getNumBlock(); ++n) {
 		BlockBase* block = blockManager.getBlock(n);
 		::Vec3i size = block->getSize();
-		::Vec3r origin = block->getOrigin();
-		::Vec3r blockSize = block->getBlockSize();
-		::Vec3r cellSize = block->getCellSize();
+		::Vec3d origin = block->getOrigin();
+		::Vec3d blockSize = block->getBlockSize();
+		::Vec3d cellSize = block->getCellSize();
 
 		int sz[3] = {size.x, size.y, size.z};
 		int g[1] = {vc};
@@ -1460,9 +1460,9 @@ void Solver::PrintForce(int step) {
 	for (int n=0; n<blockManager.getNumBlock(); ++n) {
 		BlockBase* block = blockManager.getBlock(n);
 		::Vec3i size = block->getSize();
-		::Vec3r origin = block->getOrigin();
-		::Vec3r blockSize = block->getBlockSize();
-		::Vec3r cellSize = block->getCellSize();
+		::Vec3d origin = block->getOrigin();
+		::Vec3d blockSize = block->getBlockSize();
+		::Vec3d cellSize = block->getCellSize();
 
 		int sz[3] = {size.x, size.y, size.z};
 		int g[1] = {vc};
@@ -1747,9 +1747,9 @@ void Solver::UpdateUX() {
 	for (int n=0; n<blockManager.getNumBlock(); ++n) {
 		BlockBase* block = blockManager.getBlock(n);
 		::Vec3i size = block->getSize();
-		::Vec3r origin = block->getOrigin();
-		::Vec3r blockSize = block->getBlockSize();
-		::Vec3r cellSize = block->getCellSize();
+		::Vec3d origin = block->getOrigin();
+		::Vec3d blockSize = block->getBlockSize();
+		::Vec3d cellSize = block->getCellSize();
 
 		int sz[3] = {size.x, size.y, size.z};
 		int g[1] = {vc};
@@ -1972,9 +1972,9 @@ void Solver::UpdateUY() {
 	for (int n=0; n<blockManager.getNumBlock(); ++n) {
 		BlockBase* block = blockManager.getBlock(n);
 		::Vec3i size = block->getSize();
-		::Vec3r origin = block->getOrigin();
-		::Vec3r blockSize = block->getBlockSize();
-		::Vec3r cellSize = block->getCellSize();
+		::Vec3d origin = block->getOrigin();
+		::Vec3d blockSize = block->getBlockSize();
+		::Vec3d cellSize = block->getCellSize();
 
 		int sz[3] = {size.x, size.y, size.z};
 		int g[1] = {vc};
@@ -2164,9 +2164,9 @@ void Solver::UpdateUZ() {
 	for (int n=0; n<blockManager.getNumBlock(); ++n) {
 		BlockBase* block = blockManager.getBlock(n);
 		::Vec3i size = block->getSize();
-		::Vec3r origin = block->getOrigin();
-		::Vec3r blockSize = block->getBlockSize();
-		::Vec3r cellSize = block->getCellSize();
+		::Vec3d origin = block->getOrigin();
+		::Vec3d blockSize = block->getBlockSize();
+		::Vec3d cellSize = block->getCellSize();
 
 		int sz[3] = {size.x, size.y, size.z};
 		int g[1] = {vc};
@@ -2359,9 +2359,9 @@ void Solver::UpdateP() {
 	for (int n=0; n<blockManager.getNumBlock(); ++n) {
 		BlockBase* block = blockManager.getBlock(n);
 		::Vec3i size = block->getSize();
-		::Vec3r origin = block->getOrigin();
-		::Vec3r blockSize = block->getBlockSize();
-		::Vec3r cellSize = block->getCellSize();
+		::Vec3d origin = block->getOrigin();
+		::Vec3d blockSize = block->getBlockSize();
+		::Vec3d cellSize = block->getCellSize();
 
 		int sz[3] = {size.x, size.y, size.z};
 		int g[1] = {vc};
@@ -2426,9 +2426,9 @@ void Solver::UpdateP() {
 	for (int n=0; n<blockManager.getNumBlock(); ++n) {
 		BlockBase* block = blockManager.getBlock(n);
 		::Vec3i size = block->getSize();
-		::Vec3r origin = block->getOrigin();
-		::Vec3r blockSize = block->getBlockSize();
-		::Vec3r cellSize = block->getCellSize();
+		::Vec3d origin = block->getOrigin();
+		::Vec3d blockSize = block->getBlockSize();
+		::Vec3d cellSize = block->getCellSize();
 
 		int sz[3] = {size.x, size.y, size.z};
 		int g[1] = {vc};
@@ -2554,9 +2554,9 @@ void Solver::UpdateU() {
 	for (int n=0; n<blockManager.getNumBlock(); ++n) {
 		BlockBase* block = blockManager.getBlock(n);
 		::Vec3i size = block->getSize();
-		::Vec3r origin = block->getOrigin();
-		::Vec3r blockSize = block->getBlockSize();
-		::Vec3r cellSize = block->getCellSize();
+		::Vec3d origin = block->getOrigin();
+		::Vec3d blockSize = block->getBlockSize();
+		::Vec3d cellSize = block->getCellSize();
 
 		int sz[3] = {size.x, size.y, size.z};
 		int g[1] = {vc};
@@ -2620,9 +2620,9 @@ void Solver::UpdateT() {
 	for (int n=0; n<blockManager.getNumBlock(); ++n) {
 		BlockBase* block = blockManager.getBlock(n);
 		::Vec3i size = block->getSize();
-		::Vec3r origin = block->getOrigin();
-		::Vec3r blockSize = block->getBlockSize();
-		::Vec3r cellSize = block->getCellSize();
+		::Vec3d origin = block->getOrigin();
+		::Vec3d blockSize = block->getBlockSize();
+		::Vec3d cellSize = block->getCellSize();
 
 		int sz[3] = {size.x, size.y, size.z};
 		int g[1] = {vc};
@@ -2869,9 +2869,9 @@ void Solver::PrintCut() {
 	for (int n=0; n<blockManager.getNumBlock(); ++n) {
 		BlockBase* block = blockManager.getBlock(n);
 		::Vec3i size = block->getSize();
-		::Vec3r origin = block->getOrigin();
-		::Vec3r blockSize = block->getBlockSize();
-		::Vec3r cellSize = block->getCellSize();
+		::Vec3d origin = block->getOrigin();
+		::Vec3d blockSize = block->getBlockSize();
+		::Vec3d cellSize = block->getCellSize();
 
 		int sz[3] = {size.x, size.y, size.z};
 		int g[1] = {vc};

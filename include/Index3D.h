@@ -19,6 +19,8 @@
 
 #include "Vec3.h"
 
+using namespace Vec3class;
+
 #ifdef BCMT_NAMESPACE
 namespace BCMT_NAMESPACE {
 #endif

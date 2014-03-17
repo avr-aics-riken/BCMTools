@@ -21,6 +21,8 @@
 #include "Vector3D.h"
 #include "Vec3.h"
 
+using namespace Vec3class;
+
 class BlockManager;
 
 class Solver {
@@ -87,7 +89,7 @@ private:
 
   void setSource(int nx, int ny, int nz,
                        double* sData, Index3DS sIndex,
-                       const Vec3r& orig, const Vec3r& delta);
+                       const Vec3d& orig, const Vec3d& delta);
 
   void dumpDataClass(int dataClassID);
 

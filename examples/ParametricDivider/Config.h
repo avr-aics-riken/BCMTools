@@ -19,6 +19,8 @@
 #include "Vec3.h"
 
 
+using namespace Vec3class;
+
 class Config : public ConfigBase {
 
 public:
@@ -43,8 +45,8 @@ public:
 private:
 
   void parse() {
-    Vec3r sphereCenter;
-    Vec3r cylinderCenter;
+    Vec3d sphereCenter;
+    Vec3d cylinderCenter;
     double sphereRadius;
     double cylinderRadius;
 
@@ -60,10 +62,10 @@ private:
 
     verbose = read<bool>("verbose", false);
 
-    sphereCenter = read<Vec3r>("sphereCenter", Vec3r(0.5, 0.5, 0.5));
+    sphereCenter = read<Vec3d>("sphereCenter", Vec3d(0.5, 0.5, 0.5));
     sphereRadius = read<double>("sphereRadius", 0.25);
 
-    cylinderCenter = read<Vec3r>("cylinderCenter", Vec3r(0.5, 0.5, 0.0));
+    cylinderCenter = read<Vec3d>("cylinderCenter", Vec3d(0.5, 0.5, 0.0));
     cylinderRadius = read<double>("cylinderRadius", 0.4);
 
     cx = cy = cz = r = 0.0;
@@ -120,7 +122,7 @@ public:
     std::cout << "  max level:          " << maxLevel << std::endl;
     std::cout << "  tree type:          " << treeType;
     if (treeType == "sphere") {
-      std::cout << " [c=" << Vec3r(cx, cy, cz) << ", r=" << r << "]";
+      std::cout << " [c=" << Vec3d(cx, cy, cz) << ", r=" << r << "]";
     }
     if (treeType == "cylinder") {
       std::cout << " [c=(" << cx << ", " << cy << "), r=" << r << "]";

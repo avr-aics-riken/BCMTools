@@ -23,7 +23,7 @@
 /// ブロック分割判定クラス(マルチルート用派生クラス).
 class MultiRootDivider : public Divider {
 
-  const Vec3r& origin;      ///< 最初のルートブロックの原点位置
+  const Vec3d& origin;      ///< 最初のルートブロックの原点位置
   const double rootLength;  ///< ルートブロックの辺長
 
   const RootGrid* rootGrid; ///< ルートブロック配置情報
@@ -36,7 +36,7 @@ public:
   ///  @param[in] rootLength ルートブロックの辺長
   ///  @param[in] rootGrid ルートブロック配置情報
   ///
-  MultiRootDivider(const Vec3r& origin, double rootLength,
+  MultiRootDivider(const Vec3d& origin, double rootLength,
                    const RootGrid* rootGrid)
     : origin(origin), rootLength(rootLength), rootGrid(rootGrid) {
   }

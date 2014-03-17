@@ -357,8 +357,8 @@ private:
 						BCMOctree* tree,
 						Partition* partition,
 						Config& conf) {
-		Vec3r origin = conf.origin;
-		Vec3r region(conf.rootLength * conf.rootN.x,
+		Vec3d origin = conf.origin;
+		Vec3d region(conf.rootLength * conf.rootN.x,
 									conf.rootLength * conf.rootN.y,
 									conf.rootLength * conf.rootN.z);
 		psaver = new BCMFileIO::BCMFileSaver(origin, region, tree, "BCM_OUT");

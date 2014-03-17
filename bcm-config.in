@@ -53,7 +53,7 @@ while test $# -gt 0; do
     --version)
 cat <<EOF
 
-BCMTools  Ver. @VERSION@  (@BCM_REVISION@)
+BCMTools : Version : @VERSION@ : @BCM_REVISION@
 
 Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
 All rights reserved.

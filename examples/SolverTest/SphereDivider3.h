@@ -60,7 +60,7 @@ public:
   ///  例えば，仮想セル領域を境界面探査領域に追加するには
   ///  「(double)仮想セル数/ブロック内分割数」を指定する．
   ///
-  SphereDivider3(const Vec3r& origin, double rootLength, const RootGrid* rootGrid, 
+  SphereDivider3(const Vec3d& origin, double rootLength, const RootGrid* rootGrid, 
                  int minLevel, const PolylibNS::BCMPolylib* pl,
                  const std::vector<PolygonGroupSpec>& polygonGroupList,
                  const std::vector<BoundingBoxSpec>& boundingBoxList, 

@@ -20,6 +20,8 @@
 #include "Pedigree.h"
 #include "Vec3.h"
 
+using namespace Vec3class;
+
 /// Octreeノードクラス.
 class Node {
 
@@ -114,9 +116,9 @@ public:
   ///
   ///  @return ブロックサイズ
   ///
-  Vec3r getBlockSize() const {
+  Vec3d getBlockSize() const {
     int upperBound = pedigree.getUpperBound();
-    return Vec3r(1.0/upperBound, 1.0/upperBound, 1.0/upperBound);
+    return Vec3d(1.0/upperBound, 1.0/upperBound, 1.0/upperBound);
   }
 
   /// 親ノードを取得.

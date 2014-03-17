@@ -27,6 +27,8 @@
 //#include "NeighborInfo.h"
 #include "Partition.h"
 
+using namespace Vec3class;
+
 /// フェイス番号.
 enum Face { X_M, X_P, Y_M, Y_P, Z_M, Z_P, NUM_FACE };
 
@@ -133,7 +135,7 @@ public:
   ///  @param[in] node ノード
   ///  @return 原点位置
   ///
-  Vec3r getOrigin(const Node* node) const;
+  Vec3d getOrigin(const Node* node) const;
 
   /// 指定されたノードの隣接情報を計算.
   ///

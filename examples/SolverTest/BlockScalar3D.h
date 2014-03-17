@@ -60,9 +60,9 @@ public:
 
 	void InitBoundaryCondition(
 					::Vec3i size,
-					::Vec3r origin,
-					::Vec3r blockSize,
-					::Vec3r cellSize,
+					::Vec3d origin,
+					::Vec3d blockSize,
+					::Vec3d cellSize,
 					int vc,
 					T* blockData,
 					int* boundaryType,

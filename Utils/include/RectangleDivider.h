@@ -41,7 +41,7 @@ class RectangleDivider : public MultiRootDivider {
 	const double ry1;
 	const double rz1;
 
-  Vec3r margin;  ///< 追加マージン
+  Vec3d margin;  ///< 追加マージン
 
 public:
 
@@ -62,13 +62,13 @@ public:
   RectangleDivider(const RootGrid* rootGrid, int minLevel, int maxLevel,
 								double rx0, double ry0, double rz0, double rx1, double ry1, double rz1,
                 double extraMarginRatio = 0.0)
-    : MultiRootDivider(Vec3r(0.0,0.0,0.0), 1.0, rootGrid),
+    : MultiRootDivider(Vec3d(0.0,0.0,0.0), 1.0, rootGrid),
       minLevel(minLevel), maxLevel(maxLevel),
       rx0(rx0), ry0(ry0), rz0(rz0), rx1(rx1), ry1(ry1), rz1(rz1) {
     assert(minLevel >= 0);
     assert(maxLevel >= minLevel);
 
-    margin = Vec3r(extraMarginRatio / (1 << maxLevel));
+    margin = Vec3d(extraMarginRatio / (1 << maxLevel));
   }
 
   /// デストラクタ.
@@ -86,8 +86,8 @@ public:
 
     BoundingBox region = defineSearchRegion(pedigree, maxLevel);
 
-    Vec3r min = region.getMin() - margin;
-    Vec3r max = region.getMax() + margin;
+    Vec3d min = region.getMin() - margin;
+    Vec3d max = region.getMax() + margin;
 
   //std::cout << "(x0,y0,z0) = " << min << std::endl;
   //std::cout << "(x1,y1,z1) = " << max << std::endl;

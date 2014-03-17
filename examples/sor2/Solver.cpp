@@ -85,14 +85,14 @@ void Solver::run()
 
       const BoundaryInfo* boundaryInfo = block->getBoundaryInfo();
 
-      const Vec3r& cellSize = block->getCellSize();
+      const Vec3d& cellSize = block->getCellSize();
       double cx = 1.0 / (cellSize.x * cellSize.x);
       double cy = 1.0 / (cellSize.y * cellSize.y);
       double cz = 1.0 / (cellSize.z * cellSize.z);
 
       double c = 1.0 / (2.0 * (cx + cy + cz));
 
-      const Vec3r& orig = block->getOrigin();
+      const Vec3d& orig = block->getOrigin();
       setSource(nx, ny, nz, wData, fIndex, orig, cellSize);
 
 
@@ -310,8 +310,8 @@ void Solver::checkResult(bool verbose)
   double errorMax = 0.0;
   for (int id = 0; id < blockManager.getNumBlock(); ++id) {
     BlockBase* block = blockManager.getBlock(id);
-    Vec3r origin = block->getOrigin();
-    Vec3r delta = block->getCellSize();
+    Vec3d origin = block->getOrigin();
+    Vec3d delta = block->getCellSize();
 
     double errorMax_inBlock = 0.0;
     Scalar3D<double>* f = dynamic_cast<Scalar3D<double>*>(
@@ -376,7 +376,7 @@ void Solver::checkResult(bool verbose)
 
 void Solver::setSource(int nx, int ny, int nz,
                        double* sData, Index3DS sIndex,
-                       const Vec3r& orig, const Vec3r& delta)
+                       const Vec3d& orig, const Vec3d& delta)
 {
   double a = 2 * M_PI;
 //double a = M_PI;

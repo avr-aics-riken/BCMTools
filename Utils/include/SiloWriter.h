@@ -333,8 +333,8 @@ private:
   ///
   void writeMesh(const std::string& name, const BlockBase* block) {
     const Vec3i& size = block->getSize();
-    const Vec3r& orig = block->getOrigin();
-    const Vec3r& pitch = block->getCellSize();
+    const Vec3d& orig = block->getOrigin();
+    const Vec3d& pitch = block->getCellSize();
 
 //  DBoptlist* optList = DBMakeOptlist(2);
     DBoptlist* optList = DBMakeOptlist(5);
@@ -379,8 +379,8 @@ private:
   ///  @param[in] block ブロック
   ///
   void writeBlockBoundary(const std::string& name, const BlockBase* block) {
-    const Vec3r& orig = block->getOrigin();
-    const Vec3r& blockSize = block->getBlockSize();
+    const Vec3d& orig = block->getOrigin();
+    const Vec3d& blockSize = block->getBlockSize();
     double x[2] = { orig.x, orig.x + blockSize.x };
     double y[2] = { orig.y, orig.y + blockSize.y };
     double z[2] = { orig.z, orig.z + blockSize.z };

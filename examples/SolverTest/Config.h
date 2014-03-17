@@ -19,6 +19,8 @@
 #include "Vec3.h"
 #include "PolygonBBoxDivider.h"
 
+using namespace Vec3class;
+
 /// <ポリゴングループ名, 分割レベル>ペアリストの読み込み
 inline std::istream& operator>>(std::istream& is,
                                 std::vector<PolygonGroupSpec>& polygonGroupList) {
@@ -48,10 +50,10 @@ class Config : public ConfigBase {
 public:
 	string operatorname;
 
-  Vec3r origin;        ///< 原点座標
+  Vec3d origin;        ///< 原点座標
   double rootLength;   ///< ルートノードボックスの辺長
   Vec3i rootN;         ///< ルートノード配置
-  Vec3r seed;
+  Vec3d seed;
 	bool periodicX;
 	bool periodicY;
 	bool periodicZ;
@@ -212,7 +214,7 @@ public:
 	double boundaryValueT_Z_M;
 	double boundaryValueT_Z_P;
 
-	Vec3r boundaryValuePoiseuilleCenter;
+	Vec3d boundaryValuePoiseuilleCenter;
 
 	bool GridGenerationMode;
 	bool BenchMode;
@@ -222,10 +224,10 @@ private:
   void parse() {
 		operatorname = read<string>("OperatorName", "v(^_^)v");
 
-    origin = read<Vec3r>("origin", Vec3r(0, 0, 0));
+    origin = read<Vec3d>("origin", Vec3d(0, 0, 0));
     rootLength = read<double>("rootLength", 1.0);
     rootN = read<Vec3i>("rootGrid", Vec3i(1, 1, 1));
-    seed   = read<Vec3r>("seed", Vec3r(origin.x, origin.y, origin.z));
+    seed   = read<Vec3d>("seed", Vec3d(origin.x, origin.y, origin.z));
 
 		periodicX = read<bool>("PeriodicX", false);
 		periodicY = read<bool>("PeriodicY", false);
@@ -394,7 +396,7 @@ private:
 		boundaryValueT_Z_M = read<double>("boundaryValueT_Z_M");
 		boundaryValueT_Z_P = read<double>("boundaryValueT_Z_P");
 
-		boundaryValuePoiseuilleCenter = read<Vec3r>("boundaryValuePoiseuilleCenter", Vec3r(0.0, 0.0, 0.0));
+		boundaryValuePoiseuilleCenter = read<Vec3d>("boundaryValuePoiseuilleCenter", Vec3d(0.0, 0.0, 0.0));
 
 		GridGenerationMode = read<bool>("GridGenerationMode", false);
 		BenchMode          = read<bool>("BenchMode", false);

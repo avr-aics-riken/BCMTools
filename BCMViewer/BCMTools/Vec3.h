@@ -1,173 +1,265 @@
-/*
- * BCMViewer - BCM mesh viewer
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2014 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
+#ifndef _VEC3_H_
+#define _VEC3_H_
+
+//##################################################################################
+//
+// vec3 class
+//
+// Copyright (c) 2007-2011 VCAD System Research Program, RIKEN.
+// All rights reserved.
+//
+// Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+// All rights reserved.
+//
+// Copyright (c) 2012-2014 Advanced Institute for Computational Science, RIKEN.
+// All rights reserved.
+//
+//##################################################################################
+
+/**
+ * @file   Vec3.h
+ * @brief  Vec3<T> class Header
+ * @author aics
  */
 
-///
-/// @file Vec3.h
-/// @brief 3次元ベクトル テンプレートクラス.
-/// 
-
-#ifndef VEC3_H
-#define VEC3_H
+//##################################################################################
+//
+// ATTENTION : If you want modify this header, please consult with organizer.
+//             Since this header class is being used for several libraries,
+//             we need to take care fo consistency between them.
+//
+//##################################################################################
 
 #include <iostream>
-#include <cmath>
-#include <stdexcept>
-
-#ifdef BCMT_NAMESPACE
-namespace BCMT_NAMESPACE {
-#endif
+#include <math.h>
 
 
-/// 3次元ベクトル テンプレートクラス.
-template <typename T>
+namespace Vec3class {
+  
+typedef enum {
+	AXIS_X = 0,
+	AXIS_Y,
+	AXIS_Z,
+	AXIS_ERROR
+} AxisEnum;
+
+//=========================================================================
+// class Vec3<T>
+//=========================================================================
+
+template<typename T>
 class Vec3 {
 public:
+	Vec3(T v = 0)			{ t[0] = t[1] = t[2] = v; }
+	Vec3(T _x, T _y, T _z)	{ t[0]=_x; t[1]=_y; t[2]=_z; }
+	Vec3(const T v[3])		{ t[0] = v[0]; t[1] = v[1]; t[2] = v[2]; }
 
-    T x, y, z;
+	Vec3<T>& assign(T _x, T _y, T _z) { 
+		t[0]=_x; t[1]=_y; t[2]=_z; 
+		return *this; 
+	}
 
-    Vec3(T s = 0) : x(s), y(s), z(s) {}
-
-    Vec3(T x, T y, T z) : x(x), y(y), z(z) {}
-
-    Vec3(const T v[3]) : x(v[0]), y(v[1]), z(v[2]) {}
-
-    Vec3(const Vec3& v) : x(v.x), y(v.y), z(v.z) {}
-
-    Vec3& operator=(const Vec3& v) {
-        x = v.x; y = v.y; z = v.z;
-        return *this;
-    }
-
-    Vec3& operator=(T s) {
-        x = y = z = s;
-        return *this;
-    }
-
-    const T& operator[](int i) const {
-        switch (i) {
-            case 0: return x;
-            case 1: return y;
-            case 2: return z;
-            default: throw std::out_of_range("Vec3 index must be 0, 1, or 2");
-        }
-    }
-
-    Vec3& operator+=(const Vec3& v) {
-        x += v.x; y += v.y; z += v.z;
-        return *this;
-    }
-
-    Vec3& operator-=(const Vec3& v) {
-        x -= v.x; y -= v.y; z -= v.z;
-        return *this;
-    }
-
-    Vec3& operator*=(T s) {
-        x *= s; y *= s; z *= s;
-        return *this;
-    }
-
-    friend const Vec3 operator+(const Vec3& lhs, const Vec3& rhs) {
-        return Vec3(lhs.x+rhs.x, lhs.y+rhs.y, lhs.z+rhs.z);
-    }
-
-    friend const Vec3 operator-(const Vec3& lhs, const Vec3& rhs) {
-        return Vec3(lhs.x-rhs.x, lhs.y-rhs.y, lhs.z-rhs.z);
-    }
-
-    const Vec3 operator*(T s) const {
-        return Vec3(x*s, y*s, z*s);
-    }
-
-    const Vec3 operator-() const {
-        return Vec3(-x, -y, -z);
-    }
-
-    bool operator==(const Vec3& v) const {
-        return x == v.x && y == v.y && z == v.z;
-    }
-
-    bool operator!=(const Vec3& v) const {
-        return !(*this == v);
-    }
-
-    double length() const {
-        return sqrt(x*x + y*y + z*z);
-    }
-
-    Vec3& normalize() {
-        double len = length();
-        if (len != 0.0) return *this *= (1.0/len);
-        else return *this;
-    }
-
-    Vec3& normalize(double& len) {
-        len = length();
-        if (len != 0.0) return *this *= (1.0/len);
-        else return *this;
-    }
-
-    Vec3& projectX() {
-        x = 0;
-        return *this;
-    }
-
-    Vec3& projectY() {
-        y = 0;
-        return *this;
-    }
-
-    Vec3& projectZ() {
-        z = 0;
-        return *this;
-    }
+	operator       T*()       { return &t[0]; }
+	operator const T*() const { return &t[0]; }
+	T* ptr()       { return &t[0]; }
+	const T* ptr() const { return &t[0]; }
 
 
+
+	T& operator [](const AxisEnum& axis) { 
+		return t[axis];
+	}
+	const T& operator [](const AxisEnum& axis) const {
+		return t[axis];
+	}
+
+
+
+
+	Vec3<T>& operator+=(const Vec3<T>& v) {
+		t[0] += v.t[0]; t[1] += v.t[1]; t[2] += v.t[2]; 
+		return *this;
+	}
+
+	Vec3<T>& operator-=(const Vec3<T>& v) {
+		t[0] -= v.t[0]; t[1] -= v.t[1]; t[2] -= v.t[2]; 
+		return *this;
+	}
+
+	Vec3<T>& operator*=(const Vec3<T>& v) {
+		t[0] *= v.t[0]; t[1] *= v.t[1]; t[2] *= v.t[2]; 
+		return *this;
+	}
+
+	Vec3<T>& operator/=(const Vec3<T>& v) {
+		t[0] /= v.t[0]; t[1]/= v.t[1]; t[2] /= v.t[2]; 
+		return *this;
+	}
+
+	Vec3<T>& operator*=(T s) {
+		t[0] *= s; t[1] *= s; t[2] *= s; 
+		return *this;
+	}
+
+	Vec3<T>& operator/=(T s) {
+		T inv = 1./s;
+		t[0] *= inv; t[1] *= inv; t[2] *= inv; 
+		return *this;
+	}
+
+	Vec3<T> operator+(const Vec3<T>& v) const {
+		return Vec3<T>(t[0] + v.t[0], t[1] + v.t[1], t[2] + v.t[2]);
+	}
+
+	Vec3<T> operator-(const Vec3<T>& v) const {
+		return Vec3<T>(t[0] - v.t[0], t[1] - v.t[1], t[2] - v.t[2]);
+	}
+
+	Vec3<T> operator*(const Vec3<T>& v) const {
+		return Vec3<T>(t[0] * v.t[0], t[1] * v.t[1], t[2] * v.t[2]);
+	}
+
+	Vec3<T> operator/(const Vec3<T>& v) const {
+		return Vec3<T>(t[0] / v.t[0], t[1] / v.t[1], t[2] / v.t[2]);
+	}
+
+	Vec3<T> operator*(T s) const {
+		return Vec3<T>(t[0] * s, t[1] * s, t[2] * s);
+	}
+
+	Vec3<T> operator/(T s) const {
+		T inv = 1./s;
+		return Vec3<T>(t[0] * inv, t[1] * inv, t[2] * inv);
+	}
+
+	Vec3<T> operator-() const {
+		return Vec3<T>(-t[0], -t[1], -t[2]);
+	}
+
+	bool operator==(const Vec3<T>& v) const {
+		return t[0] == v.t[0] && t[1] == v.t[1] && t[2] == v.t[2];
+	}
+
+	bool operator!=(const Vec3<T>& v) const {
+		return !(*this == v);
+	}
+
+	static Vec3<T> xaxis() { return Vec3<T>(1, 0, 0); }
+	static Vec3<T> yaxis() { return Vec3<T>(0, 1, 0); }
+	static Vec3<T> zaxis() { return Vec3<T>(0, 0, 1); }
+
+	T lengthSquared() const { 
+		return t[0] * t[0] + t[1] * t[1] + t[2] *t [2]; 
+	}
+
+	T length() const { return sqrt(lengthSquared()); }
+
+	Vec3<T>& normalize() {
+		T len = length();
+		if (len != 0)
+			return *this /= len;
+		else
+			return *this;
+	}
+
+	Vec3<T>& normalize(T* len) {
+		*len = length();
+		if (*len != 0)
+			return *this /= *len;
+		else
+			return *this;
+	}
+
+	T average() const { return (t[0] + t[1] + t[2])/3.f; }
+  
+	T t[3];
+  T x, y, z;
 };
 
-template <typename T>
-inline std::ostream& operator<<(std::ostream& os, const Vec3<T>& v) {
-    return os << "(" << v.x << ", " << v.y << ", " << v.z << ")";
-}
+//=========================================================================
+// typedef
+//=========================================================================
+
+typedef Vec3<unsigned char> Vec3uc;
+typedef Vec3<int>           Vec3i;
+typedef Vec3<float>         Vec3f;
+typedef Vec3<double>        Vec3d;
+
+//=========================================================================
+// inline
+//=========================================================================  
 
 template <typename T>
-inline std::istream& operator>>(std::istream& is, Vec3<T>& v) {
-    return is >> v.x >> v.y >> v.z;
+inline Vec3<T> operator*(T s, const Vec3<T>& v) {
+	return Vec3<T>(s*v.t[0], s*v.t[1], s*v.t[2]);
+}
+  
+template <typename T>
+inline Vec3<T> multi(const Vec3<T>& a, const Vec3<T>& b) {
+	return a * b;
+}
+  
+template <typename T>
+inline T dot(const Vec3<T>& a, const Vec3<T>& b) {
+	return a.t[0] * b.t[0] + a.t[1] * b.t[1] + a.t[2] * b.t[2];
+}
+  
+template <typename T>
+inline Vec3<T> cross(const Vec3<T>& a, const Vec3<T>& b) {
+	return Vec3<T>(a.t[1] * b.t[2] - a.t[2] * b.t[1],
+		a.t[2] * b.t[0] - a.t[0] * b.t[2],
+		a.t[0] * b.t[1] - a.t[1] * b.t[0]);
+}
+  
+template <typename T>
+inline T distanceSquared(const Vec3<T>& a, const Vec3<T>& b) {
+	return (a - b).lengthSquared();
+}
+  
+template <typename T>
+inline T distance(const Vec3<T>& a, const Vec3<T>& b) {
+	return (a - b).length();
+}
+
+// @brief compare length between a and b, if a<b return true
+inline bool lessVec3f(const Vec3f& a, const Vec3f& b) 
+{
+	return (a.lengthSquared() < b.lengthSquared()) ? true : false;
+}
+
+//=============================
+
+
+template<typename T>
+inline std::istream& operator>>(std::istream& is, Vec3<T>& v) 
+{
+	return is >> v[0] >> v[1] >> v[2];
+}
+
+template<typename T>
+inline std::ostream& operator<<(std::ostream& os, const Vec3<T>& v) 
+{
+	return os << v[0] << " " << v[1] << " " << v[2];
 }
 
 
-/// 3次元整数ベクトルクラス.
-typedef Vec3<int> Vec3i;
 
-/// 3次元実数ベクトルクラス.
-typedef Vec3<double> Vec3r;
-
-
-inline double dotProduct(const Vec3r& u, const Vec3r& v) {
-    return u.x*v.x + u.y*v.y + u.z*v.z;
+inline std::istream& operator>>(std::istream& is, Vec3uc& v) 
+{
+	int x[3];
+	is >> x[0] >> x[1] >> x[2];
+	v[0]=x[0]; v[1]=x[1]; v[2]=x[2];
+	return is;
 }
 
-inline const Vec3r crossProduct(const Vec3r& u, const Vec3r& v) {
-    return Vec3r(u.y*v.z - u.z*v.y,
-                 u.z*v.x - u.x*v.z,
-                 u.x*v.y - u.y*v.x);
+inline std::ostream& operator<<(std::ostream& os, const Vec3uc& v) 
+{
+	int x[3];
+	x[0]=v[0]; x[1]=v[1]; x[2]=v[2];
+	os << x[0] << " " << x[1] << " " << x[2];
+	return os;
 }
 
-inline double distance(const Vec3r& u, const Vec3r& v) {
-    return (u - v).length();
-}
+} // namespace Vec3
 
-
-#ifdef BCMT_NAMESPACE
-} // namespace BCMT_NAMESPACE
-#endif
-
-#endif // VEC3_H
+#endif  // _VEC3_H_

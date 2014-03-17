@@ -24,6 +24,8 @@
 #include "NeighborInfo.h"
 #include "DataClass.h"
 
+using namespace Vec3class;
+
 #ifdef BCMT_NAMESPACE
 namespace BCMT_NAMESPACE {
 #endif
@@ -32,9 +34,9 @@ namespace BCMT_NAMESPACE {
 class BlockBase{
 
   Vec3i size;       ///< セル分割数
-  Vec3r origin;     ///< 原点座標
-  Vec3r blockSize;  ///< ブロックサイズ
-  Vec3r cellSize;   ///< セルサイズ
+  Vec3d origin;     ///< 原点座標
+  Vec3d blockSize;  ///< ブロックサイズ
+  Vec3d cellSize;   ///< セルサイズ
 
   int level;  ///< ツリーレベル
 
@@ -57,7 +59,7 @@ public:
   ///
   ///  @note セル分割数は偶数であること
   ///
-  BlockBase(const Vec3i& size, const Vec3r& origin, const Vec3r& blockSize,
+  BlockBase(const Vec3i& size, const Vec3d& origin, const Vec3d& blockSize,
             int level, NeighborInfo* neighborInfo)
    : size(size), origin(origin), blockSize(blockSize), level(level),
      neighborInfo(neighborInfo) {
@@ -93,13 +95,13 @@ public:
   const Vec3i& getSize() const { return size; }
 
   /// 座標原点を取得.
-  const Vec3r& getOrigin() const { return origin; }
+  const Vec3d& getOrigin() const { return origin; }
 
   /// ブロックサイズを取得.
-  const Vec3r& getBlockSize() const { return blockSize; }
+  const Vec3d& getBlockSize() const { return blockSize; }
 
   /// セルサイズを取得.
-  const Vec3r& getCellSize() const { return cellSize; }
+  const Vec3d& getCellSize() const { return cellSize; }
 
   /// 登録されているデータクラスを取得.
   ///

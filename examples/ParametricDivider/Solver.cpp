@@ -52,8 +52,8 @@ void Solver::initialize()
     double* vData = v->getData();
     Index3DV vIndex = v->getIndex();
 
-    const Vec3r& orig = block->getOrigin();
-    const Vec3r& pitch = block->getCellSize();
+    const Vec3d& orig = block->getOrigin();
+    const Vec3d& pitch = block->getCellSize();
 
     for (int k = -vc; k < nz+vc; k++) {
       for (int j = -vc; j < ny+vc; j++) {

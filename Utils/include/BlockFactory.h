@@ -36,8 +36,8 @@ class BlockFactory {
 
   BoundaryConditionSetterBase* boundaryConditionSetter;  ///< 境界条件設定クラス
 
-//const Vec3r& rootOrigin;  ///< ID=0のルートブロックの原点位置
-  const Vec3r rootOrigin;  ///< ID=0のルートブロックの原点位置
+//const Vec3d& rootOrigin;  ///< ID=0のルートブロックの原点位置
+  const Vec3d rootOrigin;  ///< ID=0のルートブロックの原点位置
 
   double rootLength;  ///< ルートブロックの辺長
 
@@ -56,7 +56,7 @@ public:
   ///
   BlockFactory(const BCMOctree* tree, const Partition* partition,
                BoundaryConditionSetterBase* boundaryConditionSetter,
-               const ::Vec3r& rootOrigin, double rootLength, const ::Vec3i& size)
+               const ::Vec3d& rootOrigin, double rootLength, const ::Vec3i& size)
     : tree(tree), partition(partition),
       boundaryConditionSetter(boundaryConditionSetter),
       rootOrigin(rootOrigin), rootLength(rootLength), size(size)
@@ -81,8 +81,8 @@ public:
 
   /// ブロック生成.
   Block* makeBlock(const Node* node) {
-    Vec3r origin = tree->getOrigin(node) * rootLength + rootOrigin;
-    Vec3r blockSize = node->getBlockSize() * rootLength;
+    Vec3d origin = tree->getOrigin(node) * rootLength + rootOrigin;
+    Vec3d blockSize = node->getBlockSize() * rootLength;
     int level = node->getLevel();
     BoundaryInfo* boundaryInfo = (*boundaryConditionSetter)(node, tree);
     NeighborInfo* neighborInfo = tree->makeNeighborInfo(node, partition);

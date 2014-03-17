@@ -18,6 +18,7 @@
 #include "ConfigBase.h"
 #include "Vec3.h"
 
+using namespace Vec3class;
 
 class Config : public ConfigBase {
 

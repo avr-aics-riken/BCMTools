@@ -22,6 +22,8 @@
 #include "PointerSetter.h"
 #include "BCMTools.h"
 
+using namespace Vec3class;
+
 #ifdef BCMT_NAMESPACE
 namespace BCMT_NAMESPACE {
 #endif

@@ -733,7 +733,7 @@ public:
 						RootGrid* rootGrid,
 						BCMOctree* tree,
 						Partition* partition,
-						Vec3r rootOrigin,
+						Vec3d rootOrigin,
 						double rootLength) {
 		ostringstream ossFileNameTime;
 		ossFileNameTime << "./VTK/";
@@ -752,9 +752,9 @@ public:
     for (int id = 0; id < blockManager.getNumBlock(); ++id) {
       BlockBase* block = blockManager.getBlock(id);
 			::Vec3i size = block->getSize();
-			Vec3r origin = block->getOrigin();
-			Vec3r blockSize = block->getBlockSize();
-			Vec3r cellSize = block->getCellSize();
+			Vec3d origin = block->getOrigin();
+			Vec3d blockSize = block->getBlockSize();
+			Vec3d cellSize = block->getCellSize();
 			int level = block->getLevel();
 
       Scalar3D<T>* s = dynamic_cast<Scalar3D<T>*>(block->getDataClass(dataClassID));
@@ -797,10 +797,10 @@ public:
 			for (int iRank = 0; iRank < comm.Get_size(); iRank++) {
 				for (int id = partition->getStart(iRank); id < partition->getEnd(iRank); id++) {
 					Node* node = leafNodeArray[id];
-//					Vec3r origin = tree->getOrigin(node) * rootLength + rootOrigin;
-					Vec3r origin = tree->getOrigin(node) * rootLength;
-					Vec3r blockSize = node->getBlockSize() * rootLength;
-					Vec3r cellSize;
+//					Vec3d origin = tree->getOrigin(node) * rootLength + rootOrigin;
+					Vec3d origin = tree->getOrigin(node) * rootLength;
+					Vec3d blockSize = node->getBlockSize() * rootLength;
+					Vec3d cellSize;
 					cellSize.x = blockSize.x / size.x;
 					cellSize.y = blockSize.y / size.y;
 					cellSize.z = blockSize.z / size.z;
@@ -842,7 +842,7 @@ public:
 					int ly = size.y*(1 << level);
 					int lz = size.z*(1 << level);
 
-					Vec3r origin2 = tree->getOrigin(node);
+					Vec3d origin2 = tree->getOrigin(node);
 
 					double nx0 = (origin2.x)*lx;
 					double ny0 = (origin2.y)*ly;
@@ -910,9 +910,9 @@ public:
     for (int id = 0; id < blockManager.getNumBlock(); ++id) {
       BlockBase* block = blockManager.getBlock(id);
 			::Vec3i size = block->getSize();
-			Vec3r origin = block->getOrigin();
-			Vec3r blockSize = block->getBlockSize();
-			Vec3r cellSize = block->getCellSize();
+			Vec3d origin = block->getOrigin();
+			Vec3d blockSize = block->getBlockSize();
+			Vec3d cellSize = block->getCellSize();
 			int level = block->getLevel();
 
       Scalar3D<T>* sp = dynamic_cast<Scalar3D<T>*>(block->getDataClass(dataClassID_P));
@@ -971,9 +971,9 @@ public:
 			for (int id = 0; id < blockManager.getNumBlock(); ++id) {
 				BlockBase* block = blockManager.getBlock(id);
 				::Vec3i size = block->getSize();
-				Vec3r origin = block->getOrigin();
-				Vec3r blockSize = block->getBlockSize();
-				Vec3r cellSize = block->getCellSize();
+				Vec3d origin = block->getOrigin();
+				Vec3d blockSize = block->getBlockSize();
+				Vec3d cellSize = block->getCellSize();
 				int level = block->getLevel();
 
 				ostringstream ossFileName2;
@@ -1050,7 +1050,7 @@ public:
 						RootGrid* rootGrid,
 						BCMOctree* tree,
 						Partition* partition,
-						Vec3r rootOrigin,
+						Vec3d rootOrigin,
 						double rootLength) {
 		ostringstream ossFileNameTime;
 		ossFileNameTime << "./VTK/";
@@ -1073,9 +1073,9 @@ public:
     for (int id = 0; id < blockManager.getNumBlock(); ++id) {
       BlockBase* block = blockManager.getBlock(id);
 			::Vec3i size = block->getSize();
-			Vec3r origin = block->getOrigin();
-			Vec3r blockSize = block->getBlockSize();
-			Vec3r cellSize = block->getCellSize();
+			Vec3d origin = block->getOrigin();
+			Vec3d blockSize = block->getBlockSize();
+			Vec3d cellSize = block->getCellSize();
 			int level = block->getLevel();
 
       Scalar3D<T>* sp = dynamic_cast<Scalar3D<T>*>(block->getDataClass(dataClassID_P));
@@ -1128,10 +1128,10 @@ public:
 			for (int iRank = 0; iRank < comm.Get_size(); iRank++) {
 				for (int id = partition->getStart(iRank); id < partition->getEnd(iRank); id++) {
 					Node* node = leafNodeArray[id];
-//					Vec3r origin = tree->getOrigin(node) * rootLength + rootOrigin;
-					Vec3r origin = tree->getOrigin(node) * rootLength;
-					Vec3r blockSize = node->getBlockSize() * rootLength;
-					Vec3r cellSize;
+//					Vec3d origin = tree->getOrigin(node) * rootLength + rootOrigin;
+					Vec3d origin = tree->getOrigin(node) * rootLength;
+					Vec3d blockSize = node->getBlockSize() * rootLength;
+					Vec3d cellSize;
 					cellSize.x = blockSize.x / size.x;
 					cellSize.y = blockSize.y / size.y;
 					cellSize.z = blockSize.z / size.z;
@@ -1173,7 +1173,7 @@ public:
 					int ly = size.y*(1 << level);
 					int lz = size.z*(1 << level);
 
-					Vec3r origin2 = tree->getOrigin(node);
+					Vec3d origin2 = tree->getOrigin(node);
 
 					double nx0 = (origin2.x)*lx;
 					double ny0 = (origin2.y)*ly;
@@ -1225,7 +1225,7 @@ public:
 						RootGrid* rootGrid,
 						BCMOctree* tree,
 						Partition* partition,
-						Vec3r rootOrigin,
+						Vec3d rootOrigin,
 						double rootLength) {
 		ostringstream ossFileNameTime;
 		ossFileNameTime << "./VTK/";
@@ -1248,9 +1248,9 @@ public:
     for (int id = 0; id < blockManager.getNumBlock(); ++id) {
       BlockBase* block = blockManager.getBlock(id);
 			::Vec3i size = block->getSize();
-			Vec3r origin = block->getOrigin();
-			Vec3r blockSize = block->getBlockSize();
-			Vec3r cellSize = block->getCellSize();
+			Vec3d origin = block->getOrigin();
+			Vec3d blockSize = block->getBlockSize();
+			Vec3d cellSize = block->getCellSize();
 			int level = block->getLevel();
 
       Scalar3D<T>* sp = dynamic_cast<Scalar3D<T>*>(block->getDataClass(dataClassID_P));
@@ -1308,9 +1308,9 @@ public:
 				for (int iRank = 0; iRank < comm.Get_size(); iRank++) {
 					for (int id = partition->getStart(iRank); id < partition->getEnd(iRank); id++) {
 						Node* node = leafNodeArray[id];
-						Vec3r origin = tree->getOrigin(node) * rootLength;
-						Vec3r blockSize = node->getBlockSize() * rootLength;
-						Vec3r cellSize;
+						Vec3d origin = tree->getOrigin(node) * rootLength;
+						Vec3d blockSize = node->getBlockSize() * rootLength;
+						Vec3d cellSize;
 						cellSize.x = blockSize.x / size.x;
 						cellSize.y = blockSize.y / size.y;
 						cellSize.z = blockSize.z / size.z;
@@ -1346,7 +1346,7 @@ public:
 						int ly = size.y*(1 << level);
 						int lz = size.z*(1 << level);
 
-						Vec3r origin2 = tree->getOrigin(node);
+						Vec3d origin2 = tree->getOrigin(node);
 
 						double nx0 = (origin2.x)*lx;
 						double ny0 = (origin2.y)*ly;
@@ -1398,7 +1398,7 @@ public:
 						RootGrid* rootGrid,
 						BCMOctree* tree,
 						Partition* partition,
-						Vec3r rootOrigin,
+						Vec3d rootOrigin,
 						double rootLength) {
     const ::Vec3i& size = blockManager.getSize();
     int myrank = comm.Get_rank();
@@ -1436,9 +1436,9 @@ public:
 				for (int iRank = 0; iRank < comm.Get_size(); iRank++) {
 					for (int id = partition->getStart(iRank); id < partition->getEnd(iRank); id++) {
 						Node* node = leafNodeArray[id];
-						Vec3r origin = tree->getOrigin(node) * rootLength;
-						Vec3r blockSize = node->getBlockSize() * rootLength;
-						Vec3r cellSize;
+						Vec3d origin = tree->getOrigin(node) * rootLength;
+						Vec3d blockSize = node->getBlockSize() * rootLength;
+						Vec3d cellSize;
 						cellSize.x = blockSize.x / size.x;
 						cellSize.y = blockSize.y / size.y;
 						cellSize.z = blockSize.z / size.z;
@@ -1474,7 +1474,7 @@ public:
 						int ly = size.y*(1 << level);
 						int lz = size.z*(1 << level);
 
-						Vec3r origin2 = tree->getOrigin(node);
+						Vec3d origin2 = tree->getOrigin(node);
 
 						double nx0 = (origin2.x)*lx;
 						double ny0 = (origin2.y)*ly;

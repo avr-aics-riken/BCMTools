@@ -21,6 +21,8 @@
 #include "Vec3.h"
 #include "mpi.h"
 
+using namespace Vec3class;
+
 /// マルチルートOctree用のルートブロック配置管理クラス.
 ///
 ///  @note 位置(i,j,k)のルートブロックのIDは，i + nx*j + nx*ny*k
