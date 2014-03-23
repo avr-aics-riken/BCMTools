@@ -14,6 +14,10 @@ REVISION HISTORY
 ================
 
 ------------------
+2014-03-23
+- r12 update Vec3.h [ver 0.9.5]
+
+------------------
 2014-03-17
 - r11 common namespace of Vec3class [ver 0.9.4]
 
