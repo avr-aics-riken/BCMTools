@@ -70,7 +70,7 @@ public:
   ///   @param[in] min 追加バウンディングボックス下端点座標
   ///   @param[in] max 追加バウンディングボックス上端点座標
   ///
-  POLYLIB_STAT set_bounding_box(int rank, const Vec3f& min, const Vec3f& max);
+  POLYLIB_STAT set_bounding_box(int rank, const Vec3r& min, const Vec3r& max);
 
   /// 各rankの担当領域のバウンディングボックスを拡大.
   ///
@@ -80,8 +80,8 @@ public:
   ///   @param[in] box 追加バウンディングボックス
   ///
   POLYLIB_STAT set_bounding_box(int rank, const BoundingBox& box) {
-    Vec3f min(box.getMin().x, box.getMin().y, box.getMin().z);
-    Vec3f max(box.getMax().x, box.getMax().y, box.getMax().z);
+    Vec3r min(box.getMin().x, box.getMin().y, box.getMin().z);
+    Vec3r max(box.getMax().x, box.getMax().y, box.getMax().z);
     return set_bounding_box(rank, min, max);
   }
 

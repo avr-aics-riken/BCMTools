@@ -39,7 +39,7 @@ public:
   ///
   ///  @note セル分割数は偶数であること
   ///
-  Block(const ::Vec3i& size, const Vec3d& origin, const Vec3d& blockSize,
+  Block(const Vec3i& size, const Vec3d& origin, const Vec3d& blockSize,
         int level, NeighborInfo* neighborInfo, BoundaryInfo* boundaryInfo) 
    : BlockBase(size, origin, blockSize, level, neighborInfo),
      boundaryInfo(boundaryInfo) {}

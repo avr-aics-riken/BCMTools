@@ -52,7 +52,7 @@ public:
   ///
   ///  @param[in] n ルート数ベクトル
   ///
-  RootGrid(const ::Vec3i& n) : nx(n.x), ny(n.y), nz(n.z),
+  RootGrid(const Vec3i& n) : nx(n.x), ny(n.y), nz(n.z),
     periodicX(false), periodicY(false), periodicZ(false) {}
 
   /// デストラクタ.
