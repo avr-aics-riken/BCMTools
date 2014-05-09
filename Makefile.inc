@@ -9,17 +9,6 @@ AR     = ar cr
 RANLIB = ranlib
 RM     = \rm -f
 
-# For Intel compiler
-CXX        = icpc
-OPT_FLAGS  = -O3 #-xAVX
-OMP_FLAGS  = -openmp
-MPI_DIR    = /usr/opt/openmpi
-DEFINES    = #-DDEBUG
-CFLAGS     = $(OPT_FLAGS) $(OMP_FLAGS) $(DEFINES) -I$(MPI_DIR)/include
-AR     = ar cru
-RANLIB = ranlib
-RM     = \rm -f
-
 # For GCC
 CXX        = g++
 OPT_FLAGS  = -O3 
@@ -30,6 +19,18 @@ CFLAGS     = $(OPT_FLAGS) $(OMP_FLAGS) $(DEFINES) -I$(MPI_DIR)/include
 AR     = ar cru
 RANLIB = ranlib
 RM     = \rm -f
+
+# For Intel compiler
+CXX        = icpc
+OPT_FLAGS  = -O3 #-xAVX
+OMP_FLAGS  = -openmp
+MPI_DIR    = /usr/lib/openmpi
+DEFINES    = #-DDEBUG
+CFLAGS     = $(OPT_FLAGS) $(OMP_FLAGS) $(DEFINES) -I$(MPI_DIR)/include
+AR     = ar cru
+RANLIB = ranlib
+RM     = \rm -f
+
 
 # マクロ: _BLOCK_IS_LARGE_
 #  BCMブロックが大きく（ブロック内セル数が多い），数が少ない場合に，
