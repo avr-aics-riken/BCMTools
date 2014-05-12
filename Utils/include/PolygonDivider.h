@@ -102,8 +102,8 @@ public:
   //std::cout << "(x0,y0,z0) = " << rmin << std::endl;
   //std::cout << "(x1,y1,z1) = " << rmax << std::endl;
 
-    PolylibNS::Vec3f min(rmin.x, rmin.y, rmin.z);
-    PolylibNS::Vec3f max(rmax.x, rmax.y, rmax.z);
+    Vec3f min(rmin.x, rmin.y, rmin.z);
+    Vec3f max(rmax.x, rmax.y, rmax.z);
 
     std::vector<PolylibNS::Triangle*>* polygonList 
                                        = polylib->search_polygons(polygonGroup, min, max, false);
@@ -114,14 +114,14 @@ public:
       if (level == maxLevel) return LEAF_ACTIVE;
       else                   return BRANCH;
     } else {
-      PolylibNS::Vec3f pos(0.5*(rmin.x+rmax.x),
+      Vec3f pos(0.5*(rmin.x+rmax.x),
                            0.5*(rmin.y+rmax.y),
                            0.5*(rmin.z+rmax.z));
       const PolylibNS::Triangle* t = polylib->search_nearest_polygon(polygonGroup, pos);
       assert(t);
-      PolylibNS::Vec3f n = t->get_normal();
-      PolylibNS::Vec3f* v = t->get_vertex();
-      PolylibNS::Vec3f c((v[0][0]+v[1][0]+v[2][0])/3.0,
+      Vec3f n = t->get_normal();
+      Vec3f* v = t->get_vertex();
+      Vec3f c((v[0][0]+v[1][0]+v[2][0])/3.0,
                          (v[0][1]+v[1][1]+v[2][1])/3.0,
                          (v[0][2]+v[1][2]+v[2][2])/3.0);
       if (polygonInsideOut) {

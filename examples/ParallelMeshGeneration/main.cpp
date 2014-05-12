@@ -13,6 +13,11 @@
 #include "BlockBoundingBox.h"
 #include "SiloWriter.h"
 
+#include "Cutlib.h"
+#include "CutInfo/CutInfo.h"
+#include "CutInfo/CutNormalArray.h"
+#include "GridAccessor/Cell.h"
+
 int main(int argc, char** argv)
 {
   MPI::Init(argc, argv);
@@ -142,6 +147,42 @@ int main(int argc, char** argv)
   // 各ランクで独立にPolylibが使えることのテスト
   std::string file;
   pl->save_parallel(&file, "stl_b");
+
+
+  // Cutlibのテスト
+	for(int n=0; n<blockManager.getNumBlock(); ++n) {
+		BlockBase* block = blockManager.getBlock(n);
+		Vec3i size      = block->getSize();
+		Vec3r origin    = block->getOrigin();
+		Vec3r blockSize = block->getBlockSize();
+		Vec3r cellSize  = block->getCellSize();
+
+		int sz[3] = {size.x, size.y, size.z};
+		int g[1] = {conf.vc};
+
+		double bpos[3] = {origin.x, origin.y, origin.z};
+		unsigned int bbsize[3] = {size.x, size.y, size.z};
+		unsigned int gcsize[3] = {conf.vc, conf.vc, conf.vc};
+		double dx[3] = {cellSize.x, cellSize.x, cellSize.x};
+		size_t ncell[3];
+		double org[3];
+		for(int i=0; i<3; i++) {
+			ncell[i] = bbsize[i] + 2*gcsize[i];
+			org[i] = bpos[i] - gcsize[i]*dx[i];
+		}
+
+		cutlib::GridAccessor*   grid   = new cutlib::Cell(org, dx);
+		cutlib::CutPosArray*    cutPos = new cutlib::CutPos32Array(ncell);
+		cutlib::CutBidArray*    cutBid = new cutlib::CutBid5Array(ncell);
+		cutlib::CutNormalArray* cutNormal = new cutlib::CutNormalArray(ncell);
+
+		int ret = CalcCutInfo(grid, pl, cutPos, cutBid, cutNormal);
+
+		int nNormal = cutNormal->getNumNormal();
+
+		std::cout << "CalcCutInfo: " << ret << " " << nNormal << " " << myRank << std::endl;
+	}
+
 
   delete pl;
   delete tree;

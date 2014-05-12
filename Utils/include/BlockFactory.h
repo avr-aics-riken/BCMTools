@@ -41,7 +41,7 @@ class BlockFactory {
 
   double rootLength;  ///< ルートブロックの辺長
 
-  const ::Vec3i& size;  ///< ブロック内分割数
+  const Vec3i& size;  ///< ブロック内分割数
 
 public:
 
@@ -56,7 +56,7 @@ public:
   ///
   BlockFactory(const BCMOctree* tree, const Partition* partition,
                BoundaryConditionSetterBase* boundaryConditionSetter,
-               const ::Vec3d& rootOrigin, double rootLength, const ::Vec3i& size)
+               const Vec3d& rootOrigin, double rootLength, const Vec3i& size)
     : tree(tree), partition(partition),
       boundaryConditionSetter(boundaryConditionSetter),
       rootOrigin(rootOrigin), rootLength(rootLength), size(size)
@@ -70,7 +70,7 @@ public:
   ///  @param[in] size ブロック内分割数
   ///
   BlockFactory(const BCMOctree* tree, const Partition* partition,
-               BoundaryConditionSetterBase* boundaryConditionSetter, const ::Vec3i& size)
+               BoundaryConditionSetterBase* boundaryConditionSetter, const Vec3i& size)
     : tree(tree), partition(partition),
       boundaryConditionSetter(boundaryConditionSetter),
       rootOrigin(0.0,0.0,0.0), rootLength(1.0), size(size)

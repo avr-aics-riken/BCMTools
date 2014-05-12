@@ -151,8 +151,8 @@ public:
         const std::string& polygonGroup = it->polygonGroupName;
         BoundingBox region = defineSearchRegion(pedigree, maxLevel);
         region.setMargin(extraMarginRatio / (1 << maxLevel));
-        PolylibNS::Vec3f min(region.getMin().x, region.getMin().y, region.getMin().z);
-        PolylibNS::Vec3f max(region.getMax().x, region.getMax().y, region.getMax().z);
+        Vec3f min(region.getMin().x, region.getMin().y, region.getMin().z);
+        Vec3f max(region.getMax().x, region.getMax().y, region.getMax().z);
         std::vector<PolylibNS::Triangle*>* polygonList 
                         = pl->search_polygons(polygonGroup, min, max, false);
         int nPolygon = polygonList->size();

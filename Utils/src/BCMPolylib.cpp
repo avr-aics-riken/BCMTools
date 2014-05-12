@@ -81,7 +81,7 @@ POLYLIB_STAT BCMPolylib::load(std::string config_filename, float scale)
 
 /// 各rankの担当領域のバウンディングボックスを拡大.
 POLYLIB_STAT BCMPolylib::set_bounding_box(int rank,
-                                          const Vec3f& min, const Vec3f& max)
+                                          const Vec3r& min, const Vec3r& max)
 {
   if (m_myrank != 0) return PLSTAT_NG;
 
