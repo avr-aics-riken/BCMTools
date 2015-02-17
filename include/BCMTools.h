@@ -30,7 +30,9 @@ namespace BCMT_NAMESPACE {
 
 /// DEBUGマクロの定義時のみassertマクロを有効に.
 #ifndef DEBUG
+#ifndef NDEBUG
 #define NDEBUG
+#endif
 #endif
 #include <cassert>
 
