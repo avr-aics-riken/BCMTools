@@ -50,7 +50,6 @@ AC_CHECK_HEADERS([limits.h stdint.h stdlib.h string.h sys/time.h unistd.h])
 #
 # Checks for typedefs, structures, and compiler characteristics.
 #
-AC_CHECK_HEADER_STDBOOL
 AC_C_INLINE
 AC_TYPE_INT16_T
 AC_TYPE_INT32_T
