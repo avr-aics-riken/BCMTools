@@ -20,6 +20,8 @@
 #include "BCMTools.h"
 #include "mpi.h"
 
+#include <iostream>
+
 #ifdef BCMT_NAMESPACE
 namespace BCMT_NAMESPACE {
 #endif
