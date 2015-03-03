@@ -17,6 +17,8 @@
 #ifndef BCM_TOOLS_H
 #define BCM_TOOLS_H
 
+#include "mpi.h"
+
 #include<cstdio>
 #include<cstdlib>
 

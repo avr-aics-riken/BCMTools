@@ -17,8 +17,8 @@
 #ifndef VECTOR_3D_H
 #define VECTOR_3D_H
 
-#include "DataClass.h"
 #include "VCUpdater.h"
+#include "DataClass.h"
 #include "Index3D.h"
 
 #ifdef BCMT_NAMESPACE
