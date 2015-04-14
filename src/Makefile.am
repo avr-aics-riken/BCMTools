@@ -14,7 +14,7 @@
 
 lib_LIBRARIES = libBCM.a
 
-libBCM_a_CXXFLAGS = @MPI_CFLAGS@ @PL_CFLAGS@ @TP_CFLAGS@ -I$(top_builddir)/include -I../Utils/include
+libBCM_a_CXXFLAGS = @MPI_CFLAGS@ @PL_CFLAGS@ @TP_CFLAGS@ @BLOCK_OPT@ -I$(top_builddir)/include -I../Utils/include
 
 libBCM_a_SOURCES = \
     BlockManager.cpp \

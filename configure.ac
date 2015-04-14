@@ -165,6 +165,18 @@ else
   exit 1
 fi
 
+#
+# Optimization for "large block"
+#
+#AC_ARG_ENABLE([largeblock], [AS_HELP_STRING([--enable-largeblock],[Activate the optimization for large block (default is no)])], [], [enable_largeblock=no])
+#AS_IF([test "x$enable_largeblock" != "xno"], [AC_DEFINE([_BLOCK_IS_LARGE_], [1], [Large block support])])
+AC_ARG_WITH(block, [AC_HELP_STRING([--with-block=(small|large)],[Specify block type (default is small)])], , with_block=small)
+AC_SUBST(BLOCK_OPT)
+if test x"$with_block" = x"large" ; then
+	BLOCK_OPT=-D_BLOCK_IS_LARGE_
+else
+	BLOCK_OPT=
+fi
 
 #
 # Warning

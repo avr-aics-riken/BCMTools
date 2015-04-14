@@ -217,6 +217,10 @@ private:
 void copyToBuffer_0(int i0, int j0, int k0, int nx, int ny, int nz,
                                  const T* data, const Index3DV& index, T* buffer) const
 {
+#ifdef _BLOCK_IS_LARGE_
+#pragma omp parallel for
+#else
+#endif
   for (int k = k0; k < k0 + nz; ++k) {
     for (int j = j0; j < j0 + ny; ++j) {
       for (int i = i0; i < i0 + nx; ++i) {
@@ -234,6 +238,10 @@ void copyToBuffer_0(int i0, int j0, int k0, int nx, int ny, int nz,
 void copyFromBuffer_0(int i0, int j0, int k0, int nx, int ny, int nz,
                                    const T* buffer, T* data, const Index3DV& index)
 {
+#ifdef _BLOCK_IS_LARGE_
+#pragma omp parallel for
+#else
+#endif
   for (int k = k0; k < k0 + nz; ++k) {
     for (int j = j0; j < j0 + ny; ++j) {
       for (int i = i0; i < i0 + nx; ++i) {
@@ -253,6 +261,10 @@ void copyFromDataClass_0(int i0, int j0, int k0, int i1, int j1, int k1,
                                        const T* sData, const Index3DV& sIndex,
                                        T* dData, const Index3DV& dIndex)
 {
+#ifdef _BLOCK_IS_LARGE_
+#pragma omp parallel for
+#else
+#endif
   for (int k = 0; k < nz; ++k) {
     for (int j = 0; j < ny; ++j) {
       for (int i = 0; i < nx; ++i) {
