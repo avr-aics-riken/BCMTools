@@ -15,10 +15,12 @@
 
 AC_PREREQ([2.57])
 AC_INIT([BCMTools], [0.9.5], [jonishi@iis.u-tokyo.ac.jp], [BCMTools])
-AM_INIT_AUTOMAKE()
+AM_INIT_AUTOMAKE([subdir-objects])
 AC_CONFIG_SRCDIR([src/BlockManager.cpp])
 AC_CONFIG_HEADERS([config.h])
 
+m4_pattern_allow([AM_PROG_AR])
+AM_PROG_AR
 
 #
 # revision No.
