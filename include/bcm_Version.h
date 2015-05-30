@@ -4,7 +4,7 @@
  * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
  * All rights reserved.
  *
- * Copyright (c) 2012-2014 Advanced Institute for Computational Science, RIKEN.
+ * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
  * All rights reserved.
  *
  */
@@ -18,10 +18,10 @@
 #define _BCM_VERSION_H_
 
 /** BCMToolsのバージョン */
-#define BCM_VERSION_NO  "0.9.5"
+#define BCM_VERSION_NO  "0.9.6"
 
 /** BCMToolsのリビジョン */
-#define BCM_REVISION    "20140323_1600"
+#define BCM_REVISION    "20150530_1600"
 
 #endif /* _BCM_VERSION_H_ */
 

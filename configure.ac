@@ -5,7 +5,7 @@
 # Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
 # All rights reserved.
 #
-# Copyright (c) 2012-2014 Advanced Institute for Computational Science, RIKEN.
+# Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
 # All rights reserved.
 #
 ##############################
@@ -14,7 +14,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.57])
-AC_INIT([BCMTools], [0.9.5], [jonishi@iis.u-tokyo.ac.jp], [BCMTools])
+AC_INIT([BCMTools], [0.9.6], [jonishi@iis.u-tokyo.ac.jp], [BCMTools])
 AM_INIT_AUTOMAKE([subdir-objects])
 AC_CONFIG_SRCDIR([src/BlockManager.cpp])
 AC_CONFIG_HEADERS([config.h])
@@ -25,7 +25,7 @@ AM_PROG_AR
 #
 # revision No.
 #
-BCM_REVISION="20140323_1600"
+BCM_REVISION="20150530_1600"
 AC_SUBST(BCM_REVISION)
 
 
@@ -98,6 +98,9 @@ case "$BCM_CXX" in
   mpiCC)    enable_mpi="wrappermpi" ;;
   mpic++)   enable_mpi="wrappermpi" ;;
   mpiFCCpx) enable_mpi="wrappermpi" ;;
+  CC)       enable_mpi="wrappermpi" ;;
+  mpiicc)   enable_mpi="wrappermpi" ;;
+  mpiicpc)  enable_mpi="wrappermpi" ;;
 esac
 
 
