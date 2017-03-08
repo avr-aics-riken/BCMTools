@@ -1,13 +1,19 @@
 /*
- * BCMTools
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
 #include "BlockManager.h"
 #include "limits.h"   // for INT_MAX
@@ -129,7 +135,7 @@ void BlockManager::printBlockLayoutInfo()
   }
 
 //std::cout << myrank << ": Lmin=" << levelMin << " Lmax=" << levelMax << std::endl;
-  
+
   comm.Allreduce(MPI_IN_PLACE, &levelMin, 1, MPI::INT, MPI::MIN);
   comm.Allreduce(MPI_IN_PLACE, &levelMax, 1, MPI::INT, MPI::MAX);
 
@@ -245,14 +251,14 @@ void BlockManager::printBlockLayoutInfo()
     std::cout << "        dLevel= 0: " << nFaceIntraSum[LD_0] << std::endl;
     std::cout << "        dLevel=+1: " << nFaceIntraSum[LD_P1] << std::endl;
     std::cout << "            total: "
-           << nFaceIntraSum[LD_M1] + nFaceIntraSum[LD_0] + nFaceIntraSum[LD_P1] 
+           << nFaceIntraSum[LD_M1] + nFaceIntraSum[LD_0] + nFaceIntraSum[LD_P1]
            << std::endl;
     std::cout << "    inter-node " << std::endl;
     std::cout << "        dLevel=-1: " << nFaceInterSum[LD_M1] << std::endl;
     std::cout << "        dLevel= 0: " << nFaceInterSum[LD_0] << std::endl;
     std::cout << "        dLevel=+1: " << nFaceInterSum[LD_P1] << std::endl;
     std::cout << "            total: "
-           << nFaceInterSum[LD_M1] + nFaceInterSum[LD_0] + nFaceInterSum[LD_P1] 
+           << nFaceInterSum[LD_M1] + nFaceInterSum[LD_0] + nFaceInterSum[LD_P1]
            << std::endl;
   }
 
@@ -306,7 +312,7 @@ void BlockManager::printBlockLayoutInfo(const char* filename)
   }
 
 //ofs << myrank << ": Lmin=" << levelMin << " Lmax=" << levelMax << std::endl;
-  
+
   comm.Allreduce(MPI_IN_PLACE, &levelMin, 1, MPI::INT, MPI::MIN);
   comm.Allreduce(MPI_IN_PLACE, &levelMax, 1, MPI::INT, MPI::MAX);
 
@@ -422,14 +428,14 @@ void BlockManager::printBlockLayoutInfo(const char* filename)
     ofs << "        dLevel= 0: " << nFaceIntraSum[LD_0] << std::endl;
     ofs << "        dLevel=+1: " << nFaceIntraSum[LD_P1] << std::endl;
     ofs << "            total: "
-           << nFaceIntraSum[LD_M1] + nFaceIntraSum[LD_0] + nFaceIntraSum[LD_P1] 
+           << nFaceIntraSum[LD_M1] + nFaceIntraSum[LD_0] + nFaceIntraSum[LD_P1]
            << std::endl;
     ofs << "    inter-node " << std::endl;
     ofs << "        dLevel=-1: " << nFaceInterSum[LD_M1] << std::endl;
     ofs << "        dLevel= 0: " << nFaceInterSum[LD_0] << std::endl;
     ofs << "        dLevel=+1: " << nFaceInterSum[LD_P1] << std::endl;
     ofs << "            total: "
-           << nFaceInterSum[LD_M1] + nFaceInterSum[LD_0] + nFaceInterSum[LD_P1] 
+           << nFaceInterSum[LD_M1] + nFaceInterSum[LD_0] + nFaceInterSum[LD_P1]
            << std::endl;
   }
 
@@ -655,7 +661,7 @@ void BlockManager::setDataClassNeighbor(int dataClassID, const FaceList& faceLis
     assert(dataClass);
     int neighborBlockID = (block->getNeighborInfo())[face].getID(subface)
                             - startID;
-    dataClass->setNeighbor(face, subface, 
+    dataClass->setNeighbor(face, subface,
                            blockList[neighborBlockID]->getDataClass(dataClassID));
   }
 }
@@ -675,7 +681,7 @@ void BlockManager::setSendBufferPointers(SendBuffer* sendBuffer, int dataClassID
       UpdatableDataClass* dataClass
         = dynamic_cast<UpdatableDataClass*>(
                           blockList[id]->getDataClass(dataClassID));
-      sendBuffer->setData(rank, 
+      sendBuffer->setData(rank,
                           dataClass->getSendBufferByteSize(face, subface),
                           dataClass->getSendBufferPointerSetter(face, subface));
     }
@@ -697,7 +703,7 @@ void BlockManager::setRecvBufferPointers(RecvBuffer* recvBuffer, int dataClassID
       UpdatableDataClass* dataClass
         = dynamic_cast<UpdatableDataClass*>(
                           blockList[id]->getDataClass(dataClassID));
-      recvBuffer->setData(rank, 
+      recvBuffer->setData(rank,
                           dataClass->getRecvBufferByteSize(face, subface),
                           dataClass->getRecvBufferPointerSetter(face, subface));
     }
@@ -735,7 +741,7 @@ void BlockManager::copyVCFromNeighbor(int dataClassID, const FaceList& faceList)
   }
 */
 }
-  
+
 
 /// 各ブロックで，指定したデータクラスの仮想セルデータを送信バッファにコピー.
 void BlockManager::copyVCToSendBuffer(int dataClassID, const FaceListMap& faceListMap)
@@ -820,4 +826,3 @@ void BlockManager::copyVCFromRecvBuffer(int dataClassID, const FaceListMap& face
 #ifdef BCMT_NAMESPACE
 } // namespace BCMT_NAMESPACE
 #endif
-

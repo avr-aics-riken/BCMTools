@@ -1,13 +1,19 @@
 /*
- * BCMTools
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
 #include <algorithm>  // for random_shuffle
 #include "BCMOctree.h"
@@ -64,7 +70,7 @@ BCMOctree::BCMOctree(RootGrid* rootGrid, const std::vector<Pedigree>& pedigrees)
 	int nRoot = rootGrid->getSize();
 	rootNodes = new Node*[nRoot];
 	for(int i = 0; i < nRoot; i++){ rootNodes[i] = new Node(i); }
-	
+
 	leafNodeArray.clear();
 	leafNodeArray.reserve(pedigrees.size());
 
@@ -473,7 +479,7 @@ NeighborInfo* BCMOctree::makeNeighborInfo(const Node* node, const Partition* par
 
 
 // ヒルベルトオーダリング 子ノード選択順テーブル
-const int BCMOctree::HilbertOrdering[24][8] = { 
+const int BCMOctree::HilbertOrdering[24][8] = {
   {0, 1, 3, 2, 6, 7, 5, 4},
   {0, 4, 6, 2, 3, 7, 5, 1},
   {0, 1, 5, 4, 6, 7, 3, 2},
@@ -502,7 +508,7 @@ const int BCMOctree::HilbertOrdering[24][8] = {
 
 
 // ヒルベルトオーダリング 回転テーブル
-const int BCMOctree::HilbertOrientation[24][8] = { 
+const int BCMOctree::HilbertOrientation[24][8] = {
   {1, 2, 0, 3, 4, 0, 5, 6},
   {0, 7, 1, 8, 5, 1, 4, 9},
   {15, 0, 2, 22, 20, 2, 19, 23},

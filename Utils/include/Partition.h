@@ -1,27 +1,33 @@
 /*
- * BCMTools
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
 ///
 /// @file Partition.h
 /// @brief 1次元ブロック領域分割用ユーティリティクラス
-/// 
+///
 
 #ifndef PARTITION_H
 #define PARTITION_H
 
+#include "mpi.h"
 #include <vector>
 #include <algorithm>
 #include <iostream>
 #include <cassert>
-#include "mpi.h"
 
 /// 1次元ブロック領域分割用ユーティリティクラス.
 class Partition {

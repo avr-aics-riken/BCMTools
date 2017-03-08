@@ -1,13 +1,19 @@
 /*
- * BCMTools
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
 #include "ConfigBase.h"
 #include <iostream>
@@ -77,7 +83,7 @@ void ConfigBase::receiveConfigFile(ConfigFile* configFile)
 
   char* buffer = new char[size];
   comm.Bcast(buffer, size, MPI::CHAR, 0);
-  
+
   std::istringstream inStr(buffer);
   inStr >> *configFile;
 
@@ -86,7 +92,7 @@ void ConfigBase::receiveConfigFile(ConfigFile* configFile)
 
 
 /// エラー終了.
-void ConfigBase::errorExit(const char* message, int code) 
+void ConfigBase::errorExit(const char* message, int code)
 {
   std::cout << "error: " << message << std::endl;
   comm.Abort(code);

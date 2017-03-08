@@ -1,18 +1,24 @@
 /*
- * BCMTools
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
 ///
 /// @file BCMPolylib.h
 /// @brief BCM用に拡張し，非シングルトン化したMPIPolylibクラス
-/// 
+///
 
 #ifndef BCM_POLYLIB_H
 #define BCM_POLYLIB_H
@@ -118,7 +124,7 @@ private:
 
   /// 呼び出し禁止にしたMPIPolylibの公開メソッド.
   POLYLIB_STAT migrate();
-  
+
 };
 
 }

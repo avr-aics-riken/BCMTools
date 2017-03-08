@@ -1,90 +1,96 @@
 /*
- * BCMViewer - BCM mesh viewer
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
 #ifndef GL_TEXTUREOBJECT_H
 #define GL_TEXTUREOBJECT_H
 
-/*! @brief TextureObjectƒNƒ‰ƒX
+/*! @brief TextureObjectï¿½Nï¿½ï¿½ï¿½X
  *
- * @note OpenGL Texture. ƒeƒNƒXƒ`ƒƒ‚Ö‚ÌƒCƒ[ƒW‘‚«‚İ‚ªs‚¦‚é
+ * @note OpenGL Texture. ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½Ö‚ÌƒCï¿½ï¿½ï¿½[ï¿½Wï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½İ‚ï¿½ï¿½sï¿½ï¿½ï¿½ï¿½
  */
 class TextureObject
 {
 public:
-	/*! @brief ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+	/*! @brief ï¿½Rï¿½ï¿½ï¿½Xï¿½gï¿½ï¿½ï¿½Nï¿½^
 	 */
 	TextureObject();
 
-	/*! @brief ƒTƒCƒYw’è•tƒRƒ“ƒXƒgƒ‰ƒNƒ^
-	 *  @param[in] width •
-	 *  @param[in] height ‚‚³
-	 *  @param[in] colorComponent Fƒ^ƒCƒv
-	 *  @param[in] colorBit Fƒrƒbƒg”
-	 *  @param[in] depthBit ƒfƒvƒXƒrƒbƒg”
+	/*! @brief ï¿½Tï¿½Cï¿½Yï¿½wï¿½ï¿½ï¿½tï¿½Rï¿½ï¿½ï¿½Xï¿½gï¿½ï¿½ï¿½Nï¿½^
+	 *  @param[in] width ï¿½ï¿½
+	 *  @param[in] height ï¿½ï¿½ï¿½ï¿½
+	 *  @param[in] colorComponent ï¿½Fï¿½^ï¿½Cï¿½v
+	 *  @param[in] colorBit ï¿½Fï¿½rï¿½bï¿½gï¿½ï¿½
+	 *  @param[in] depthBit ï¿½fï¿½vï¿½Xï¿½rï¿½bï¿½gï¿½ï¿½
 	 */
 	TextureObject(int width, int height, int colorComponent, int colorBit = 32, int depthBit = -1);
 
-	/*! @brief ƒfƒXƒgƒ‰ƒNƒ^
+	/*! @brief ï¿½fï¿½Xï¿½gï¿½ï¿½ï¿½Nï¿½^
 	 */
 	~TextureObject();
 
-	/*! @brief ƒeƒNƒXƒ`ƒƒƒoƒCƒ“ƒh
+	/*! @brief ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½oï¿½Cï¿½ï¿½ï¿½h
 	 */
 	void BindTexture();
 
-	/*! @brief ƒeƒNƒXƒ`ƒƒƒAƒ“ƒoƒCƒ“ƒh
+	/*! @brief ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½oï¿½Cï¿½ï¿½ï¿½h
 	 */
 	void UnbindTexture();
 
-	/*! @brief ƒeƒNƒXƒ`ƒƒid‚Ìæ“¾
-	 *  @return ƒeƒNƒXƒ`ƒƒid
+	/*! @brief ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½idï¿½Ìæ“¾
+	 *  @return ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½id
 	 */
 	unsigned int GetTexture() const;
 
-	/*! @brief ƒeƒNƒXƒ`ƒƒ‚Ì•æ“¾
-	 *  @return •
+	/*! @brief ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½Ì•ï¿½ï¿½æ“¾
+	 *  @return ï¿½ï¿½
 	 */
 	int Width() const;
 
-	/*! @brief ƒeƒNƒXƒ`ƒƒ‚Ì‚‚³æ“¾
-	 *  @return ‚‚³
+	/*! @brief ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½Ìï¿½ï¿½ï¿½ï¿½æ“¾
+	 *  @return ï¿½ï¿½ï¿½ï¿½
 	 */
 	int Height() const;
 
-	/*! @brief ƒeƒNƒXƒ`ƒƒ‚Ì‘å‚«‚³‚ğ•ÏX
-	 *  @param[in] w •
-	 *  @param[in] h ‚‚³
-	 *  @param[in] colorComponent Fƒ^ƒCƒv
-	 *  @param[in] colorBit Fƒrƒbƒg”
-	 *  @param[in] depthBit ƒfƒvƒXƒrƒbƒg”
+	/*! @brief ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½Ì‘å‚«ï¿½ï¿½ï¿½ï¿½ï¿½ÏX
+	 *  @param[in] w ï¿½ï¿½
+	 *  @param[in] h ï¿½ï¿½ï¿½ï¿½
+	 *  @param[in] colorComponent ï¿½Fï¿½^ï¿½Cï¿½v
+	 *  @param[in] colorBit ï¿½Fï¿½rï¿½bï¿½gï¿½ï¿½
+	 *  @param[in] depthBit ï¿½fï¿½vï¿½Xï¿½rï¿½bï¿½gï¿½ï¿½
 	 *  @return void
 	 */
 	void Resize(int w, int h, int colorComponent, int colorBit = 32, int depthBit = -1);
 
-	/*! @brief ƒeƒNƒXƒ`ƒƒ‚Ì‘å‚«‚³‚Ì‚İ‚ğ•ÏX
-	 *  @param[in] w •
-	 *  @param[in] h ‚‚³
+	/*! @brief ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½Ì‘å‚«ï¿½ï¿½ï¿½Ì‚İ‚ï¿½ï¿½ÏX
+	 *  @param[in] w ï¿½ï¿½
+	 *  @param[in] h ï¿½ï¿½ï¿½ï¿½
 	 *  @return void
 	 */
 	void Resize(int w, int h);
 
-	/*! @brief ƒeƒNƒXƒ`ƒƒ‚Ö‚ÌƒCƒ[ƒW‘‚«‚İ
-	 *  @param[in] pImage ƒCƒ[ƒW‚Ìƒ|ƒCƒ“ƒ^
-	 *  @return ¬Œ÷‚µ‚½ê‡true, ¸”s‚µ‚½ê‡false
+	/*! @brief ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½Ö‚ÌƒCï¿½ï¿½ï¿½[ï¿½Wï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	 *  @param[in] pImage ï¿½Cï¿½ï¿½ï¿½[ï¿½Wï¿½Ìƒ|ï¿½Cï¿½ï¿½ï¿½^
+	 *  @return ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê‡true, ï¿½ï¿½ï¿½sï¿½ï¿½ï¿½ï¿½ï¿½ê‡false
 	 */
 	bool WriteImage(const float* pImage);
 
-	/*! @brief ƒeƒNƒXƒ`ƒƒ‚Ö‚ÌƒCƒ[ƒW‘‚«‚İ
-	 *  @param[in] pImage ƒCƒ[ƒW‚Ìƒ|ƒCƒ“ƒ^
-	 *  @return ¬Œ÷‚µ‚½ê‡true, ¸”s‚µ‚½ê‡false
+	/*! @brief ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½Ö‚ÌƒCï¿½ï¿½ï¿½[ï¿½Wï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	 *  @param[in] pImage ï¿½Cï¿½ï¿½ï¿½[ï¿½Wï¿½Ìƒ|ï¿½Cï¿½ï¿½ï¿½^
+	 *  @return ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê‡true, ï¿½ï¿½ï¿½sï¿½ï¿½ï¿½ï¿½ï¿½ê‡false
 	 */
 	bool WriteImage(const int* pImage);
 
@@ -103,4 +109,3 @@ private:
 };
 
 #endif // GL_TEXTUREOBJECT_H
-

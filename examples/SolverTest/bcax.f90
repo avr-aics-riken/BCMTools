@@ -1,11 +1,18 @@
 !
+!##################################################################################
+!
 ! BCMTools
 !
-! Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+! Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
 ! All rights reserved.
 !
-! Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
+! Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
 ! All rights reserved.
+!
+! Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+! All rights reserved.
+!
+!##################################################################################
 !
 
 function bc_get_u(x0, x1, um)
@@ -198,7 +205,7 @@ subroutine bc_x3_poiseuille_p(x, xc, sz, g, center, org, bsize, csize)
 !$omp parallel private(j, k) &
 !$omp					 private(x0) &
 !$omp					 private(x1) &
-!$omp					 private(gp) 
+!$omp					 private(gp)
 !$omp do
 #else
 #endif
@@ -247,7 +254,7 @@ subroutine bc_Aw_poiseuille_p(Ap, Aw, b, xc, sz, g, center, org, bsize, csize)
 !$omp parallel private(j, k) &
 !$omp					 private(x0) &
 !$omp					 private(x1) &
-!$omp					 private(gp) 
+!$omp					 private(gp)
 !$omp do
 #else
 #endif
@@ -271,4 +278,3 @@ subroutine bc_Aw_poiseuille_p(Ap, Aw, b, xc, sz, g, center, org, bsize, csize)
 #else
 #endif
 end subroutine bc_Aw_poiseuille_p
-

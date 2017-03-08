@@ -1,23 +1,29 @@
 /*
- * BCMViewer - BCM mesh viewer
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
 #ifndef GL_SHADERPROGRAMOBJECT_H
 #define GL_SHADERPROGRAMOBJECT_H
 
 #include <string>
 
-/*! @brief ShaderObjectƒNƒ‰ƒX
+/*! @brief ShaderObjectï¿½Nï¿½ï¿½ï¿½X
  *
- * @note GLSL—pShaderObjectƒNƒ‰ƒX.VertexShader, FragmentShader‹¤’Ê
- * GLSLƒvƒƒOƒ‰ƒ€‚Ìƒ[ƒh‚ÆƒRƒ“ƒpƒCƒ‹‚ğs‚¤
+ * @note GLSLï¿½pShaderObjectï¿½Nï¿½ï¿½ï¿½X.VertexShader, FragmentShaderï¿½ï¿½ï¿½ï¿½
+ * GLSLï¿½vï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½ï¿½ï¿½Ìƒï¿½ï¿½[ï¿½hï¿½ÆƒRï¿½ï¿½ï¿½pï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½sï¿½ï¿½
  */
 class ShaderObject
 {
@@ -28,35 +34,35 @@ public:
 		VERTEX_SHADER   = 0x8B31  // GL_VERTEX_SHADER
 	};
 
-	/*! @brief ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+	/*! @brief ï¿½Rï¿½ï¿½ï¿½Xï¿½gï¿½ï¿½ï¿½Nï¿½^
 	 */
 	ShaderObject();
 
-	/*! @brief ƒfƒXƒgƒ‰ƒNƒ^
+	/*! @brief ï¿½fï¿½Xï¿½gï¿½ï¿½ï¿½Nï¿½^
 	 */
 	~ShaderObject();
 
-	/*! @brief ƒ\[ƒXƒtƒ@ƒCƒ‹ƒ[ƒhˆ—
-	 *  @param[in] filename ƒtƒ@ƒCƒ‹–¼
-	 *  @param[in] shaderType ƒVƒF[ƒ_ƒ^ƒCƒv
-	 *  @return ¬Œ÷‚µ‚½ê‡true, ¸”s‚µ‚½ê‡false
+	/*! @brief ï¿½\ï¿½[ï¿½Xï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½[ï¿½hï¿½ï¿½ï¿½ï¿½
+	 *  @param[in] filename ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½
+	 *  @param[in] shaderType ï¿½Vï¿½Fï¿½[ï¿½_ï¿½^ï¿½Cï¿½v
+	 *  @return ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê‡true, ï¿½ï¿½ï¿½sï¿½ï¿½ï¿½ï¿½ï¿½ê‡false
 	 */
 	bool LoadFromFile(const std::string& filename, SHADERTYPE shaderType);
 
-	/*! @brief ƒ\[ƒXƒtƒ@ƒCƒ‹ƒ[ƒhˆ—
-	 *  @param[in] programSource ƒ\[ƒXƒvƒƒOƒ‰ƒ€
-	 *  @param[in] shaderType ƒVƒF[ƒ_ƒ^ƒCƒv
-	 *  @return ¬Œ÷‚µ‚½ê‡true, ¸”s‚µ‚½ê‡false
+	/*! @brief ï¿½\ï¿½[ï¿½Xï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½[ï¿½hï¿½ï¿½ï¿½ï¿½
+	 *  @param[in] programSource ï¿½\ï¿½[ï¿½Xï¿½vï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½ï¿½
+	 *  @param[in] shaderType ï¿½Vï¿½Fï¿½[ï¿½_ï¿½^ï¿½Cï¿½v
+	 *  @return ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê‡true, ï¿½ï¿½ï¿½sï¿½ï¿½ï¿½ï¿½ï¿½ê‡false
 	 */
 	bool LoadFromMemory(const std::string& programSource, SHADERTYPE shaderType);
 
-	/*! @brief ‰ğ•úˆ—
+	/*! @brief ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 *  @return void
 	 */
 	void Release();
 
-	/*! @brief ƒVƒF[ƒ_idæ“¾
-	 *  @return ƒVƒF[ƒ_id
+	/*! @brief ï¿½Vï¿½Fï¿½[ï¿½_idï¿½æ“¾
+	 *  @return ï¿½Vï¿½Fï¿½[ï¿½_id
 	 */
 	unsigned int GetShader() const
 	{
@@ -68,49 +74,49 @@ private:
 	std::string	m_source;
 };
 
-/*! @brief ProgramObjectƒNƒ‰ƒX
+/*! @brief ProgramObjectï¿½Nï¿½ï¿½ï¿½X
  *
- * @note GLSL—pProgramObjectƒNƒ‰ƒX.
- * ShaderObjectƒNƒ‰ƒX‚ğ—˜—p‚µGLSLƒvƒƒOƒ‰ƒ€‚ğƒŠƒ“ƒN‚·‚é
+ * @note GLSLï¿½pProgramObjectï¿½Nï¿½ï¿½ï¿½X.
+ * ShaderObjectï¿½Nï¿½ï¿½ï¿½Xï¿½ğ—˜—pï¿½ï¿½GLSLï¿½vï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Nï¿½ï¿½ï¿½ï¿½
  */
 
 class ProgramObject
 {
 public:
 
-	/*! @brief ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+	/*! @brief ï¿½Rï¿½ï¿½ï¿½Xï¿½gï¿½ï¿½ï¿½Nï¿½^
 	 */
 	ProgramObject();
 
-	/*! @brief ƒRƒ“ƒXƒgƒ‰ƒNƒ^iƒŠƒ“ƒN‹@”\‚Â‚«j
-	 *  @param[in] vertexShader vertexƒvƒƒOƒ‰ƒ€
-	 *  @param[in] fragmentShader fragmentƒvƒƒOƒ‰ƒ€
+	/*! @brief ï¿½Rï¿½ï¿½ï¿½Xï¿½gï¿½ï¿½ï¿½Nï¿½^ï¿½iï¿½ï¿½ï¿½ï¿½ï¿½Nï¿½@ï¿½\ï¿½Â‚ï¿½ï¿½j
+	 *  @param[in] vertexShader vertexï¿½vï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½ï¿½
+	 *  @param[in] fragmentShader fragmentï¿½vï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½ï¿½
 	 */
 	ProgramObject(const ShaderObject& vertexShader, const ShaderObject& fragmentShader);
 
-	/*! @brief ShaderObject‚ÌƒŠƒ“ƒN
-	 *  @param[in] vertexShader vertexƒvƒƒOƒ‰ƒ€
-	 *  @param[in] fragmentShader fragmentƒvƒƒOƒ‰ƒ€
-	 *  @return ¬Œ÷‚µ‚½ê‡true, ¸”s‚µ‚½ê‡false
+	/*! @brief ShaderObjectï¿½Ìƒï¿½ï¿½ï¿½ï¿½N
+	 *  @param[in] vertexShader vertexï¿½vï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½ï¿½
+	 *  @param[in] fragmentShader fragmentï¿½vï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½ï¿½
+	 *  @return ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê‡true, ï¿½ï¿½ï¿½sï¿½ï¿½ï¿½ï¿½ï¿½ê‡false
 	 */
 	bool Link(const ShaderObject& vertexShader, const ShaderObject& fragmentShader);
 
-	/*! @brief ProgramObject‚ÌƒoƒCƒ“ƒh
+	/*! @brief ProgramObjectï¿½Ìƒoï¿½Cï¿½ï¿½ï¿½h
 	 *  @return void
 	 */
 	void Bind();
 
-	/*! @brief ProgramObject‚ÌƒAƒ“ƒoƒCƒ“ƒh
+	/*! @brief ProgramObjectï¿½ÌƒAï¿½ï¿½ï¿½oï¿½Cï¿½ï¿½ï¿½h
 	 *  @return void
 	 */
 	void Unbind();
 
-	/*! @brief ProgramObject‚Ì‰ğ•ú
+	/*! @brief ProgramObjectï¿½Ì‰ï¿½ï¿½ï¿½
 	 *  @return void
 	 */
 	void Release();
 
-	/*! @brief Uniform•Ï”‚Ìİ’è
+	/*! @brief Uniformï¿½Ïï¿½ï¿½Ìİ’ï¿½
 	 *  @return void
 	 */
 	// 1i - 4i
@@ -140,4 +146,3 @@ private:
 
 
 #endif // GL_SHADERPROGRAMOBJECT_H
-

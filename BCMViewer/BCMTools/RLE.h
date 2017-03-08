@@ -1,13 +1,19 @@
 /*
- * BCMViewer - BCM mesh viewer
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
 ///
 /// @file  RLE.h
@@ -22,9 +28,9 @@
 #include <stdio.h>
 
 namespace BCMFileIO {
-	
+
 	/// RLE圧縮
-	/// 
+	///
 	/// @param[in]  source     入力データの先頭ポインタ
 	/// @param[in]  sourceSize 入力データのサイズ (Byte単位で指定)
 	/// @param[out] destSize   出力データのサイズ (Byte単位で指定)
@@ -52,18 +58,18 @@ namespace BCMFileIO {
 	#else  // __GNUC__
 	#pragma pack()
 	#endif // __GNUC__
-	
+
 		const runlen_t maxCount = (runlen_t)~0;
 		const size_t endData = sourceSize / sizeof(rluint_t);
-		
+
 		const rluint_t* pSrc = source;
-	
+
 		size_t maxSize = sourceSize * sizeof(rluint_t) + sourceSize * sizeof(runlen_t);
 		unsigned char*  dest = new unsigned char[maxSize];
 		memset(dest, 0, maxSize * sizeof(unsigned char));
-	
+
 		DR* pdr = reinterpret_cast<DR*>(dest);
-	
+
 		pdr[0].d   = pSrc[0];
 		pdr[0].len = 1;
 		size_t cnt = 0;
@@ -80,15 +86,15 @@ namespace BCMFileIO {
 				pdr[cnt].len++;
 			}
 		}
-	
+
 		*destSize = (cnt + 1) * sizeof(DR);
-	
+
 		return dest;
 	}
-	
-	
+
+
 	/// RLE展開
-	/// 
+	///
 	/// @param[in]  source     入力データの先頭ポインタ (RLE圧縮符号)
 	/// @param[in]  sourceSize 入力データのサイズ (Byte単位で指定)
 	/// @param[out] destSize   出力データのサイズ (Byte単位で指定)
@@ -99,7 +105,7 @@ namespace BCMFileIO {
 	template <typename rluint_t, typename runlen_t>
 	rluint_t* rleDecode(const unsigned char* source, const size_t sourceSize, const size_t destSize)
 	{
-	
+
 	#ifdef __GNUC__
 	#pragma pack(push, 1)
 	#define ALIGNMENT __attribute__((packed))
@@ -117,14 +123,14 @@ namespace BCMFileIO {
 	#else  // __GNUC__
 	#pragma pack()
 	#endif // __GNUC__
-		
+
 		size_t endData = destSize / sizeof(rluint_t);
-	
+
 		rluint_t* dest = new rluint_t[endData];
-	
+
 		const DR* pdr = reinterpret_cast<const DR*>(source);
 		size_t num = sourceSize / sizeof(DR);
-		
+
 		size_t cnt = 0;
 		for(size_t i = 0; i < num; i++){
 			for(runlen_t l = 0; l < pdr->len; l++){
@@ -138,11 +144,10 @@ namespace BCMFileIO {
 			}
 			pdr++;
 		}
-	
+
 		return dest;
 	}
 
 } // BCMFileIO
 
 #endif // __BCMTOOLS_RLE_H__
-

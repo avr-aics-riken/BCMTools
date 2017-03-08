@@ -1,13 +1,19 @@
 /*
- * BCMViewer - BCM mesh viewer
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
 ///
 /// @file FileSystemUtil.h
@@ -51,13 +57,13 @@ namespace BCMFileIO {
 		}
 		return dir;
 	}
-	
+
 	/// pathから拡張子以前のファイル名を抜き出す
 	inline std::string GetFilePrefix(const std::string& path)
 	{
 		std::string cpath = ConvertPath(path);
 		std::string filename = cpath.substr(cpath.rfind("/")+1);
-		
+
 		return filename.substr(0, filename.rfind("."));
 	}
 
@@ -82,4 +88,3 @@ namespace BCMFileIO {
 
 
 #endif // __BCMTOOLS_FILESYSTEM_UTIL_H__
-

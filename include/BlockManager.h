@@ -1,13 +1,19 @@
 /*
- * BCMTools
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
 ///
 /// @file BlockManager.h
@@ -17,10 +23,10 @@
 #ifndef BLOCK_MANAGER_H
 #define BLOCK_MANAGER_H
 
+#include "mpi.h"
 #include <vector>
 #include <map>
 #include <algorithm>
-#include "mpi.h"
 #include "BlockBase.h"
 #include "CommBuffer.h"
 #include "BCMTools.h"
@@ -200,7 +206,7 @@ public:
     for (; it != blockList.end(); ++it) {
       BlockBase* block = *it;
       Vec3i size = block->getSize();
-      int id0 = block->setDataClass(new D(size, vc)); 
+      int id0 = block->setDataClass(new D(size, vc));
       if (it == blockList.begin()) {
         id = id0;
       } else {
@@ -227,7 +233,7 @@ public:
       D* dataClass = new D(size, vc);
       U* updater = new U(block->getNeighborInfo());
       dataClass->setUpdater(updater);
-      int id0 = block->setDataClass(dataClass); 
+      int id0 = block->setDataClass(dataClass);
       if (it == blockList.begin()) {
         id = id0;
       } else {
@@ -263,7 +269,7 @@ public:
 			n++;
       U* updater = new U(block->getNeighborInfo());
       dataClass->setUpdater(updater);
-      int id0 = block->setDataClass(dataClass); 
+      int id0 = block->setDataClass(dataClass);
       if (it == blockList.begin()) {
         id = id0;
       } else {
@@ -526,7 +532,7 @@ public:
   ///  @param[in] xyz 方向(0:x, 1:y, 2:z)
   ///
   void beginUpdateVC(int dataClassID, int xyz) {
-    assert(commBufferSeparateTableMap[xyz].find(dataClassID) 
+    assert(commBufferSeparateTableMap[xyz].find(dataClassID)
            != commBufferSeparateTableMap[xyz].end());
     recvVCBegin(dataClassID, commBufferSeparateTableMap[xyz]);
     copyVCToSendBuffer(dataClassID, sendSeparateFaceList[xyz]);
@@ -540,7 +546,7 @@ public:
   ///  @param[in] xyz 方向(0:x, 1:y, 2:z)
   ///
   void beginUpdateVC_Flat(int dataClassID, int xyz) {
-    assert(commBufferSeparateLevelDiffTableMap[xyz][LD_0].find(dataClassID) 
+    assert(commBufferSeparateLevelDiffTableMap[xyz][LD_0].find(dataClassID)
            != commBufferSeparateLevelDiffTableMap[xyz][LD_0].end());
     recvVCBegin(dataClassID, commBufferSeparateLevelDiffTableMap[xyz][LD_0]);
     copyVCToSendBuffer(dataClassID, sendSeparateLevelDiffFaceList[xyz][LD_0]);
@@ -554,9 +560,9 @@ public:
   ///  @param[in] xyz 方向(0:x, 1:y, 2:z)
   ///
   void beginUpdateVC_F2C(int dataClassID, int xyz) {
-    assert(commBufferSeparateLevelDiffTableMap[xyz][LD_P1].find(dataClassID) 
+    assert(commBufferSeparateLevelDiffTableMap[xyz][LD_P1].find(dataClassID)
            != commBufferSeparateLevelDiffTableMap[xyz][LD_P1].end());
-    assert(commBufferSeparateLevelDiffTableMap[xyz][LD_M1].find(dataClassID) 
+    assert(commBufferSeparateLevelDiffTableMap[xyz][LD_M1].find(dataClassID)
            != commBufferSeparateLevelDiffTableMap[xyz][LD_M1].end());
     recvVCBegin(dataClassID, commBufferSeparateLevelDiffTableMap[xyz][LD_P1]);
     copyVCToSendBuffer(dataClassID, sendSeparateLevelDiffFaceList[xyz][LD_M1]);
@@ -570,9 +576,9 @@ public:
   ///  @param[in] xyz 方向(0:x, 1:y, 2:z)
   ///
   void beginUpdateVC_C2F(int dataClassID, int xyz) {
-    assert(commBufferSeparateLevelDiffTableMap[xyz][LD_P1].find(dataClassID) 
+    assert(commBufferSeparateLevelDiffTableMap[xyz][LD_P1].find(dataClassID)
            != commBufferSeparateLevelDiffTableMap[xyz][LD_P1].end());
-    assert(commBufferSeparateLevelDiffTableMap[xyz][LD_M1].find(dataClassID) 
+    assert(commBufferSeparateLevelDiffTableMap[xyz][LD_M1].find(dataClassID)
            != commBufferSeparateLevelDiffTableMap[xyz][LD_M1].end());
     recvVCBegin(dataClassID, commBufferSeparateLevelDiffTableMap[xyz][LD_M1]);
     copyVCToSendBuffer(dataClassID, sendSeparateLevelDiffFaceList[xyz][LD_P1]);

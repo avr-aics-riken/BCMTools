@@ -1,18 +1,24 @@
 /*
- * BCMTools
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
 ///
 /// @file SiloWriter.h
 /// @brief SiloフォーマットによるBCMデータ出力クラス
-/// 
+///
 /// @note HDF5ライブラリをリンクしない場合は，
 ///       コンパイルオプションにUSE_PDB_DRIVERを追加すること．
 ///
@@ -125,7 +131,7 @@ public:
     if (myrank == 0) writeExternalArrays();
 
     if (myrank == 0) writeMultiMesh(meshName);
-    
+
   }
 
   /// デストラクタ.
@@ -324,7 +330,7 @@ private:
     localFileName.insert(pos, rankStr.str());
     return localFileName;
   }
-  
+
 
   /// ブロック単位でメッシュデータを出力．
   ///

@@ -1,13 +1,19 @@
 /*
- * BCMViewer - BCM mesh viewer
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
 ///
 /// @file  LeafBlockLoader.cpp
@@ -65,7 +71,7 @@ namespace BCMFileIO {
 		}
 		return true;
 	}
-	
+
 	inline bool Load_LeafBlock_CellIDData( FILE *fp, unsigned char** data, const LBHeader& hdr, const LBCellIDHeader& chdr, const bool isNeedSwap)
 	{
 		size_t sz = 0;
@@ -93,28 +99,28 @@ namespace BCMFileIO {
 				}
 			}
 		}
-		
+
 		return true;
 	}
 
 
-	bool Load_LeafBlock_CellID( const std::string&          dir, 
-	                            const IdxBlock*             ib, 
-							    //const MPI::Intracomm&       comm, 
+	bool Load_LeafBlock_CellID( const std::string&          dir,
+	                            const IdxBlock*             ib,
+							    //const MPI::Intracomm&       comm,
 							    PartitionMapper*            pmapper,
-							    LBHeader&                   header, 
+							    LBHeader&                   header,
 							    std::vector<CellIDCapsule>& cidCapsules )
 	{
 		using namespace std;
 
 		cidCapsules.clear();
-		
+
 		vector<PartitionMapper::FDIDList> fdidlists;
 		//pmapper->GetFDIDLists(comm.Get_rank(), fdidlists);
 		pmapper->GetFDIDLists(0, fdidlists);
 
 		cidCapsules.reserve(fdidlists.size());
-		
+
 		bool err = false;
 
 		for(vector<PartitionMapper::FDIDList>::const_iterator file = fdidlists.begin(); file != fdidlists.end(); ++file){
@@ -130,7 +136,7 @@ namespace BCMFileIO {
 			}
 
 			bool isNeedSwap = false;
-			
+
 			LBHeader hdr;
 
 			if( !Load_LeafBlock_Header(fp, hdr, isNeedSwap) ){
@@ -151,7 +157,7 @@ namespace BCMFileIO {
 			if( !Load_LeafBlock_CellIDHeader(fp, cc.header, isNeedSwap) ){
 				fclose(fp); err = true; break;
 			}
-			
+
 			Load_LeafBlock_CellIDData(fp, &cc.data, hdr, cc.header, isNeedSwap);
 
 			cidCapsules.push_back(cc);
@@ -172,11 +178,11 @@ namespace BCMFileIO {
 		return true;
 	}
 
-	bool Load_LeafBlock_CellID_Gather( const std::string&        dir, 
-	                                   const IdxBlock*           ib, 
-									   //const MPI::Intracomm&     comm, 
+	bool Load_LeafBlock_CellID_Gather( const std::string&        dir,
+	                                   const IdxBlock*           ib,
+									   //const MPI::Intracomm&     comm,
 									   PartitionMapper*          pmapper,
-							           LBHeader&                 header, 
+							           LBHeader&                 header,
 									   std::vector<CellIDCapsule>& cidCapsules )
 	{
 		using namespace std;
@@ -195,14 +201,14 @@ namespace BCMFileIO {
 			FILE *fp = NULL;
 			if( (fp = fopen(filepath.c_str(), "rb")) == NULL ){
 				printf("err : file open error \"%s\" [%s:%d]\n", filepath.c_str(), __FILE__, __LINE__);
-				
+
 				// ファイルロードエラーを全プロセスに通知
 				//unsigned char loadError = 1; comm.Bcast(&loadError, 1, MPI::CHAR, 0);
 				return false;
 			}
 
 			bool isNeedSwap = false;
-			
+
 			LBHeader hdr;
 
 			if( !Load_LeafBlock_Header(fp, hdr, isNeedSwap) ){
@@ -258,11 +264,11 @@ namespace BCMFileIO {
 			}
 
 			fclose(fp);
-			
-			// ファイルロード完了を全プロセスに通知	
+
+			// ファイルロード完了を全プロセスに通知
 			//unsigned char loadError = 0; comm.Bcast(&loadError, 1, MPI::CHAR, 0);
 
-			// ヘッダ情報をブロードキャスト	
+			// ヘッダ情報をブロードキャスト
 			//comm.Bcast(&header, sizeof(LBHeader), MPI::CHAR, 0);
 			// Gridヘッダ情報をブロードキャスト
 			//comm.Bcast(&chs[0], wnp * sizeof(LBCellIDHeader), MPI::CHAR, 0);
@@ -285,7 +291,7 @@ namespace BCMFileIO {
 				}
 			}
 			*/
-			
+
 			// Rank 0用のデータコピー
 
 			bool freeMask[wnp];
@@ -301,7 +307,7 @@ namespace BCMFileIO {
 				cidCapsules.push_back(cc);
 				freeMask[file->FID] = false;
 			}
-			
+
 			// 不要なデータを解放
 			for(int i = 0; i < wnp; i++){
 				if(freeMask[i]) delete [] contents[i];
@@ -324,7 +330,7 @@ namespace BCMFileIO {
 			int wnp = pmapper->GetWriteProcs();
 			vector<LBCellIDHeader> chs(wnp);
 			comm.Bcast(&chs[0], wnp * sizeof(LBCellIDHeader), MPI::CHAR, 0);
-			
+
 			vector<PartitionMapper::FDIDList> fdidlists;
 			pmapper->GetFDIDLists(rank, fdidlists);
 			for(vector<PartitionMapper::FDIDList>::iterator file = fdidlists.begin(); file != fdidlists.end(); ++file){
@@ -337,7 +343,7 @@ namespace BCMFileIO {
 					sz = chs[file->FID].compSize;
 				}
 				cc.data = new unsigned char[sz];
-				
+
 				// 受信
 				int tag = file->FID;
 				comm.Recv(cc.data, sz, MPI::CHAR, 0, tag);
@@ -376,4 +382,3 @@ namespace BCMFileIO {
 
 
 } // BCMFileIO
-

@@ -1,11 +1,18 @@
 !
+!##################################################################################
+!
 ! BCMTools
 !
-! Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+! Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
 ! All rights reserved.
 !
-! Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
+! Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
 ! All rights reserved.
+!
+! Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+! All rights reserved.
+!
+!##################################################################################
 !
 
 subroutine fill(x, a, sz, g)
@@ -15,7 +22,7 @@ subroutine fill(x, a, sz, g)
   integer                 :: i, j, k
   integer                 :: ix, jx, kx
 	real, dimension(1-g:sz(1)+g, 1-g:sz(2)+g, 1-g:sz(3)+g)  :: x
-  real                    :: a 
+  real                    :: a
   ix = sz(1)
   jx = sz(2)
   kx = sz(3)
@@ -481,7 +488,7 @@ subroutine jacobi_smoother( &
 						- As(i, j, k)*x0(i, j-1, k) &
 						- An(i, j, k)*x0(i, j+1, k) &
 						- Ab(i, j, k)*x0(i, j, k-1) &
-						- At(i, j, k)*x0(i, j, k+1) 
+						- At(i, j, k)*x0(i, j, k+1)
 		x_tmp = r/Ap(i, j, k)
 		x1(i, j, k) = x0(i, j, k) - omega*(x0(i, j, k) - x_tmp)
 	end do
@@ -533,7 +540,7 @@ subroutine jacobi_smoother2( &
 						- A(3, i, j, k)*x0(i, j-1, k) &
 						- A(4, i, j, k)*x0(i, j+1, k) &
 						- A(5, i, j, k)*x0(i, j, k-1) &
-						- A(6, i, j, k)*x0(i, j, k+1) 
+						- A(6, i, j, k)*x0(i, j, k+1)
 		x_tmp = r/A(0, i, j, k)
 		x1(i, j, k) = x0(i, j, k) - omega*(x0(i, j, k) - x_tmp)
 	end do
@@ -565,7 +572,7 @@ subroutine calc_ax( &
 #ifdef _BLOCK_IS_LARGE_
 !$omp parallel
 !$omp do schedule(static, 1) &
-!$omp		,private(i, j, k) 
+!$omp		,private(i, j, k)
 #else
 !ocl nouxsimd
 !ocl serial
@@ -613,7 +620,7 @@ subroutine calc_r( &
 #ifdef _BLOCK_IS_LARGE_
 !$omp parallel
 !$omp do schedule(static, 1) &
-!$omp		,private(i, j, k) 
+!$omp		,private(i, j, k)
 #else
 !ocl nouxsimd
 !ocl serial
@@ -763,7 +770,7 @@ subroutine axpy_mask(y, x, a, mask, sz, g)
 !ocl nouxsimd
 !dir$ simd
 	do ijk=ijk0, ijkx
-		if( mask(ijk) == 1 ) then	
+		if( mask(ijk) == 1 ) then
 			y(ijk) = y(ijk) + a*x(ijk)
     end if
 	end do
@@ -789,7 +796,7 @@ subroutine xpay_mask(y, x, a, mask, sz, g)
 !ocl nouxsimd
 !dir$ simd
 	do ijk=ijk0, ijkx
-		if( mask(ijk) == 1 ) then	
+		if( mask(ijk) == 1 ) then
 			y(ijk) = x(ijk) + a*y(ijk)
     end if
 	end do
@@ -816,7 +823,7 @@ subroutine axpyz_mask(z, x, y, a, mask, sz, g)
 !ocl nouxsimd
 !dir$ simd
 	do ijk=ijk0, ijkx
-		if( mask(ijk) == 1 ) then	
+		if( mask(ijk) == 1 ) then
 			z(ijk) = a*x(ijk) + y(ijk)
     end if
 	end do
@@ -842,7 +849,7 @@ subroutine axpbypz_mask(z, x, y, a, b, mask, sz, g)
 !ocl nouxsimd
 !dir$ simd
 	do ijk=ijk0, ijkx
-		if( mask(ijk) == 1 ) then	
+		if( mask(ijk) == 1 ) then
 			z(ijk) = a*x(ijk) + b*y(ijk) + z(ijk)
     end if
 	end do
@@ -869,7 +876,7 @@ subroutine dot_mask(xy, x, y, mask, sz, g)
 !ocl nouxsimd
 !dir$ simd
 	do ijk=ijk0, ijkx
-		if( mask(ijk) == 1 ) then	
+		if( mask(ijk) == 1 ) then
 			xy = xy + x(ijk)*y(ijk)
     end if
 	end do
@@ -898,7 +905,7 @@ subroutine dotx2_mask(xy, xz, x, y, z, mask, sz, g)
 !ocl nouxsimd
 !dir$ simd
 	do ijk=ijk0, ijkx
-		if( mask(ijk) == 1 ) then	
+		if( mask(ijk) == 1 ) then
 			xy = xy + x(ijk)*y(ijk)
 			xz = xz + x(ijk)*z(ijk)
     end if
@@ -933,14 +940,14 @@ subroutine jacobi_smoother_mask( &
 #ifdef _BLOCK_IS_LARGE_
 !$omp parallel private(ijk) &
 !$omp					 private(r, x_tmp)
-!$omp do 
+!$omp do
 #else
 !ocl serial
 !ocl nouxsimd
 !dir$ simd
 #endif
 	do ijk=ijk0, ijkx
-		if( mask(ijk) == 1 ) then	
+		if( mask(ijk) == 1 ) then
 			r = b(ijk) &
   						- Aw(ijk)*x0(ijk - 1) &
   						- Ae(ijk)*x0(ijk + 1) &
@@ -978,7 +985,7 @@ subroutine copy_mask(y, x, mask, sz, g)
 !ocl nouxsimd
 !dir$ simd
 	do ijk=ijk0, ijkx
-		if( mask(ijk) == 1 ) then	
+		if( mask(ijk) == 1 ) then
       y(ijk) = x(ijk)
     end if
 	end do
@@ -1009,7 +1016,7 @@ subroutine calc_ax_mask( &
 !ocl nouxsimd
 !dir$ simd
 	do ijk=ijk0, ijkx
-		if( mask(ijk) == 1 ) then	
+		if( mask(ijk) == 1 ) then
 			Ax(ijk) = &
 							+ Aw(ijk)*x(ijk - 1) &
 							+ Ae(ijk)*x(ijk + 1) &
@@ -1049,7 +1056,7 @@ subroutine calc_r_mask( &
 !ocl nouxsimd
 !dir$ simd
 	do ijk=ijk0, ijkx
-		if( mask(ijk) == 1 ) then	
+		if( mask(ijk) == 1 ) then
 			r(ijk) = b(ijk) &
 							- Aw(ijk)*x(ijk - 1) &
 							- Ae(ijk)*x(ijk + 1) &
@@ -1091,7 +1098,7 @@ subroutine calc_r2_mask( &
 !ocl nouxsimd
 !dir$ simd
 	do ijk=ijk0, ijkx
-		if( mask(ijk) == 1 ) then	
+		if( mask(ijk) == 1 ) then
 			r = b(ijk) &
 							- Aw(ijk)*x(ijk - 1) &
 							- Ae(ijk)*x(ijk + 1) &
@@ -1400,5 +1407,3 @@ subroutine calc_r2_mask2( &
 		rr = rr + r*r*m(ijk)
 	end do
 end subroutine calc_r2_mask2
-
-

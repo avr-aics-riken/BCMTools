@@ -20,7 +20,7 @@ OpenGL 2.1 以降が動作するLinuxとMac OS X
 3. ビルド方法
 
 3.1 Makefileの編集
- 13行目の"TEXTPARSER = "のパスをTextParser-1.2のインストールされて
+ 13行目の"TEXTPARSER = "のパスをTextParserのインストールされて
  いるディレクトリに変更
 
 3.2 ビルド
@@ -53,5 +53,3 @@ OpenGL 2.1 以降が動作するLinuxとMac OS X
 
 - その他
 　ESCキー     : 終了
-
-

@@ -1,11 +1,18 @@
 !
+!##################################################################################
+!
 ! BCMTools
 !
-! Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+! Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
 ! All rights reserved.
 !
-! Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
+! Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
 ! All rights reserved.
+!
+! Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+! All rights reserved.
+!
+!##################################################################################
 !
 
 subroutine sf3d_copy_x2(x, xc, sz, g)
@@ -20,8 +27,8 @@ subroutine sf3d_copy_x2(x, xc, sz, g)
 	jx = sz(2)
 	kx = sz(3)
 #ifdef _BLOCK_IS_LARGE_
-!$omp parallel private(i, j, k) 
-!$omp do 
+!$omp parallel private(i, j, k)
+!$omp do
 #else
 #endif
 	do k=1, kx
@@ -94,4 +101,3 @@ subroutine sf3d_calc_stats(dsum, dmax, dmin, dabsmax, dabsmin, ddata, sz, g)
 #else
 #endif
 end subroutine sf3d_calc_stats
-

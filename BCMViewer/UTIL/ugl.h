@@ -1,13 +1,19 @@
 /*
- * BCMViewer - BCM mesh viewer
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
 #ifndef __UGL_H__
 #define __UGL_H__
@@ -15,7 +21,7 @@
 #include "type.h"
 #include "mat.h"
 
-#ifdef __APPLE__ 
+#ifdef __APPLE__
 #include <OpenGL/gl.h>
 #include <GLUT/glut.h>
 #else
@@ -32,7 +38,7 @@ public:
 		this->org  = org;
 		this->size = size;
 	}
-	
+
 	const vec3<float> GetMin() const { return org; }
 	const vec3<float> GetMax() const { return org + size; }
 	const vec3<float> GetCenter() const { return org + vec3<float>(size[0] / 2.0, size[1] / 2.0, size[2] / 2.0); }
@@ -47,7 +53,7 @@ class ViewController
 {
 public:
 	ViewController( vec2<float>& windowSize, const BBox& bbox )
-	 : m_windowSize(windowSize), 
+	 : m_windowSize(windowSize),
 	   m_bbox(bbox),
 	   m_aspect(windowSize[0] / windowSize[1])
 	{
@@ -91,7 +97,7 @@ public:
 		glMatrixMode(GL_MODELVIEW);
 	}
 
-	
+
 	void SetPerspective(const float fov = 40.0)
 	{
 		m_fov = fov;
@@ -104,7 +110,7 @@ public:
 		m_mode = ORTHO;
 		ProjectionUpdate();
 	}
-	
+
 	void ResizeWindow(const vec2<float>& windowSize )
 	{
 		m_windowSize = windowSize;
@@ -138,7 +144,7 @@ public:
 		glMultMatrixf( trans.ptr() );
 	}
 
-	
+
 	void SetLookAt(  const vec3<float>& position, const vec3<float>& lookAt = vec3<float>(0.0, 0.0, 0.0) )
 	{
 		m_position = position;
@@ -177,7 +183,7 @@ public:
 		rot.at(2, 0) = -sin(rad);
 		rot.at(2, 2) =  cos(rad);
 
-		m_rotate = m_rotate * rot;	
+		m_rotate = m_rotate * rot;
 	}
 
 	void SetRotateZ( const float rad )
@@ -203,13 +209,13 @@ private:
 
 	vec2<float> m_windowSize;
 	BBox        m_bbox;
-	
+
 	vec3<float> m_position;
 	vec3<float> m_lookAt;
-	
+
 	mat4<float> m_translate;
 	mat4<float> m_rotate;
-	
+
 	vec3<float> m_rotateCenter;
 	float m_scale;
 
@@ -224,4 +230,3 @@ private:
 
 
 #endif // __UGL_H__
-

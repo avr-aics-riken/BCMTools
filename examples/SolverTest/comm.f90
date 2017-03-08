@@ -1,11 +1,18 @@
 !
+!##################################################################################
+!
 ! BCMTools
 !
-! Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+! Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
 ! All rights reserved.
 !
-! Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
+! Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
 ! All rights reserved.
+!
+! Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+! All rights reserved.
+!
+!##################################################################################
 !
 
 subroutine allreduce(total, a)
@@ -370,4 +377,3 @@ subroutine comm_band_cells_nb(x, &
 !$omp end do
 !$omp end parallel
 end subroutine comm_band_cells_nb
-

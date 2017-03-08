@@ -1,16 +1,22 @@
 /*
- * BCMTools
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
-#include <iostream>
 #include "mpi.h"
+#include <iostream>
 #ifdef _OPENMP
 #include "omp.h"
 #endif
@@ -57,7 +63,7 @@ int main(int argc, char** argv)
   if (myrank == 0) conf.print();
 
   RootGrid* rootGrid = new RootGrid(conf.rootN);
-  
+
   Divider* divider;
   if (conf.treeType == "flat") {
     divider = new FlatDivider(rootGrid, conf.maxLevel);
@@ -71,7 +77,7 @@ int main(int argc, char** argv)
 //                              conf.cx, conf.cy, conf.cz, conf.r, 1.0e-6);
   }
   else if (conf.treeType == "cylinder") {
-    divider = new CylinderDivider(rootGrid, conf.minLevel, conf.maxLevel, 
+    divider = new CylinderDivider(rootGrid, conf.minLevel, conf.maxLevel,
                                   conf.cx, conf.cy, conf.r);
 //                                conf.cx, conf.cy, conf.r, 1.0e-6);
   }

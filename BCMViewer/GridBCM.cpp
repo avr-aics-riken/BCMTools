@@ -1,13 +1,19 @@
 /*
- * BCMViewer - BCM mesh viewer
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
 
 #include "GridBCM.h"
@@ -56,7 +62,7 @@ template<typename T> inline T MIN_(T A, T B)
 void SaveImage(const int *img, const int width, const int height)
 {
 	FILE *fp = fopen("img.ppm", "w");
-	
+
 	fprintf(fp, "P3\n%d %d\n255\n", width, height);
 	for(int h = 0; h < height; h++){
 		for(int w = 0; w < width; w++){
@@ -71,7 +77,7 @@ void SaveImage(const int *img, const int width, const int height)
 	fclose(fp);
 }
 
-inline 
+inline
 int CompStr( const std::string& str1, const std::string& str2, bool ignorecase=true )
 {
 	std::string lstr1 = str1;
@@ -136,13 +142,13 @@ namespace BCMFileIO {
 	{
 		using namespace std;
 		TextParser *tp = new TextParser;
-	
+
 		if( tp->read(filepath) != TP_NO_ERROR ) {
 			LogE("[%s:%d]\n", __FILE__, __LINE__);
 			delete tp;
 			return false;
 		}
-	
+
 		int numProcs = 0;
 		{
 			tp->changeNode("/MPI");
@@ -154,17 +160,17 @@ namespace BCMFileIO {
 			}
 			numProcs = atoi(valStr.c_str());
 		}
-	
-		tp->changeNode("/process");		
+
+		tp->changeNode("/process");
 		vector<string> nodes;
 		tp->getNodes(nodes, 1);
 		for(vector<string>::iterator nit = nodes.begin(); nit != nodes.end(); ++nit){
 			if( CompStr(nit->substr(0, 4), "Rank") == 0 ){
 				tp->changeNode(*nit);
-	
+
 				vector<string> lbls;
 				tp->getLabels(lbls);
-	
+
 				IdxProc proc;
 				for(vector<string>::iterator it = lbls.begin(); it != lbls.end(); ++it){
 					string valStr;
@@ -177,7 +183,7 @@ namespace BCMFileIO {
 						proc.hostname = valStr;
 						continue;
 					}
-	
+
 					if( CompStr(*it, "BlockRange") == 0 ){
 						double range[3];
 						tp->splitRange(valStr, &range[0], &range[1], &range[2]);
@@ -187,44 +193,44 @@ namespace BCMFileIO {
 					}
 				}
 				procList.push_back(proc);
-				
+
 				tp->changeNode("../");
 			}
 		}
-		
+
 		if(procList.size() != numProcs){
 			LogE("[%s:%d]\n", __FILE__, __LINE__);
 			delete tp;
 			procList.clear();
 			return false;
 		}
-	
+
 		delete tp;
 		return true;
 	}
-	
+
 	bool LoadIndexCellID(TextParser *tp, IdxBlock* ib)
 	{
 		using namespace std;
 		vector<string> lbls;
 		tp->getLabels(lbls);
-	
+
 		bool hasName       = false;
 		bool hasBitWidth   = false;
 		bool hasPrefix     = false;
 		bool hasExtension  = false;
 		bool hasGatherMode = false;
-	
+
 		for(vector<string>::iterator it = lbls.begin(); it != lbls.end(); ++it){
 			string valStr;
 			tp->getValue(*it, valStr);
-	
+
 			if( CompStr(*it, "name") == 0){
 				ib->name = valStr;
 				hasName = true;
 				continue;
 			}
-	
+
 			if( CompStr(*it, "BitWidth") == 0 ){
 				ib->bitWidth = atoi(valStr.c_str());
 				ib->kind     = LB_CELLID;
@@ -232,13 +238,13 @@ namespace BCMFileIO {
 				hasBitWidth  = true;
 				continue;
 			}
-	
+
 			if( CompStr(*it, "Prefix") == 0 ){
 				ib->prefix = valStr;
 				hasPrefix  = true;
 				continue;
 			}
-	
+
 			if( CompStr(*it, "Extension") == 0 ){
 				ib->extension = valStr;
 				hasExtension = true;
@@ -249,7 +255,7 @@ namespace BCMFileIO {
 				ib->dataDir = FixDirectoryPath(valStr);
 				continue;
 			}
-	
+
 			if( CompStr(*it, "GatherMode") == 0 ){
 				if( CompStr(valStr, "distributed") == 0){
 					ib->isGather  = false;
@@ -264,30 +270,30 @@ namespace BCMFileIO {
 				continue;
 			}
 		}
-	
+
 		if(!hasName || !hasBitWidth || !hasPrefix || !hasExtension || !hasGatherMode ){
 			LogE("Load Index File Error [%d:%s].\n", __FILE__, __LINE__);
 			return false;
 		}
-	
+
 		ib->vc = 0;
-	
+
 		return true;
 	}
-	
-	bool LoadIndex(const std::string& filename, const std::string& targetDir, 
+
+	bool LoadIndex(const std::string& filename, const std::string& targetDir,
 	               Vec3d& globalOrigin, Vec3d& globalRegion, std::string& octreeFilename,
 	               Vec3i& blockSize, std::vector<IdxProc>& idxProcList, std::vector<IdxBlock>& idxBlockList)
 	{
 		using namespace std;
 		TextParser *tp = new TextParser;
-	
-		if( tp->read(filename) != TP_NO_ERROR ) { 
-			LogE("[%s:%d]\n", __FILE__, __LINE__); 
+
+		if( tp->read(filename) != TP_NO_ERROR ) {
+			LogE("[%s:%d]\n", __FILE__, __LINE__);
 			delete tp;
 			return false;
 		}
-	
+
 		tp->changeNode("/BCMTree");
 		// Read Octree Filename
 		if( tp->getValue("TreeFile", octreeFilename) != TP_NO_ERROR ){
@@ -295,22 +301,22 @@ namespace BCMFileIO {
 			delete tp;
 			return false;
 		}
-	
+
 		// Read Proc Filename
 		string procFilename;
 		if( tp->getValue("ProcFile", procFilename) != TP_NO_ERROR ){
-			LogE("[%s:%d]\n", __FILE__, __LINE__); 
+			LogE("[%s:%d]\n", __FILE__, __LINE__);
 			delete tp;
 			return false;
 		}
-	
+
 		string procFilepath = targetDir + procFilename;
 		if( !LoadIndexProc(procFilepath, idxProcList) ){
 			LogE("[%s:%d]\n", __FILE__, __LINE__);
 			delete tp;
 			return false;
 		}
-	
+
 		// Read Domain
 		tp->changeNode("/Domain");
 		{
@@ -321,7 +327,7 @@ namespace BCMFileIO {
 			for(vector<string>::iterator it = lbls.begin(); it != lbls.end(); ++it){
 				string valStr;
 				tp->getValue(*it, valStr);
-	
+
 				if( CompStr(*it, "GlobalOrigin") == 0 ){
 					if( ReadVec3(tp, *it, globalOrigin) == TP_NO_ERROR ){ hasOrigin = true; }
 					continue;
@@ -337,7 +343,7 @@ namespace BCMFileIO {
 				return false;
 			}
 		}
-		
+
 		tp->changeNode("/LeafBlock" );
 		{
 			vector<string> nodes;
@@ -365,29 +371,29 @@ namespace BCMFileIO {
 					tp->changeNode("../");
 				}
 			}
-	
+
 			if( idxBlockList.size() == 0 ){
 				LogE("[%s:%d]\n", __FILE__, __LINE__);
 				delete tp;
 				return false;
 			}
-	
+
 			if( ReadVec3(tp, "size", blockSize) != TP_NO_ERROR ){
 				LogE("[%s:%d]\n", __FILE__, __LINE__);
 				delete tp;
 				return false;
 			}
-	
+
 			// TODO Load Unit
 		}
-	
+
 		return true;
 	}
 } // namespace BCMFileIO
 
 
 namespace {
-	void BoxSetter(const Vec3d& org, const Vec3d& rgn, 
+	void BoxSetter(const Vec3d& org, const Vec3d& rgn,
 	               SG::VertexLineFormat* vertex, SG::IndexFormat* index, size_t idxOffset)
 	{
 		SG::VertexLineFormat vrt[8] = {
@@ -416,7 +422,7 @@ namespace {
 	}
 
 
-	void CellSetter(const Vec3d& org, const Vec3d& rgn, const GridBCM::AXIS axis, const int divU, const int divV, 
+	void CellSetter(const Vec3d& org, const Vec3d& rgn, const GridBCM::AXIS axis, const int divU, const int divV,
 					const int texIdx_u, const int texIdx_v, const int texSize_u, int texSize_v,
 	                SG::VertexFaceFormat* vertex, SG::IndexFormat* index, size_t idxOffset)
 	{
@@ -458,7 +464,7 @@ namespace {
 		for( int i = 0; i < 6; i++){
 			idx[i] += idxOffset;
 		}
-		
+
 		memcpy(index, idx, sizeof(SG::IndexFormat) * 6);
 
 	}
@@ -555,7 +561,7 @@ namespace {
 			}
 			for(int v = 0; v < divV-1; v++){
 				float pitch = rgn.y / (float)divV;
-				vertex[(divU-1) * 2 + v * 2 + 0] = SG::VertexLineFormat(org.x,         org.y + pitch * (v+1), org.z);          
+				vertex[(divU-1) * 2 + v * 2 + 0] = SG::VertexLineFormat(org.x,         org.y + pitch * (v+1), org.z);
 				vertex[(divU-1) * 2 + v * 2 + 1] = SG::VertexLineFormat(org.x + rgn.x, org.y + pitch * (v+1), org.z);
 				index[ (divU-1) * 2 + v * 2 + 0] = idxOffset + (divU-1) * 2 + v * 2;
 				index[ (divU-1) * 2 + v * 2 + 1] = idxOffset + (divU-1) * 2 + v * 2 + 1;
@@ -567,7 +573,7 @@ namespace {
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	void GetNodesOnPlane_rec(const GridBCM::AXIS axis, const Node* node, size_t planePosition, const int maxLevel, 
+	void GetNodesOnPlane_rec(const GridBCM::AXIS axis, const Node* node, size_t planePosition, const int maxLevel,
 	                         std::vector<const Node*>& leafNodes)
 	{
 		//std::cout << "Pedigree : " << node->getPedigree() << std::endl;
@@ -597,7 +603,7 @@ namespace {
 			cidTbl[0][0] = 0; cidTbl[0][1] = 1; cidTbl[0][2] = 2; cidTbl[0][3] = 3;
 			cidTbl[1][0] = 4; cidTbl[1][1] = 5; cidTbl[1][2] = 6; cidTbl[1][3] = 7;
 		}
-		
+
 		//int high = ((planePosition >> (maxLevel - (lv+1)))) > 0 ? 1 : 0;
 		int high = ( planePosition >> (maxLevel - (lv+1))) & 1 == 1 ? 1 : 0;
 		for(int i = 0; i < 4; i++){
@@ -606,7 +612,7 @@ namespace {
 		}
 	}
 
-	void GetNodesOnPlane(const GridBCM::AXIS axis, const Node* root, const size_t planePosition, const int maxLevel, 
+	void GetNodesOnPlane(const GridBCM::AXIS axis, const Node* root, const size_t planePosition, const int maxLevel,
 	                     std::vector<const Node*>& leafNodes)
 	{
 		GetNodesOnPlane_rec(axis, root, planePosition, maxLevel, leafNodes);
@@ -621,7 +627,7 @@ namespace {
 		const RootGrid *rootGrid = octree->getRootGrid();
 		size_t rootDims[3] = { rootGrid->getSizeX(), rootGrid->getSizeY(), rootGrid->getSizeZ() };
 		size_t numSlice = rootDims[iaxis] * (1 << maxLevel);
-		
+
 		size_t maxBlocks = 0;
 
 		//const char* axisStr[3] = { "AXIS_X", "AXIS_Y", "AXIS_Z" };
@@ -659,10 +665,10 @@ unsigned char GetCellID( const BCMFileIO::bitVoxelCell* bitVoxel, const unsigned
 {
 	using namespace BCMFileIO;
 	const unsigned char vox_per_cell = (sizeof(bitVoxelCell) * 8) / bitWidth;
-	
+
 	unsigned char mask = 0;
 	for(int i = 0; i < bitWidth; i++) mask += (1 << i);
-	
+
 	size_t loc = position[0] + (position[1] + position[2] * size[1]) * size[0];
 
 	size_t       cellIdx =  loc / vox_per_cell;
@@ -680,7 +686,7 @@ public:
 		using namespace BCMFileIO;
 		m_rleBuf  = rleEncode<bitVoxelCell, unsigned char>( bitVoxel, bitVoxelSize * sizeof(bitVoxelCell), &m_rleSize );
 		m_orgSize = bitVoxelSize;
-		//m_bitVoxel = bitVoxel;	
+		//m_bitVoxel = bitVoxel;
 	}
 
 	~LB() {
@@ -696,7 +702,7 @@ public:
 
 	//static Vec3i BlockSize;
 	//static int   bitWidth;
-	
+
 private:
 	//const BCMFileIO::bitVoxelCell* m_bitVoxel;
 	unsigned char* m_rleBuf;
@@ -751,7 +757,7 @@ private:
 			}
 		}
 		printf("Complete\n");
-		
+
 		int numBlocks = pmapper->GetEnd(0) - pmapper->GetStart(0);
 		m_lb.reserve(numBlocks);
 		m_blockSize[0] = header.size[0];
@@ -788,12 +794,12 @@ private:
 						memcpy(&block[bloc], &pvox[fbloc], sizeof(unsigned char) * bsz.x);
 					}
 				}
-				
+
 				size_t bitVoxelSize = 0;
 				bitVoxelCell* bitVoxel = CompressBitVoxel(&bitVoxelSize, bsz.x * bsz.y * bsz.z, block, header.bitWidth);
 				LB *lb = new LB(bitVoxel, bitVoxelSize);
 				m_lb.push_back(lb);
-				
+
 				delete [] bitVoxel;
 				delete [] block;
 				did++;
@@ -810,7 +816,7 @@ private:
 		for(int i = 0; i < fdidlists.size(); i++){
 			fdidSizeTable[i] = fdidlists[i].FDIDs.size();
 		}
-		
+
 		#pragma omp parallel for
 		for(int i = 0; i < fdidlists.size(); i++){
 			size_t iLoc = 0;
@@ -863,12 +869,12 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class SliceFace 
+class SliceFace
 {
 public:
 	SliceFace( const GridBCM::AXIS axis, const size_t maxBlocks, const int numGU, const int numGV, const int numGW )
 	 : m_axis(axis), m_maxBlocks(maxBlocks), m_numGU(numGU), m_numGV(numGV), m_numGW(numGW), m_img(NULL)
-	{ 
+	{
 		size_t nv = ( (m_numGU - 1) * 2 + (m_numGV - 1) * 2 ) * m_maxBlocks;
 		m_blocks = new SG::Geometry<SG::VertexLineFormat>(m_maxBlocks * 4, m_maxBlocks * 8);
 		m_grids  = new SG::Geometry<SG::VertexLineFormat>( nv, nv );
@@ -888,7 +894,7 @@ public:
 		delete m_cellTex;
 	}
 
-	void CreateSlice(const BCMOctree* octree, const size_t maxLevel, 
+	void CreateSlice(const BCMOctree* octree, const size_t maxLevel,
 	                 const LeafBlocks* leafBlocks,
 	                 const Vec3d& globalOrigin, const Vec3d& globalRegion, const size_t position)
 	{
@@ -908,7 +914,7 @@ public:
 		size_t lPos = position - (rPos * (1 << maxLevel) * m_numGW);
 		// Node Position within RootGrid
 		size_t nPos = lPos / m_numGW;
-		
+
 		std::vector<const Node*> leafNodes;
 		// Collect leafNodes which crossed SlicePosigion from Octree
 		int nru = m_axis == GridBCM::AXIS_X ? rootDims[1] : rootDims[0];
@@ -954,7 +960,7 @@ public:
 			size_t bIdxOffset = 0;
 			size_t gIdxOffset = 0;
 			size_t cIdxOffset = 0;
-			
+
 			// Set Cell Texture
 			int NodeID = leafNodes[cnt]->getBlockID();
 
@@ -967,7 +973,7 @@ public:
 			}
 
 			const Pedigree p = leafNodes[cnt]->getPedigree();
-			
+
 			Vec3d rootOrg(globalOrigin.x + (rootRegion.x * rootGrid->rootID2indexX(p.getRootID())),
 			              globalOrigin.y + (rootRegion.y * rootGrid->rootID2indexY(p.getRootID())),
 						  globalOrigin.z + (rootRegion.z * rootGrid->rootID2indexZ(p.getRootID())));
@@ -987,7 +993,7 @@ public:
 			// Set Block Grid Line
 			gIdxOffset = cnt * gridStride;
 			GridSetter(org, rgn, m_axis, m_numGU, m_numGV, &gvrt[cnt * gridStride], &gidx[cnt * gridStride], gIdxOffset);
-			
+
 			// Set Cell Geometry (simply plane)
 			const int texIdx[2] = {
 				(cnt * m_numGU) % m_texSize[0],
@@ -996,14 +1002,14 @@ public:
 
 			// block plane needs texcoord
 			cIdxOffset = cnt * 4;
-			CellSetter(org, rgn, m_axis, m_numGU, m_numGV, texIdx[0], texIdx[1], m_texSize[0], m_texSize[1], 
+			CellSetter(org, rgn, m_axis, m_numGU, m_numGV, texIdx[0], texIdx[1], m_texSize[0], m_texSize[1],
 			           &cvrt[cnt * 4], &cidx[cnt * 6], cIdxOffset);
 
 			size_t oPos = m_axis == GridBCM::AXIS_X ? p.getX() : m_axis == GridBCM::AXIS_Y ? p.getY() : p.getZ();
 			size_t bPos = ( lPos - (oPos << (maxLevel - lv)) * m_numGW ) >> (maxLevel - lv);
 			int uidx = m_axis == GridBCM::AXIS_X ? 1 : 0;
 			int vidx = m_axis == GridBCM::AXIS_Z ? 1 : 2;
-			
+
 			size_t pos[3] = { bPos, bPos, bPos };
 
 			for(int v = 0; v < m_numGV; v++){
@@ -1094,7 +1100,7 @@ private:
 			while(x < m_texSize[i]){ x = 1 << j; j++; }
 			m_texSize[i] = x;
 		}
-		
+
 		//printf("expand force 2^n \n");
 		const char* axisStr[3] = { "AXIS_X", "AXIS_Y", "AXIS_Z" };
 		int iaxis = 0;
@@ -1103,7 +1109,7 @@ private:
 		if(m_axis == GridBCM::AXIS_Z){ iaxis = 2; }
 		printf("    Texture Size (%s) is [%5d, %5d]\n", axisStr[iaxis], m_texSize[0], m_texSize[1]);
 
-		if( m_cellTex ) delete m_cellTex; 
+		if( m_cellTex ) delete m_cellTex;
 		m_cellTex = new TextureObject(m_texSize[0], m_texSize[1], 4, 32, -1);
 		//m_img = new int[m_texSize[0] * m_texSize[1]];
 	}
@@ -1122,7 +1128,7 @@ private:
 
 	int m_texSize[2];
 	int *m_img;
-	
+
 	bool m_visible;
 };
 
@@ -1173,9 +1179,9 @@ bool GridBCM::LoadFile(const std::string& filename)
 		fprintf(stderr, "[ERR] : %s [%s:%d]\n", __func__, __FILE__, __LINE__);
 		return false;
 	}
-	
+
 	std::string octreeFilepath = targetDir + octreeFilename;
-	
+
 	IdxBlock *ib = NULL;
 	for(std::vector<IdxBlock>::iterator it = idxBlockList.begin(); it != idxBlockList.end(); ++it){
 		if(it->kind == LB_CELLID){
@@ -1183,7 +1189,7 @@ bool GridBCM::LoadFile(const std::string& filename)
 			break;
 		}
 	}
-	
+
 	printf("Load Octree File : Start\n"); fflush(stdout);
 	// Load Octree
 	if( !LoadFileOctree(octreeFilepath) ){
@@ -1191,7 +1197,7 @@ bool GridBCM::LoadFile(const std::string& filename)
 		return false;
 	}
 	printf("Load Octree File : Complete\n"); fflush(stdout);
-	
+
 	printf("Load LeafBLock Files : Start\n");
 	// Load Leaf Block
 	m_pmapper = new PartitionMapper(idxProcList.size(), 1, m_octree->getNumLeafNode());
@@ -1274,7 +1280,7 @@ bool GridBCM::Init()
 			axis == AXIS_Z ? m_blockSize[1] : m_blockSize[2],
 			axis == AXIS_X ? m_blockSize[0] : axis == AXIS_Y ? m_blockSize[1] : m_blockSize[2]
 		};
-		
+
 		//size_t maxBlocks = numRootUVW[0] * numRootUVW[1] * (1 << m_maxLevel ) * (1 << m_maxLevel);
 		size_t maxBlocks = SearchMaxBlockCount( axis, m_octree, m_maxLevel );
 
@@ -1294,7 +1300,7 @@ bool GridBCM::LoadFileOctree(const std::string& filename)
 
 	OctHeader header;
 	vector<Pedigree> pedigrees;
-	
+
 	FILE *fp = NULL;
 
 	if( (fp = fopen(filename.c_str(), "rb")) == NULL ){
@@ -1338,7 +1344,7 @@ bool GridBCM::LoadFileOctree(const std::string& filename)
 	Vec3d rootRegion( header.rgn[0] / static_cast<double>(header.rootDims[0]),
 	                  header.rgn[1] / static_cast<double>(header.rootDims[1]),
 			          header.rgn[2] / static_cast<double>(header.rootDims[2]));
-	
+
 	if( fabs(rootRegion.x - rootRegion.y) >= 1.0e-10 || fabs(rootRegion.x - rootRegion.z) >= 1.0e-10 ) {
 		fprintf(stderr, "[ERR] %s [%s:%d]\n", __func__, __FILE__, __LINE__);
 		return false;
@@ -1365,7 +1371,7 @@ size_t GridBCM::SetSlicePosition(size_t position)
 	if(m_active == GridBCM::AXIS_X) i = 0;
 	if(m_active == GridBCM::AXIS_Y) i = 1;
 	if(m_active == GridBCM::AXIS_Z) i = 2;
-	
+
 	size_t pos = MAX_(MIN_(position, (m_maxCellCount[i]-1)), (size_t)0);
 	m_slicePos[i] = pos;
 
@@ -1399,7 +1405,7 @@ void GridBCM::AddSlicePlane(const AXIS axis)
 	for(int i = 0; i < 3; i++){
 		if( (axis >> i) & 1 ) m_slice[i]->SetVisible(true);
 	}
-	
+
 	UpdateGeometry(axis);
 }
 
@@ -1416,7 +1422,7 @@ void GridBCM::DeleteSlicePlane(const AXIS axis)
 void GridBCM::Render()
 {
 	glEnableClientState(GL_VERTEX_ARRAY);
-	
+
 	if( m_bbox ){
 		if(m_bbox->GetVisible()){
 			glColor4d(0.0, 0.0, 0.0, 1.0);
@@ -1449,14 +1455,13 @@ void GridBCM::Render()
 			m_render->RenderFace(m_slice[i]->GetCellGeometry());
 		}
 	}
-	
+
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
 	glDisable(GL_ALPHA_TEST);
-	
+
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_NORMAL_ARRAY);
 
 	glDisableClientState(GL_VERTEX_ARRAY);
 }
-

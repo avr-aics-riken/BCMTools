@@ -1,32 +1,38 @@
 /*
- * BCMTools
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
 ///
 /// @file VtkWriter.h
 /// @brief VTKフォーマットによるBCMデータ出力クラス
-/// 
-/// @note 
-///  
+///
+/// @note
+///
 ///
 
 #ifndef VTK_WRITER_H
 #define VTK_WRITER_H
 
+#include "mpi.h"
 #include <string>
 #include <sstream>
 #include <fstream>
 #include <cstring>
 #include <sys/stat.h>
 
-#include "mpi.h"
 #include "BCMTools.h"
 #include "BlockManager.h"
 #include "Scalar3D.h"
@@ -58,7 +64,7 @@ public:
     if (myrank == 0) {
     } else {
     }
-  
+
   }
 
   /// デストラクタ.
@@ -66,7 +72,7 @@ public:
   }
 
   template <typename T>
-	void printVTIC(T* sData, 
+	void printVTIC(T* sData,
 								const char* label, int step, int rank, int block,
 								int NX, int NY, int NZ,
 								int vc,
@@ -196,7 +202,7 @@ public:
 	}
 
   template <typename T>
-	void printVTIP(T* sData, 
+	void printVTIP(T* sData,
 								const char* label, int step, int rank, int block,
 								int NX, int NY, int NZ,
 								int vc,
@@ -377,10 +383,10 @@ public:
 
   template <typename T>
 	void printVTIC(
-								T* sDataP, 
-								T* sDataUX, 
-								T* sDataUY, 
-								T* sDataUZ, 
+								T* sDataP,
+								T* sDataUX,
+								T* sDataUY,
+								T* sDataUZ,
 								const char* label, int step, int rank, int block,
 								int NX, int NY, int NZ,
 								int vc,
@@ -539,11 +545,11 @@ public:
 
   template <typename T>
 	void printVTIC(
-								T* sDataP, 
-								T* sDataUX, 
-								T* sDataUY, 
-								T* sDataUZ, 
-								T* sDataT, 
+								T* sDataP,
+								T* sDataUX,
+								T* sDataUY,
+								T* sDataUZ,
+								T* sDataT,
 								const char* label, int step, int rank, int block,
 								int NX, int NY, int NZ,
 								int vc,
@@ -1375,7 +1381,7 @@ public:
 							ofs << ossFileName2.str().c_str();
 							ofs << "\">";
 							ofs << endl;
-							ofs << "\t\t</DataSet>" << endl;	
+							ofs << "\t\t</DataSet>" << endl;
 						}
 					}
 				}
@@ -1503,7 +1509,7 @@ public:
 							ofs << ossFileName2.str().c_str();
 							ofs << "\">";
 							ofs << endl;
-							ofs << "\t\t</DataSet>" << endl;	
+							ofs << "\t\t</DataSet>" << endl;
 						}
 					}
 				}
@@ -1528,4 +1534,3 @@ private:
 #endif
 
 #endif // VTK_WRITER_H
-

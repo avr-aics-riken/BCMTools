@@ -1,13 +1,19 @@
 /*
- * BCMViewer - BCM mesh viewer
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
 ///
 /// @file  BCMFileCommon.h
@@ -48,7 +54,7 @@ namespace BCMFileIO {
 #pragma pack(1)
 #define ALIGNMENT
 #endif // __GNUC__
-	
+
 	/// Octreeファイルヘッダ構造体
 	struct OctHeader
 	{
@@ -61,7 +67,7 @@ namespace BCMFileIO {
 		uint64_t     padding;      ///< 16バイトアライメント用パディング
 
 		OctHeader() : padding(0) {}
-	
+
 	} ALIGNMENT;
 
 	/// LeafBlockファイルヘッダ構造体
@@ -76,7 +82,7 @@ namespace BCMFileIO {
 		uint64_t       numBlock;   ///< ファイルに記載されている総ブロック数
 
 	} ALIGNMENT;
-	
+
 	/// LeafBlockのCellIDヘッダ構造体
 	struct LBCellIDHeader
 	{
@@ -108,7 +114,7 @@ namespace BCMFileIO {
 		LB_VECTOR = 3, ///< ベクター
 		LB_TENSOR = 9, ///< テンソル
 	};
-	
+
 	/// リーフセルのデータ識別子
 	enum LB_DATA_TYPE
 	{
@@ -174,7 +180,7 @@ namespace BCMFileIO {
 			for(unsigned int i = m_rangeMin; i < m_rangeMax; i+= m_rangeInterval){
 				steps->push_back(i);
 			}
-			
+
 			// 追加リストからのステップ追加
 			for(std::vector<unsigned int>::const_iterator it = m_adds.begin(); it != m_adds.end(); ++it){
 				steps->push_back((*it));
@@ -184,7 +190,7 @@ namespace BCMFileIO {
 			for(std::vector<unsigned int>::const_iterator it = m_subs.begin(); it != m_subs.end(); ++it){
 				steps->remove((*it));
 			}
-			
+
 			steps->sort();
 
 			return steps;
@@ -204,7 +210,7 @@ namespace BCMFileIO {
 		std::vector<unsigned int> m_adds; ///< 追加タイムステップリスト
 		std::vector<unsigned int> m_subs; ///< 削除タイムステップリスト
 	};
-	
+
 	/// インデックスファイル用ブロック情報
 	struct IdxBlock
 	{
@@ -235,7 +241,7 @@ namespace BCMFileIO {
 	};
 
 	/// データクラスIDからブロック情報を取得するユーティリティ関数
-	/// 
+	///
 	/// @param[in] idxBlockList ブロック情報リスト
 	/// @param[in] dataClassID  データクラスID
 	/// @return ブロック情報のポインタ
@@ -250,7 +256,7 @@ namespace BCMFileIO {
 	}
 
 	/// 系の名称からブロック情報を取得するユーティリティ関数
-	/// 
+	///
 	/// @param[in] idxBlockList ブロック情報リスト
 	/// @param[in] name         系の名称
 	/// @return ブロック情報のポインタ
@@ -264,7 +270,7 @@ namespace BCMFileIO {
 		return NULL;
 	}
 
-	
+
 	/// 2byte用エンディアンスワップ
 	static inline void BSwap16(void* a){
 		unsigned short* x = (unsigned short*)a;
@@ -291,4 +297,3 @@ namespace BCMFileIO {
 } // namespace BCMFileIO
 
 #endif // __BCMTOOLS_BCM_FILE_HEADER_H__
-

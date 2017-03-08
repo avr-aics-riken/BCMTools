@@ -1,11 +1,18 @@
 !
+!##################################################################################
+!
 ! BCMTools
 !
-! Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+! Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
 ! All rights reserved.
 !
-! Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
+! Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
 ! All rights reserved.
+!
+! Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+! All rights reserved.
+!
+!##################################################################################
 !
 
 subroutine bplt3d_open_file(filename, filenamelength, un)
@@ -65,4 +72,3 @@ subroutine bplt3d_write_func_block(p, ux, uy, uz, ix, jx, kx, un)
 						(((uy(i,j,k),i=1,ix),j=1,jx),k=1,kx), &
 						(((uz(i,j,k),i=1,ix),j=1,jx),k=1,kx)
 end subroutine bplt3d_write_func_block
-

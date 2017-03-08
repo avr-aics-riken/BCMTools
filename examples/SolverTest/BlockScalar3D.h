@@ -1,13 +1,19 @@
 /*
- * BCMTools
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
 #ifndef BLOCKSCALAR3D_H
 #define BLOCKSCALAR3D_H
@@ -26,8 +32,8 @@ public:
   enum BoundaryType {
     DIRICHLET,  ///< Dirichlet
     NEUMANN,    ///< Neumann
-    PERIODIC,   ///< ¼þ´ü¶­³¦
-    INNER,      ///< ÆâÉô¶­³¦
+    PERIODIC,   ///< ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    INNER,      ///< ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		POISEUILLE_U = 100,
 		POISEUILLE_P = 101,
   };
@@ -443,4 +449,3 @@ template <>
 void BlockScalar3D<int>::ImposeBlockBoundaryCondition_Aw_POISEUILLE_P(real* Ap, real* Aw, real* Ae, real* b);
 
 #endif
-

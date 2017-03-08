@@ -1,13 +1,19 @@
 /*
- * BCMViewer - BCM mesh viewer
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
 #include "TextureObject.h"
 
@@ -24,7 +30,7 @@
 
 
 namespace {
-	
+
 	void getFormat(int color_bit, int color_component,
 				   unsigned int& gltexformat, unsigned int& internalformat, unsigned int& internalsize)
 	{
@@ -65,7 +71,7 @@ namespace {
 			internalsize    = GL_UNSIGNED_BYTE;
 		}
 	}
-	
+
 } // namespace
 
 
@@ -93,11 +99,11 @@ void TextureObject::create()
 		glGetIntegerv(GL_TEXTURE_BINDING_2D, &(GLint &)save_texname);
 		glGenTextures(1, &m_texname);
 		glBindTexture(GL_TEXTURE_2D, m_texname);
-		
+
 		unsigned int gltexformat, internalformat, internalsize;
 		getFormat(m_color_bit, m_color_component,
 				  gltexformat, internalformat, internalsize);
-		
+
 		glTexImage2D(
 			GL_TEXTURE_2D, 0,
 			gltexformat,
@@ -108,7 +114,7 @@ void TextureObject::create()
 		GLenum err = glGetError();
 		if (err != GL_NO_ERROR)
 			printf("[%s:%d]CreateTexture error=%d\n",__FILE__, __LINE__, err);
-					
+
 		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -201,7 +207,7 @@ bool TextureObject::WriteImage(const float* pImage)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glBindTexture(GL_TEXTURE_2D, save_texname);
 
-		
+
 		return true;
 	}
 	return false;
@@ -212,7 +218,7 @@ bool TextureObject::WriteImage(const int* pImage)
 {
 	if (!m_texname)
 		return false;
-	
+
 	GLuint save_texname;
 	glGetIntegerv(GL_TEXTURE_BINDING_2D, &(GLint &)save_texname);
 	//glGenTextures(1, &m_texname);
@@ -222,7 +228,7 @@ bool TextureObject::WriteImage(const int* pImage)
 		unsigned int gltexformat, internalformat, internalsize;
 		getFormat(m_color_bit, m_color_component,
 				  gltexformat, internalformat, internalsize);
-		
+
 		glTexImage2D(GL_TEXTURE_2D, 0,
 					 gltexformat,
 					 m_width, m_height, 0,
@@ -249,7 +255,7 @@ bool TextureObject::WriteImage(const int* pImage, const int width, const int hei
 {
 	if (!m_texname)
 		return false;
-	
+
 	GLuint save_texname;
 	glGetIntegerv(GL_TEXTURE_BINDING_2D, &(GLint &)save_texname);
 	//glGenTextures(1, &m_texname);
@@ -259,7 +265,7 @@ bool TextureObject::WriteImage(const int* pImage, const int width, const int hei
 		unsigned int gltexformat, internalformat, internalsize;
 		getFormat(m_color_bit, m_color_component,
 				  gltexformat, internalformat, internalsize);
-		
+
 		/*
 		glTexImage2D(GL_TEXTURE_2D, 0,
 					 gltexformat,
@@ -283,7 +289,3 @@ bool TextureObject::WriteImage(const int* pImage, const int width, const int hei
 
 	return true;
 }
-
-
-
-

@@ -1,13 +1,19 @@
 /*
- * BCMViewer - BCM mesh viewer
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
 #ifndef __BCM_VIEWER_SCENE_GRAPH_H__
 #define __BCM_VIEWER_SCENE_GRAPH_H__
@@ -46,7 +52,7 @@ namespace SG {
 
 	struct VertexLineFormat
 	{
-		GLfloat x, y, z; 
+		GLfloat x, y, z;
 		VertexLineFormat() : x(.0f), y(.0f), z(.0f) {}
 		VertexLineFormat(GLfloat _x, GLfloat _y, GLfloat _z) : x(_x), y(_y), z(_z){}
 	};
@@ -57,7 +63,7 @@ namespace SG {
 		GLfloat nx, ny, nz;
 		GLfloat tx, ty;
 		VertexFaceFormat() : vx(.0f), vy(.0f), vz(.0f), nx(.0f), ny(.0f), nz(.0f), tx(.0f), ty(.0f) {}
-		VertexFaceFormat(GLfloat _vx, GLfloat _vy, GLfloat _vz, GLfloat _nx, GLfloat _ny, GLfloat _nz, GLfloat _tx, GLfloat _ty) 
+		VertexFaceFormat(GLfloat _vx, GLfloat _vy, GLfloat _vz, GLfloat _nx, GLfloat _ny, GLfloat _nz, GLfloat _tx, GLfloat _ty)
 		  : vx(_vx), vy(_vy), vz(_vz), nx(_nx), ny(_ny), nz(_nz), tx(_tx), ty(_ty) {}
 
 		static const GLubyte* GetNormalOffset()   { return (GLubyte*)NULL + sizeof(GLfloat) * 3; }
@@ -88,7 +94,7 @@ namespace SG {
 		}
 
 		virtual ~Geometry()
-		{ 
+		{
 			glDeleteBuffers(2, m_vbo);
 			delete [] m_v;
 			delete [] m_i;
@@ -124,7 +130,7 @@ namespace SG {
 			memcpy(m_i, idx, sizeof(IndexFormat) * num);
 			UploadIndices(num);
 		}
-		
+
 		VertexFormat* GetVertexBuffer(){ return m_v; }
 		IndexFormat*  GetIndexBuffer() { return m_i; }
 
@@ -160,4 +166,4 @@ namespace SG {
 } // namespace SG
 
 
-#endif // __BCM_VIEWER_SCENE_GRAPH_H__ 
+#endif // __BCM_VIEWER_SCENE_GRAPH_H__

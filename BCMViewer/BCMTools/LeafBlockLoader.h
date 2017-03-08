@@ -1,13 +1,19 @@
 /*
- * BCMViewer - BCM mesh viewer
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
 ///
 /// @file  LeafBlockLoader.h
@@ -31,9 +37,9 @@ namespace BCMFileIO {
 		unsigned char*   data;   ///< リーフブロックデータ
 		CellIDCapsule() : data(NULL){}
 	};
-	
+
 	/// LeafBlockファイルの読み込み (Gatherなし)
-	/// 
+	///
 	/// @param[in]  dir         入力元ディレクトリ
 	/// @param[in]  ib          ブロック情報
 	/// @param[in]  comm        MPIコミュニケータ
@@ -41,21 +47,21 @@ namespace BCMFileIO {
 	/// @param[out] header      LeafBlockファイルヘッダ
 	/// @param[out] cidCapsules 自プロセスが担当するデータのリスト
 	/// @return 成功した場合true, 失敗した場合false
-	/// 
+	///
 	/// @note gridCapsulesに入る値はファイルから読み込んだ生の状態．
 	///       圧縮符号やbitVoxelの展開，真に必要なデータの選択は
 	///       ここでは実施しない
-	/// 
-	bool Load_LeafBlock_CellID( const std::string&          dir, 
-	                            const IdxBlock*             ib, 
-							    //const MPI::Intracomm&       comm, 
+	///
+	bool Load_LeafBlock_CellID( const std::string&          dir,
+	                            const IdxBlock*             ib,
+							    //const MPI::Intracomm&       comm,
 							    PartitionMapper*            pmapper,
-							    LBHeader&                   header, 
+							    LBHeader&                   header,
 							    std::vector<CellIDCapsule>& cidCapsules );
 
 
 	/// LeafBlockファイルの読み込み (Gatherあり)
-	/// 
+	///
 	/// @param[in]  dir         入力元ディレクトリ
 	/// @param[in]  ib          ブロック情報
 	/// @param[in]  comm        MPIコミュニケータ
@@ -63,28 +69,27 @@ namespace BCMFileIO {
 	/// @param[out] header      LeafBlockファイルヘッダ
 	/// @param[out] cidCapsules 自プロセスが担当するデータのリスト
 	/// @return 成功した場合true, 失敗した場合false
-	/// 
+	///
 	/// @note gridCapsulesに入る値はファイルから読み込んだ生の状態．
 	///       圧縮符号やbitVoxelの展開，真に必要なデータの選択は
 	///       ここでは実施しない
-	/// 
-	bool Load_LeafBlock_CellID_Gather( const std::string&          dir, 
-	                                   const IdxBlock*             ib, 
-									   //const MPI::Intracomm&       comm, 
+	///
+	bool Load_LeafBlock_CellID_Gather( const std::string&          dir,
+	                                   const IdxBlock*             ib,
+									   //const MPI::Intracomm&       comm,
 									   PartitionMapper*            pmapper,
-							           LBHeader&                   header, 
+							           LBHeader&                   header,
 									   std::vector<CellIDCapsule>& cidCapsules );
 	/// 圧縮データの展開
-	/// 
+	///
 	/// @param[in] header     LeafBlockファイルヘッダ
 	/// @param[in] cidCapsule CellIDカプセル
 	/// @return 展開後のデータ (失敗した場合NULLを返す．)
-	/// 
+	///
 	/// @note gridCapsuleのdataはこの関数内で解放される．
-	/// 
+	///
 	unsigned char* DecompCellIDData( const LBHeader &header,  const CellIDCapsule& cidCapsule);
 
 } // namespace BCMFileIO
 
 #endif// __BCMTOOLS_LEAF_BLOCK_LOADER_H__
-

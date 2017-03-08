@@ -1,13 +1,19 @@
 /*
- * BCMViewer - BCM mesh viewer
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
 #ifndef __MATH_VEC_H__
 #define __MATH_VEC_H__
@@ -36,7 +42,7 @@ public:
 	}
 
 	T operator [](const int i) const {
-		return m_vec[i];	
+		return m_vec[i];
 	}
 
 	vec2 operator +(const vec2 &v) const {
@@ -55,9 +61,9 @@ class vec3
 {
 public:
 	vec3() {
-		m_vec[0] = m_vec[1] = m_vec[2] = 0;		
+		m_vec[0] = m_vec[1] = m_vec[2] = 0;
 	}
-	
+
 	vec3(const T x, const T y, const T z) {
 		m_vec[0] = x;
 		m_vec[1] = y;
@@ -137,9 +143,9 @@ class vec4
 {
 public:
 	vec4() {
-		m_vec[0] = m_vec[1] = m_vec[2] = m_vec[3] = 0;		
+		m_vec[0] = m_vec[1] = m_vec[2] = m_vec[3] = 0;
 	}
-	
+
 	vec4(const T x, const T y, const T z, const T w) {
 		m_vec[0] = x;
 		m_vec[1] = y;

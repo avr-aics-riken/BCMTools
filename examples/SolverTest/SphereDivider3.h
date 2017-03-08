@@ -1,18 +1,24 @@
 /*
- * BCMTools
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
 ///
 /// @file SphereDivider3.h
 /// @brief ブロック分割判定クラス(PolygonBBoxDivider)
-/// 
+///
 
 #ifndef SPHERE_DIVIDER3_H
 #define SPHERE_DIVIDER3_H
@@ -35,9 +41,9 @@ class SphereDivider3 : public MultiRootDivider {
   const std::vector<PolygonGroupSpec>& polygonGroupList;
 
   /// <バウンディングボックス, 分割レベル>ペアのリスト
-  const std::vector<BoundingBoxSpec>& boundingBoxList; 
+  const std::vector<BoundingBoxSpec>& boundingBoxList;
 
-  const std::vector<BoundingBoxSpec>& sphericalBoxList; 
+  const std::vector<BoundingBoxSpec>& sphericalBoxList;
 
   double extraMarginRatio;  ///< 追加マージン幅の最大分割ブロック辺長に対する比
 
@@ -60,11 +66,11 @@ public:
   ///  例えば，仮想セル領域を境界面探査領域に追加するには
   ///  「(double)仮想セル数/ブロック内分割数」を指定する．
   ///
-  SphereDivider3(const Vec3d& origin, double rootLength, const RootGrid* rootGrid, 
+  SphereDivider3(const Vec3d& origin, double rootLength, const RootGrid* rootGrid,
                  int minLevel, const PolylibNS::BCMPolylib* pl,
                  const std::vector<PolygonGroupSpec>& polygonGroupList,
-                 const std::vector<BoundingBoxSpec>& boundingBoxList, 
-                 const std::vector<BoundingBoxSpec>& sphericalBoxList, 
+                 const std::vector<BoundingBoxSpec>& boundingBoxList,
+                 const std::vector<BoundingBoxSpec>& sphericalBoxList,
                  double extraMarginRatio = 0.0)
     : MultiRootDivider(origin, rootLength, rootGrid),
       minLevel(minLevel), pl(pl),

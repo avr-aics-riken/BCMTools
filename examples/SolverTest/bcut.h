@@ -1,13 +1,19 @@
 /*
- * BCMTools
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
 #ifndef __BCUT_H__
 #define __BCUT_H__
@@ -170,7 +176,7 @@ extern "C" {
 				int *sz, int *g);
 
 	void bcut_calc_ab_t_1st_(
-				real* Ap, real* Aw, real* Ae, real* As, real* An, real* Ab, real* At, real* b, 
+				real* Ap, real* Aw, real* Ae, real* As, real* An, real* Ab, real* At, real* b,
 				real* t0_,
 				real* tc0_,
 				real* c0, real* c1, real* c2, real* c3, real* c4, real* c5,
@@ -184,7 +190,7 @@ extern "C" {
 				int *sz, int *g);
 
 	void bcut_calc_ab_t_(
-				real* Ap, real* Aw, real* Ae, real* As, real* An, real* Ab, real* At, real* b, 
+				real* Ap, real* Aw, real* Ae, real* As, real* An, real* Ab, real* At, real* b,
 				real* t0_,
 				real* tc0_, real* tcp_,
 				real* td0_,
@@ -236,5 +242,3 @@ extern "C" {
 }
 
 #endif
-
-

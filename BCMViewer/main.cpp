@@ -1,13 +1,19 @@
 /*
- * BCMViewer - BCM mesh viewer
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
 #include <cstdio>
 #include <cstdlib>
@@ -60,10 +66,10 @@ void Motion( int x, int y ){
 		control->SetRotateX(rx);
 		control->SetRotateY(ry);
 		pmx = x;
-		pmy = y;	
+		pmy = y;
 		return;
 	}
-	
+
 	if(mouseMode == 2){
 		float tx = static_cast<float>(x - pmx)  / windowSize[0];
 		float ty = static_cast<float>(pmy - y)  / windowSize[1];
@@ -80,7 +86,7 @@ void Motion( int x, int y ){
 		pmy = y;
 		return;
 	}
-	
+
 }
 
 void Mouse(int button, int state, int x, int y)
@@ -112,7 +118,7 @@ void Display()
 	control->ViewUpdate();
 
 	//glutSolidTeapot(1.0);
-	
+
 	glDisable(GL_LIGHTING);
 	glDisable(GL_LIGHT0);
 
@@ -120,7 +126,7 @@ void Display()
 
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
-	
+
 	glutSwapBuffers();
 }
 
@@ -248,7 +254,7 @@ void Init()
 
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
-	
+
 	static GLfloat lightpos[]  = { 3.0f, 4.0f, 5.0f, 1.0f };
 	static GLfloat lightdiff[] = { 0.6f, 0.6f, 0.6f, 0.6f };
 
@@ -280,7 +286,7 @@ int main(int argc, char *argv[])
 	glutMotionFunc(Motion);
 
 	glutKeyboardFunc(Keyboard);
-	
+
 	int n = 0;
 	glGetIntegerv( GL_MAX_TEXTURE_SIZE, &n); printf("GL_MAX_TEXTURE_SIZE, %d\n", n);
 
@@ -291,24 +297,23 @@ int main(int argc, char *argv[])
 		GridBCM::AXIS axis = static_cast<GridBCM::AXIS>((0x1) << i);
 		slicePos[i] = gridBcm->GetCellCount(axis) / 2;
 	}
-	
+
 	mode = GridBCM::AXIS_Z;
 	gridBcm->SetActiveAxis(mode);
 	gridBcm->AddSlicePlane(mode);
 	gridBcm->DeleteSlicePlane(GridBCM::AXIS_X);
 	gridBcm->DeleteSlicePlane(GridBCM::AXIS_Y);
-	
+
 	const Vec3d org = gridBcm->GetGlobalOrigin();
 	const Vec3d rgn = gridBcm->GetGlobalRegion();
-	
+
 	BBox box( vec3<float>(org.x, org.y, org.z), vec3<float>(rgn.x, rgn.y, rgn.z) );
 
 	control = new ViewController(windowSize, box);
-	
+
 	Init();
 
 	glutMainLoop();
 
 	return 0;
 }
-

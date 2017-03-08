@@ -1,18 +1,24 @@
 /*
- * BCMTools
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
 ///
 /// @file Block.h
 /// @brief ブロック(サンプル)サンプル
-/// 
+///
 
 #ifndef BLOCK_H
 #define BLOCK_H
@@ -40,7 +46,7 @@ public:
   ///  @note セル分割数は偶数であること
   ///
   Block(const Vec3i& size, const Vec3d& origin, const Vec3d& blockSize,
-        int level, NeighborInfo* neighborInfo, BoundaryInfo* boundaryInfo) 
+        int level, NeighborInfo* neighborInfo, BoundaryInfo* boundaryInfo)
    : BlockBase(size, origin, blockSize, level, neighborInfo),
      boundaryInfo(boundaryInfo) {}
 

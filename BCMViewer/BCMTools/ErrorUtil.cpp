@@ -1,13 +1,19 @@
 /*
- * BCMViewer - BCM mesh viewer
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
 ///
 /// @file  ErrorUtil.cpp
@@ -33,28 +39,28 @@ namespace BCMFileIO {
 		LOG_INFO,
 		LOG_DEBUG
 	};
-	
-	
+
+
 	void Log( enum LOG_LEVEL level, const std::string& msg )
 	{
 		static const char *log_header[4] = {
 			"[ERR]", "[WRN]", "[INF]", "[DGB]"
 		};
-	
+
 		//MPI::Intracomm& comm = MPI::COMM_WORLD;
 		//char rankstr[128];
 		//sprintf(rankstr, "[RANK:%6d]", comm.Get_rank());
-		
+
 		std::string logstr(log_header[level]);
 		logstr += std::string(" ") + msg;
-	
+
 	#ifdef _WIN32
 		OutputDebugStringA(logstr.c_str());
 	#else
-		printf("%s", logstr.c_str());	
+		printf("%s", logstr.c_str());
 	#endif
 	}
-	
+
 	void LogE (const char *format, ...)
 	{
 		char buf[256];
@@ -62,10 +68,10 @@ namespace BCMFileIO {
 		va_start(arg, format);
 		vsprintf(buf, format, arg);
 		va_end(arg);
-		
+
 		Log(LOG_ERROR, buf);
 	}
-	
+
 	void LogW (const char *format, ...)
 	{
 		char buf[256];
@@ -73,10 +79,10 @@ namespace BCMFileIO {
 		va_start(arg, format);
 		vsprintf(buf, format, arg);
 		va_end(arg);
-		
+
 		Log(LOG_WARN, buf);
 	}
-	
+
 	void LogI (const char *format, ...)
 	{
 		char buf[256];
@@ -84,10 +90,10 @@ namespace BCMFileIO {
 		va_start(arg, format);
 		vsprintf(buf, format, arg);
 		va_end(arg);
-		
+
 		Log(LOG_INFO, buf);
 	}
-	
+
 	void LogD (const char *format, ...)
 	{
 		char buf[256];
@@ -95,7 +101,7 @@ namespace BCMFileIO {
 		va_start(arg, format);
 		vsprintf(buf, format, arg);
 		va_end(arg);
-		
+
 		Log(LOG_DEBUG, buf);
 	}
 
@@ -109,4 +115,3 @@ namespace BCMFileIO {
 
 
 } // namespace BCMFileIO
-	

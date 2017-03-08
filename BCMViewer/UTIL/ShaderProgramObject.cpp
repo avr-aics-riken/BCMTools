@@ -1,13 +1,19 @@
 /*
- * BCMViewer - BCM mesh viewer
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
 #include "ShaderProgramObject.h"
 #include <fstream>
@@ -28,7 +34,7 @@ using namespace std;
 namespace
 {
 
-// ƒVƒF[ƒ_‚Ìî•ñ‚ğ•\¦‚·‚é
+// ï¿½Vï¿½Fï¿½[ï¿½_ï¿½Ìï¿½ï¿½ï¿½ï¿½ï¿½ï¿½\ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 void printShaderInfoLog(GLuint shader)
 {
 	GLsizei bufSize;
@@ -51,7 +57,7 @@ void printShaderInfoLog(GLuint shader)
 	}
 }
 
-// ƒvƒƒOƒ‰ƒ€‚Ìî•ñ‚ğ•\¦‚·‚é
+// ï¿½vï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½ï¿½ï¿½Ìï¿½ï¿½ï¿½ï¿½ï¿½ï¿½\ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 void printProgramInfoLog(GLuint program)
 {
 	GLsizei bufSize;
@@ -110,7 +116,7 @@ bool ShaderObject::LoadFromMemory(const std::string& programSource, SHADERTYPE s
 
 	const char* s = prgSource.c_str();
 	int l = static_cast<int>(prgSource.length());
-	
+
 	m_shader = glCreateShader(shaderType);
 	glShaderSource( m_shader, 1, &s, &l );
 	if ( glGetError() != GL_NO_ERROR )
@@ -164,7 +170,7 @@ bool ProgramObject::Link(const ShaderObject& vertexShader, const ShaderObject& f
 	glAttachShader(glProgram, vertexShader.GetShader());
 	glAttachShader(glProgram, fragmentShader.GetShader());
 
-	/* ƒVƒF[ƒ_ƒvƒƒOƒ‰ƒ€‚ÌƒŠƒ“ƒN */
+	/* ï¿½Vï¿½Fï¿½[ï¿½_ï¿½vï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½ï¿½ï¿½Ìƒï¿½ï¿½ï¿½ï¿½N */
 	glLinkProgram(glProgram);
 	GLint linked;
 	glGetProgramiv(glProgram, GL_LINK_STATUS, &linked);
@@ -180,7 +186,7 @@ bool ProgramObject::Link(const ShaderObject& vertexShader, const ShaderObject& f
 
 void ProgramObject::Bind()
 {
-	glGetIntegerv(GL_CURRENT_PROGRAM, &m_oldProgram); 	
+	glGetIntegerv(GL_CURRENT_PROGRAM, &m_oldProgram);
 	glUseProgram(m_program);
 	m_binding = true;
 }
@@ -227,7 +233,7 @@ void ProgramObject::SetUniform(const char* name, const int i0, const int i1, con
 /*
 void ProgramObject::SetUniform(const char* name, const int num, const int* i_array)
 {
-	void (APIENTRYP glUniFuncs[]) (GLint, GLsizei, const GLint*) = 
+	void (APIENTRYP glUniFuncs[]) (GLint, GLsizei, const GLint*) =
 	{
 		0,
 		glUniform1iv,
@@ -271,7 +277,7 @@ void ProgramObject::SetUniform(const char* name, const float f0, const float f1,
 /*
 void ProgramObject::SetUniform(const char* name, const int num, const float* f_array)
 {
-	void (APIENTRYP glUniFuncs[]) (GLint, GLsizei, const GLfloat*) = 
+	void (APIENTRYP glUniFuncs[]) (GLint, GLsizei, const GLfloat*) =
 	{
 		0,
 		glUniform1fv,
@@ -303,5 +309,3 @@ void ProgramObject::SetUniformMatrix4x4(const char* name, const int count, const
 	if (m_binding)
 		glUniformMatrix4fv(glGetUniformLocation(m_program, name), count, transpose, val);
 }
-
-

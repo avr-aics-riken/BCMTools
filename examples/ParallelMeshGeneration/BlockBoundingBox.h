@@ -1,3 +1,20 @@
+/*
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
+
 #ifndef BLOCK_BOUNDING_BOX_H
 #define BLOCK_BOUNDING_BOX_H
 
@@ -20,7 +37,7 @@ class BlockBoundingBox {
 
 public:
 
-  BlockBoundingBox(const BCMOctree* tree, 
+  BlockBoundingBox(const BCMOctree* tree,
                    const Vec3d& rootOrigin, double rootLength, const Vec3i& size,
                    int vc)
     : tree(tree), rootOrigin(rootOrigin), rootLength(rootLength), size(size), vc(vc)

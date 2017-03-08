@@ -1,11 +1,18 @@
 !
+!##################################################################################
+!
 ! BCMTools
 !
-! Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+! Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
 ! All rights reserved.
 !
-! Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
+! Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
 ! All rights reserved.
+!
+! Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+! All rights reserved.
+!
+!##################################################################################
 !
 
 function bcut_getminmod(a, b)
@@ -181,14 +188,14 @@ subroutine bcut_calc_c_f_c2( &
 		if( cidp0 /= 0 ) then
 			fw = fe
 			fw = (1.0d0 - 1.0d0/d0)*fp + (1.0d0/d0)*fi
-			fw = (1.0d0 - 1.0d0/d0)*fp 
+			fw = (1.0d0 - 1.0d0/d0)*fp
 			q0 = (d0 - 0.5d0)/(d0 + 0.5d0)*q1
 			m0 = 1.0d0
 		endif
 		if( cidp1 /= 0 ) then
 			fe = fw
 			fe = (1.0d0 - 1.0d0/d1)*fp + (1.0d0/d1)*fi
-			fe = (1.0d0 - 1.0d0/d1)*fp 
+			fe = (1.0d0 - 1.0d0/d1)*fp
 			q1 = (d1 - 0.5d0)/(d1 + 0.5d0)*q0
 			m1 = 1.0d0
 		endif
@@ -235,7 +242,7 @@ subroutine bcut_calc_c_f_c2( &
 								+ (q3 - q2)/dx &
 								+ (q5 - q4)/dx
 
-!		fc(i, j, k) = (f1*vx1 - f0*vx0)/dx 
+!		fc(i, j, k) = (f1*vx1 - f0*vx0)/dx
 !		fc(i, j, k) = 0.0
 
 		if( pidp /= 1 ) then
@@ -500,7 +507,7 @@ subroutine bcut_calc_c_f_e3( &
 								+ (q3 - q2)/dx &
 								+ (q5 - q4)/dx
 
-!		fc(i, j, k) = (f1*vx1 - f0*vx0)/dx 
+!		fc(i, j, k) = (f1*vx1 - f0*vx0)/dx
 !		fc(i, j, k) = 0.0
 
 		if( pidp /= 1 ) then
@@ -703,7 +710,7 @@ subroutine bcut_calc_c_f_w3( &
 
 		fc(i, j, k) = (max(vx, 0.0)*dfx_n + min(vx, 0.0)*dfx_p) &
 								+ (max(vy, 0.0)*dfy_n + min(vy, 0.0)*dfy_p) &
-								+ (max(vz, 0.0)*dfz_n + min(vz, 0.0)*dfz_p) 
+								+ (max(vz, 0.0)*dfz_n + min(vz, 0.0)*dfz_p)
 
 !		dfx_p = bcut_getminmod(fee-fe, fe-fp )
 !		dfx_c = bcut_getminmod(fe -fp, fp-fw )
@@ -783,7 +790,7 @@ subroutine bcut_calc_c_f_w3( &
 !								+ (q3 - q2)/dx &
 !								+ (q5 - q4)/dx
 
-!		fc(i, j, k) = (f1*vx1 - f0*vx0)/dx 
+!		fc(i, j, k) = (f1*vx1 - f0*vx0)/dx
 !		fc(i, j, k) = 0.0
 
 		if( pidp /= 1 ) then
@@ -982,7 +989,7 @@ subroutine bcut_calc_c_f_u1( &
 								+ (q3 - q2)/dx &
 								+ (q5 - q4)/dx
 
-!		fc(i, j, k) = (f1*vx1 - f0*vx0)/dx 
+!		fc(i, j, k) = (f1*vx1 - f0*vx0)/dx
 !		fc(i, j, k) = 0.0
 
 		if( pidp /= 1 ) then
@@ -1183,7 +1190,7 @@ subroutine bcut_calc_c_f_blend( &
 								+ (q3 - q2)/dx &
 								+ (q5 - q4)/dx
 
-!		fc(i, j, k) = (f1*vx1 - f0*vx0)/dx 
+!		fc(i, j, k) = (f1*vx1 - f0*vx0)/dx
 !		fc(i, j, k) = 0.0
 
 		if( pidp /= 1 ) then
@@ -1244,7 +1251,7 @@ subroutine bcut_calc_d_u( &
 !$omp					 private(d0, d1, d2, d3, d4, d5) &
 !$omp					 private(mu0, mu1, mu2, mu3, mu4, mu5) &
 !$omp					 private(m0, m1, m2, m3, m4, m5) &
-!$omp					 private(l0, l1, l2, l3, l4, l5) 
+!$omp					 private(l0, l1, l2, l3, l4, l5)
 !$omp do schedule(static, 1)
 #else
 #endif
@@ -1340,7 +1347,7 @@ subroutine bcut_calc_d_u( &
 											- l2*(uy0_(i, j, k) - uy0_(i, j-1, k)) &
 											+ l5*(uy0_(i, j, k+1) - uy0_(i, j, k)) &
 											- l4*(uy0_(i, j, k) - uy0_(i, j, k-1)) &
-											) 
+											)
 		uzd0_(i, j, k) = ( &
 												l1*(uz0_(i+1, j, k) - uz0_(i, j, k)) &
 											- l0*(uz0_(i, j, k) - uz0_(i-1, j, k)) &
@@ -1348,7 +1355,7 @@ subroutine bcut_calc_d_u( &
 											- l2*(uz0_(i, j, k) - uz0_(i, j-1, k)) &
 											+ l5*(uz0_(i, j, k+1) - uz0_(i, j, k)) &
 											- l4*(uz0_(i, j, k) - uz0_(i, j, k-1)) &
-											) 
+											)
 
 		if( pidp /= 1 ) then
 			uxd0_(i, j, k) = 0.0d0
@@ -1576,7 +1583,7 @@ subroutine bcut_calc_ab_u_1st( &
 !$omp					 private(d0, d1, d2, d3, d4, d5) &
 !$omp					 private(mu0, mu1, mu2, mu3, mu4, mu5) &
 !$omp					 private(m0, m1, m2, m3, m4, m5) &
-!$omp					 private(l0, l1, l2, l3, l4, l5) 
+!$omp					 private(l0, l1, l2, l3, l4, l5)
 !$omp do schedule(static, 1)
 #else
 #endif
@@ -1674,7 +1681,7 @@ subroutine bcut_calc_ab_u_1st( &
 									+ l3*Us*m3 &
 									+ l4*Us*m4 &
 									+ l5*Us*m5 &
-									- uc0_(i, j, k)*dt 
+									- uc0_(i, j, k)*dt
 
 		if( pidp /= 1 ) then
 			Ap(i, j, k) = 1.0d0
@@ -2015,7 +2022,7 @@ subroutine bcut_calc_ab_u( &
 !$omp					 private(dpx0, dpx1, dpy2, dpy3, dpz4, dpz5) &
 !$omp					 private(rdpx0, rdpx1, rdpy2, rdpy3, rdpz4, rdpz5) &
 !$omp					 private(rdpx, rdpy, rdpz, rdp) &
-!$omp					 private(u0, ux0, uy0, uz0) 
+!$omp					 private(u0, ux0, uy0, uz0)
 !$omp do schedule(static, 1)
 #else
 #endif
@@ -2167,7 +2174,7 @@ subroutine bcut_calc_ab_u( &
 		rdp = 0.0
     u0 = 0.0
 		if( dir==0 ) then
-			rdp = rdpx 
+			rdp = rdpx
 			u0 = ux0
 		else if( dir==1 ) then
 			rdp = rdpy
@@ -2279,7 +2286,7 @@ subroutine bcut_calc_ab_u_e1( &
 !$omp					 private(dpx0, dpx1, dpy2, dpy3, dpz4, dpz5) &
 !$omp					 private(rdpx0, rdpx1, rdpy2, rdpy3, rdpz4, rdpz5) &
 !$omp					 private(rdpx, rdpy, rdpz, rdp) &
-!$omp					 private(u0, ux0, uy0, uz0) 
+!$omp					 private(u0, ux0, uy0, uz0)
 !$omp do schedule(static, 1)
 #else
 #endif
@@ -2431,7 +2438,7 @@ subroutine bcut_calc_ab_u_e1( &
 		rdp = 0.0
     u0 = 0.0
 		if( dir==0 ) then
-			rdp = rdpx 
+			rdp = rdpx
 			u0 = ux0
 		else if( dir==1 ) then
 			rdp = rdpy
@@ -2458,7 +2465,7 @@ subroutine bcut_calc_ab_u_e1( &
 									+ l4*Us*m4 &
 									+ l5*Us*m5 &
 									- uc0_(i, j, k)*dt &
-									- rdp*dt 
+									- rdp*dt
 
 		if( pidp /= 1 ) then
 			Ap(i, j, k) = 1.0d0
@@ -3175,7 +3182,7 @@ subroutine bcut_calc_ab_t_1st( &
 !$omp					 private(d0, d1, d2, d3, d4, d5) &
 !$omp					 private(k0, k1, k2, k3, k4, k5) &
 !$omp					 private(m0, m1, m2, m3, m4, m5) &
-!$omp					 private(l0, l1, l2, l3, l4, l5) 
+!$omp					 private(l0, l1, l2, l3, l4, l5)
 !$omp do schedule(static, 1)
 #else
 #endif
@@ -3344,7 +3351,7 @@ subroutine bcut_calc_ab_t( &
 !$omp					 private(d0, d1, d2, d3, d4, d5) &
 !$omp					 private(k0, k1, k2, k3, k4, k5) &
 !$omp					 private(m0, m1, m2, m3, m4, m5) &
-!$omp					 private(l0, l1, l2, l3, l4, l5) 
+!$omp					 private(l0, l1, l2, l3, l4, l5)
 !$omp do schedule(static, 1)
 #else
 #endif
@@ -3441,7 +3448,7 @@ subroutine bcut_calc_ab_t( &
 !									+ l3*Tc*m3 &
 !									+ l4*Tc*m4 &
 !									+ l5*Tc*m5 &
-!									- (1.5d0*tc0_(i, j, k) - 0.5d0*tcp_(i, j, k))*dt 
+!									- (1.5d0*tc0_(i, j, k) - 0.5d0*tcp_(i, j, k))*dt
 
 		Ap(i, j, k) = 1.0d0 + 0.5d0*(l0 + l1) &
 												+ 0.5d0*(l2 + l3) &
@@ -3526,7 +3533,7 @@ subroutine bcut_calc_f_p( &
 !$omp					 private(pidp, pidw, pide, pids, pidn, pidb, pidt) &
 !$omp					 private(d0, d1, d2, d3, d4, d5) &
 !$omp					 private(m0, m1, m2, m3, m4, m5) &
-!$omp					 private(p0, p1, p2, p3, p4, p5) 
+!$omp					 private(p0, p1, p2, p3, p4, p5)
 !$omp do schedule(static, 1), &
 !$omp		 reduction(+:fsx, fsy, fsz)
 #else
@@ -3578,10 +3585,10 @@ subroutine bcut_calc_f_p( &
 
 		if( cidp1 /= 0 ) then
 			p1 = p(i, j, k)
-			p1 = p(i, j, k) + (p(i, j, k) - p(i-1, j, k))*d1*(d1 - 0.5d0)/(d1 + 0.5d0) 
-			p1 = p(i, j, k) + (p(i, j, k) - p(i-1, j, k))*0.5d0*(d1 - 0.5d0)/(d1 + 0.5d0) 
+			p1 = p(i, j, k) + (p(i, j, k) - p(i-1, j, k))*d1*(d1 - 0.5d0)/(d1 + 0.5d0)
+			p1 = p(i, j, k) + (p(i, j, k) - p(i-1, j, k))*0.5d0*(d1 - 0.5d0)/(d1 + 0.5d0)
 			p1 = p(i, j, k) + (p(i, j, k) - p(i-1, j, k))*d1*d1/(d1 + 0.5d0)
-			p1 = p(i, j, k) + (p(i, j, k) - p(i-1, j, k))*d1 
+			p1 = p(i, j, k) + (p(i, j, k) - p(i-1, j, k))*d1
 			p1 = p(i, j, k) + (p(i, j, k) - p(i-1, j, k))*0.5d0
 			m1 = 1.0d0
 		endif
@@ -3734,7 +3741,7 @@ subroutine bcut_calc_f_v( &
 !$omp					 private(m0, m1, m2, m3, m4, m5) &
 !$omp					 private(uxp, uxw, uxe, uxs, uxn, uxb, uxt) &
 !$omp					 private(uyp, uyw, uye, uys, uyn, uyb, uyt) &
-!$omp					 private(uzp, uzw, uze, uzs, uzn, uzb, uzt) 
+!$omp					 private(uzp, uzw, uze, uzs, uzn, uzb, uzt)
 !$omp do schedule(dynamic, 1), &
 !$omp		 reduction(+:fsx, fsy, fsz)
 #else
@@ -3791,9 +3798,9 @@ subroutine bcut_calc_f_v( &
 		pidp = pid(i, j, k)
 
 		if( cidp0 /= 0 ) then
-			uxw  = (1.0d0 - 1.0d0/d0)*uxp 
-			uyw  = (1.0d0 - 1.0d0/d0)*uyp 
-			uzw  = (1.0d0 - 1.0d0/d0)*uzp 
+			uxw  = (1.0d0 - 1.0d0/d0)*uxp
+			uyw  = (1.0d0 - 1.0d0/d0)*uyp
+			uzw  = (1.0d0 - 1.0d0/d0)*uzp
 			m0 = 1.0d0
 		endif
 		if( cidp1 /= 0 ) then
@@ -3803,9 +3810,9 @@ subroutine bcut_calc_f_v( &
 			m1 = 1.0d0
 		endif
 		if( cidp2 /= 0 ) then
-			uxs  = (1.0d0 - 1.0d0/d2)*uxp 
-			uys  = (1.0d0 - 1.0d0/d2)*uyp 
-			uzs  = (1.0d0 - 1.0d0/d2)*uzp 
+			uxs  = (1.0d0 - 1.0d0/d2)*uxp
+			uys  = (1.0d0 - 1.0d0/d2)*uyp
+			uzs  = (1.0d0 - 1.0d0/d2)*uzp
 			m2 = 1.0d0
 		endif
 		if( cidp3 /= 0 ) then
@@ -3943,7 +3950,7 @@ subroutine bcut_calc_f_v_2( &
 !$omp					 private(pidp, pidw, pide, pids, pidn, pidb, pidt) &
 !$omp					 private(d0, d1, d2, d3, d4, d5) &
 !$omp					 private(mu0, mu1, mu2, mu3, mu4, mu5) &
-!$omp					 private(m0, m1, m2, m3, m4, m5) 
+!$omp					 private(m0, m1, m2, m3, m4, m5)
 !$omp do schedule(dynamic, 1), &
 !$omp		 reduction(+:fsx, fsy, fsz)
 #else
@@ -4046,7 +4053,7 @@ subroutine bcut_calc_f_v_2( &
 									+ mu2*(ux(i, j, k))/dx*m2 &
 									+ mu3*(ux(i, j, k))/dx*m3 &
 									+ mu4*(ux(i, j, k))/dx*m4 &
-									+ mu5*(ux(i, j, k))/dx*m5 
+									+ mu5*(ux(i, j, k))/dx*m5
 !									+ mu*(uy(i+1, j, k) - uy(i-1, j, k))*0.5/dx*m2 &
 !									- mu*(uy(i+1, j, k) - uy(i-1, j, k))*0.5/dx*m3 &
 !									+ mu*(uz(i+1, j, k) - uz(i-1, j, k))*0.5/dx*m4 &
@@ -4056,7 +4063,7 @@ subroutine bcut_calc_f_v_2( &
 									+ mu2*(uy(i, j, k))/dx*m2*2.0 &
 									+ mu3*(uy(i, j, k))/dx*m3*2.0 &
 									+ mu4*(uy(i, j, k))/dx*m4 &
-									+ mu5*(uy(i, j, k))/dx*m5 
+									+ mu5*(uy(i, j, k))/dx*m5
 !									+ mu*(ux(i, j+1, k) - ux(i, j-1, k))*0.5/dx*m0 &
 !									- mu*(ux(i, j+1, k) - ux(i, j-1, k))*0.5/dx*m1 &
 !									+ mu*(uz(i, j+1, k) - uz(i, j-1, k))*0.5/dx*m4 &
@@ -4066,7 +4073,7 @@ subroutine bcut_calc_f_v_2( &
 									+ mu2*(uz(i, j, k))/dx*m2 &
 									+ mu3*(uz(i, j, k))/dx*m3 &
 									+ mu4*(uz(i, j, k))/dx*m4*2.0 &
-									+ mu5*(uz(i, j, k))/dx*m5*2.0 
+									+ mu5*(uz(i, j, k))/dx*m5*2.0
 !									+ mu*(ux(i, j, k+1) - ux(i, j, k-1))*0.5/dx*m0 &
 !									- mu*(ux(i, j, k+1) - ux(i, j, k-1))*0.5/dx*m1 &
 !									+ mu*(uy(i, j, k+1) - uy(i, j, k-1))*0.5/dx*m2 &
@@ -4135,7 +4142,7 @@ subroutine bcut_calc_q( &
 	qy0 = 0.0
 	qz0 = 0.0
 #ifdef _BLOCK_IS_LARGE_
-!$omp parallel private(i, j, k) 
+!$omp parallel private(i, j, k)
 !$omp do schedule(static, 1), &
 !$omp		 reduction(+:qx0, qy0, qz0)
 #else
@@ -4355,4 +4362,3 @@ subroutine bcut_set_fluidseed( &
 #else
 #endif
 end subroutine bcut_set_fluidseed
-

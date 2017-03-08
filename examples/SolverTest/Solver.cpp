@@ -1,18 +1,24 @@
 /*
- * BCMTools
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
+#include <mpi.h>
 #include "Solver.h"
 
 #include <iostream>
-#include <mpi.h>
 #ifdef _OPENMP
 #include <omp.h>
 #endif
@@ -270,7 +276,7 @@ int Solver::Init(int argc, char** argv){
 		}
 	}
 
-  // ¥Ö¥í¥Ã¥¯Æâ¤Î¥»¥ë¿ô
+  // ï¿½Ö¥ï¿½ï¿½Ã¥ï¿½ï¿½ï¿½ï¿½Î¥ï¿½ï¿½ï¿½ï¿½ï¿½
 	::Vec3i size(conf.size, conf.size, conf.size);
 
 	Vec3d rootOrigin = conf.origin;
@@ -1014,8 +1020,8 @@ int Solver::Init(int argc, char** argv){
 		int* pMaskId = plsMaskId->GetBlockData(block);
 
 		setup_mask_(
-			pM, 
-			pMaskId, 
+			pM,
+			pMaskId,
 			sz, g);
 	}
 /////////////////////////////////////////////
@@ -1467,7 +1473,7 @@ void Solver::PrintForce(int step) {
 		int sz[3] = {size.x, size.y, size.z};
 		int g[1] = {vc};
 		real dx = cellSize.x;
-		
+
 		real* ux0  = plsUX0->GetBlockData(block);
 		real* uy0  = plsUY0->GetBlockData(block);
 		real* uz0  = plsUZ0->GetBlockData(block);
@@ -1754,7 +1760,7 @@ void Solver::UpdateUX() {
 		int sz[3] = {size.x, size.y, size.z};
 		int g[1] = {vc};
 		real dx = cellSize.x;
-	
+
 		real* Ap = plsAp->GetBlockData(block);
 		real* Aw = plsAw->GetBlockData(block);
 		real* Ae = plsAe->GetBlockData(block);
@@ -1979,7 +1985,7 @@ void Solver::UpdateUY() {
 		int sz[3] = {size.x, size.y, size.z};
 		int g[1] = {vc};
 		real dx = cellSize.x;
-	
+
 		real* Ap = plsAp->GetBlockData(block);
 		real* Aw = plsAw->GetBlockData(block);
 		real* Ae = plsAe->GetBlockData(block);
@@ -2171,7 +2177,7 @@ void Solver::UpdateUZ() {
 		int sz[3] = {size.x, size.y, size.z};
 		int g[1] = {vc};
 		real dx = cellSize.x;
-	
+
 		real* Ap = plsAp->GetBlockData(block);
 		real* Aw = plsAw->GetBlockData(block);
 		real* Ae = plsAe->GetBlockData(block);
@@ -2366,7 +2372,7 @@ void Solver::UpdateP() {
 		int sz[3] = {size.x, size.y, size.z};
 		int g[1] = {vc};
 		real dx = cellSize.x;
-	
+
 		real* Ap = plsAp->GetBlockData(block);
 		real* Aw = plsAw->GetBlockData(block);
 		real* Ae = plsAe->GetBlockData(block);
@@ -2433,7 +2439,7 @@ void Solver::UpdateP() {
 		int sz[3] = {size.x, size.y, size.z};
 		int g[1] = {vc};
 		real dx = cellSize.x;
-	
+
 		real* Ap = plsAp->GetBlockData(block);
 		real* Aw = plsAw->GetBlockData(block);
 		real* Ae = plsAe->GetBlockData(block);
@@ -2627,7 +2633,7 @@ void Solver::UpdateT() {
 		int sz[3] = {size.x, size.y, size.z};
 		int g[1] = {vc};
 		real dx = cellSize.x;
-		
+
 		real* Ap = plsAp->GetBlockData(block);
 		real* Aw = plsAw->GetBlockData(block);
 		real* Ae = plsAe->GetBlockData(block);
@@ -2877,7 +2883,7 @@ void Solver::PrintCut() {
 		int g[1] = {vc};
 		int nc[3] = {size.x + 2*vc, size.y + 2*vc, size.z + 2*vc};
 		real dx = cellSize.x;
-	
+
 		real* pCut0 = plsCut0->GetBlockData(block);
 		real* pCut1 = plsCut1->GetBlockData(block);
 		real* pCut2 = plsCut2->GetBlockData(block);
@@ -2992,7 +2998,7 @@ void Solver::PrintCut() {
 						v[8] = z[1];
 						WritePolygon(ofs, v);
 					}
-				
+
 				}
 			}
 		}
@@ -3132,4 +3138,3 @@ void Solver::Load3(const int step) {
 	plsUZCP->Load3(blockManager, step, "uzcp", partition, myrank);
 	plsTCP->Load3(blockManager, step, "tcp", partition, myrank);
 }
-

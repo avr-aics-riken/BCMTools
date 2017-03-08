@@ -1,13 +1,19 @@
 /*
- * BCMViewer - BCM mesh viewer
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
 #ifndef __GRID_BCM_H__
 #define __GRID_BCM_H__
@@ -54,7 +60,7 @@ public:
 
 	void AddSlicePlane(const AXIS axis);
 	void DeleteSlicePlane(const AXIS axis);
-	
+
 	size_t SetSlicePosition( size_t position );
 
 	void SetActiveAxis(const AXIS axis)
@@ -91,7 +97,7 @@ private:
 
 private:
 	// render
-	SG::Geometry<SG::VertexLineFormat> *m_bbox;	
+	SG::Geometry<SG::VertexLineFormat> *m_bbox;
 	SliceFace *m_slice[3];
 
 	Render::SGRender *m_render;

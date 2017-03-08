@@ -1,13 +1,19 @@
 /*
- * BCMTools
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
 #include "Solver.h"
 #include "Scalar3DUpdater.h"
@@ -18,7 +24,7 @@ Solver::Solver(const Config& conf, const std::vector<double>& boundaryValue)
   : blockManager(BlockManager::getInstance()),
     comm(blockManager.getCommunicator()),
     vc(conf.vc),
-    boundaryValue(boundaryValue), 
+    boundaryValue(boundaryValue),
     nLoopInner(conf.nLoopInner), nLoopOuter(conf.nLoopOuter),
     omega(conf.omega), separateVCUpdate(conf.separate)
 {
@@ -48,7 +54,7 @@ Solver::~Solver()
 void Solver::initialize()
 {
   setInitialCondition();
-  
+
   if (separateVCUpdate) {
     blockManager.beginUpdateVC_X(id_f);
     blockManager.beginUpdateVC_Y(id_f);
@@ -284,7 +290,7 @@ void Solver::setDirichletBoundaryInBlock(int nx, int ny, int nz,
       break;
     default:
       break;
-  } 
+  }
 }
 
 
@@ -329,8 +335,8 @@ void Solver::checkResult(char type, bool verbose)
     }
 
     if (verbose) {
-      std::cout << "Block " << comm.Get_rank() << "-" << id 
-                << " : errorMax = " << errorMax_inBlock 
+      std::cout << "Block " << comm.Get_rank() << "-" << id
+                << " : errorMax = " << errorMax_inBlock
                 << " (level=" <<  block->getLevel() << ", orig="
                 << block->getOrigin() << ")" << std::endl;
     }

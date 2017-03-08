@@ -1,11 +1,18 @@
 !
+!##################################################################################
+!
 ! BCMTools
 !
-! Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+! Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
 ! All rights reserved.
 !
-! Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
+! Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
 ! All rights reserved.
+!
+! Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+! All rights reserved.
+!
+!##################################################################################
 !
 
 subroutine bstl_read_cut_1( &
@@ -33,8 +40,8 @@ subroutine bstl_read_cut_1( &
 !$omp parallel private(i, j, k) &
 !$omp					 private(cut0, cut1, cut2, cut3, cut4, cut5) &
 !$omp					 private(bidp) &
-!$omp					 private(bidp0, bidp1, bidp2, bidp3, bidp4, bidp5) 
-!$omp do 
+!$omp					 private(bidp0, bidp1, bidp2, bidp3, bidp4, bidp5)
+!$omp do
 #else
 #endif
   do k=1, kx
@@ -149,8 +156,8 @@ subroutine bstl_voxelize_1( &
 !$omp					 private(cidb) &
 !$omp					 private(cidb0, cidb1, cidb2, cidb3, cidb4, cidb5) &
 !$omp					 private(cidt) &
-!$omp					 private(cidt0, cidt1, cidt2, cidt3, cidt4, cidt5) 
-!$omp do 
+!$omp					 private(cidt0, cidt1, cidt2, cidt3, cidt4, cidt5)
+!$omp do
 #else
 #endif
   do k=1, kx
@@ -248,37 +255,37 @@ subroutine bstl_voxelize_1( &
 					+ cidw2*32*32 &
 					+ cidw3*32*32*32 &
 					+ cidw4*32*32*32*32 &
-					+ cidw5*32*32*32*32*32 
+					+ cidw5*32*32*32*32*32
 		cide =  cide0 &
 					+ cide1*32 &
 					+ cide2*32*32 &
 					+ cide3*32*32*32 &
 					+ cide4*32*32*32*32 &
-					+ cide5*32*32*32*32*32 
+					+ cide5*32*32*32*32*32
 		cids =  cids0 &
 					+ cids1*32 &
 					+ cids2*32*32 &
 					+ cids3*32*32*32 &
 					+ cids4*32*32*32*32 &
-					+ cids5*32*32*32*32*32 
+					+ cids5*32*32*32*32*32
 		cidn =  cidn0 &
 					+ cidn1*32 &
 					+ cidn2*32*32 &
 					+ cidn3*32*32*32 &
 					+ cidn4*32*32*32*32 &
-					+ cidn5*32*32*32*32*32 
+					+ cidn5*32*32*32*32*32
 		cidb =  cidb0 &
 					+ cidb1*32 &
 					+ cidb2*32*32 &
 					+ cidb3*32*32*32 &
 					+ cidb4*32*32*32*32 &
-					+ cidb5*32*32*32*32*32 
+					+ cidb5*32*32*32*32*32
 		cidt =  cidt0 &
 					+ cidt1*32 &
 					+ cidt2*32*32 &
 					+ cidt3*32*32*32 &
 					+ cidt4*32*32*32*32 &
-					+ cidt5*32*32*32*32*32 
+					+ cidt5*32*32*32*32*32
 
 		cid(i-1, j, k) = cidw
 		cid(i+1, j, k) = cide
@@ -341,8 +348,8 @@ subroutine bstl_cutoff_1( &
 !$omp					 private(cidb) &
 !$omp					 private(cidb0, cidb1, cidb2, cidb3, cidb4, cidb5) &
 !$omp					 private(cidt) &
-!$omp					 private(cidt0, cidt1, cidt2, cidt3, cidt4, cidt5) 
-!$omp do 
+!$omp					 private(cidt0, cidt1, cidt2, cidt3, cidt4, cidt5)
+!$omp do
 #else
 #endif
   do k=1, kx
@@ -407,8 +414,8 @@ subroutine bstl_symmetrize_1( &
 !$omp					 private(cidb) &
 !$omp					 private(cidb0, cidb1, cidb2, cidb3, cidb4, cidb5) &
 !$omp					 private(cidt) &
-!$omp					 private(cidt0, cidt1, cidt2, cidt3, cidt4, cidt5) 
-!$omp do 
+!$omp					 private(cidt0, cidt1, cidt2, cidt3, cidt4, cidt5)
+!$omp do
 #else
 #endif
   do k=1, kx
@@ -471,27 +478,27 @@ subroutine bstl_symmetrize_1( &
 		cidt5 = ibits(cidt, 25, 5)
 
 		if( cidp0 /= 0 ) then
-			c1(i-1, j, k) = 1.0d0 - c0(i  , j, k) 
+			c1(i-1, j, k) = 1.0d0 - c0(i  , j, k)
 			cidw1 = cidp0
 		endif
 		if( cidp1 /= 0 ) then
-			c0(i+1, j, k) = 1.0d0 - c1(i  , j, k) 
+			c0(i+1, j, k) = 1.0d0 - c1(i  , j, k)
 			cide0 = cidp1
 		endif
 		if( cidp2 /= 0 ) then
-			c3(i, j-1, k) = 1.0d0 - c2(i, j  , k) 
+			c3(i, j-1, k) = 1.0d0 - c2(i, j  , k)
 			cids3 = cidp2
 		endif
 		if( cidp3 /= 0 ) then
-			c2(i, j+1, k) = 1.0d0 - c3(i, j  , k) 
+			c2(i, j+1, k) = 1.0d0 - c3(i, j  , k)
 			cidn2 = cidp3
 		endif
 		if( cidp4 /= 0 ) then
-			c5(i, j, k-1) = 1.0d0 - c4(i, j, k  ) 
+			c5(i, j, k-1) = 1.0d0 - c4(i, j, k  )
 			cidb5 = cidp4
 		endif
 		if( cidp5 /= 0 ) then
-			c4(i, j, k+1) = 1.0d0 - c5(i, j, k  ) 
+			c4(i, j, k+1) = 1.0d0 - c5(i, j, k  )
 			cidt4 = cidp5
 		endif
 
@@ -500,37 +507,37 @@ subroutine bstl_symmetrize_1( &
 					+ cidw2*32*32 &
 					+ cidw3*32*32*32 &
 					+ cidw4*32*32*32*32 &
-					+ cidw5*32*32*32*32*32 
+					+ cidw5*32*32*32*32*32
 		cide =  cide0 &
 					+ cide1*32 &
 					+ cide2*32*32 &
 					+ cide3*32*32*32 &
 					+ cide4*32*32*32*32 &
-					+ cide5*32*32*32*32*32 
+					+ cide5*32*32*32*32*32
 		cids =  cids0 &
 					+ cids1*32 &
 					+ cids2*32*32 &
 					+ cids3*32*32*32 &
 					+ cids4*32*32*32*32 &
-					+ cids5*32*32*32*32*32 
+					+ cids5*32*32*32*32*32
 		cidn =  cidn0 &
 					+ cidn1*32 &
 					+ cidn2*32*32 &
 					+ cidn3*32*32*32 &
 					+ cidn4*32*32*32*32 &
-					+ cidn5*32*32*32*32*32 
+					+ cidn5*32*32*32*32*32
 		cidb =  cidb0 &
 					+ cidb1*32 &
 					+ cidb2*32*32 &
 					+ cidb3*32*32*32 &
 					+ cidb4*32*32*32*32 &
-					+ cidb5*32*32*32*32*32 
+					+ cidb5*32*32*32*32*32
 		cidt =  cidt0 &
 					+ cidt1*32 &
 					+ cidt2*32*32 &
 					+ cidt3*32*32*32 &
 					+ cidt4*32*32*32*32 &
-					+ cidt5*32*32*32*32*32 
+					+ cidt5*32*32*32*32*32
 
 		cid(i-1, j, k) = cidw
 		cid(i+1, j, k) = cide
@@ -597,7 +604,7 @@ subroutine bstl_detect_zerocut_1( &
 !$omp					 private(cidt) &
 !$omp					 private(cidt0, cidt1, cidt2, cidt3, cidt4, cidt5) &
 !$omp					 private(cut_min) &
-!$omp					 private(cid_min) 
+!$omp					 private(cid_min)
 !$omp do reduction(+: n)
 #else
 #endif
@@ -660,7 +667,7 @@ subroutine bstl_detect_zerocut_1( &
 		cidt4 = ibits(cidt, 20, 5)
 		cidt5 = ibits(cidt, 25, 5)
 
-		cut_min = 1.0d0	
+		cut_min = 1.0d0
 		cid_min = 0
 		if( cut_min > c0(i, j, k) ) then
 			cut_min = c0(i, j, k)
@@ -699,7 +706,7 @@ subroutine bstl_detect_zerocut_1( &
 										+ cid_min*32*32 &
 										+ cid_min*32*32*32 &
 										+ cid_min*32*32*32*32 &
-										+ cid_min*32*32*32*32*32 
+										+ cid_min*32*32*32*32*32
 
       c1(i-1, j, k) = 1.0d0
       cidw1 = cid_min
@@ -722,37 +729,37 @@ subroutine bstl_detect_zerocut_1( &
 					+ cidw2*32*32 &
 					+ cidw3*32*32*32 &
 					+ cidw4*32*32*32*32 &
-					+ cidw5*32*32*32*32*32 
+					+ cidw5*32*32*32*32*32
 		cide =  cide0 &
 					+ cide1*32 &
 					+ cide2*32*32 &
 					+ cide3*32*32*32 &
 					+ cide4*32*32*32*32 &
-					+ cide5*32*32*32*32*32 
+					+ cide5*32*32*32*32*32
 		cids =  cids0 &
 					+ cids1*32 &
 					+ cids2*32*32 &
 					+ cids3*32*32*32 &
 					+ cids4*32*32*32*32 &
-					+ cids5*32*32*32*32*32 
+					+ cids5*32*32*32*32*32
 		cidn =  cidn0 &
 					+ cidn1*32 &
 					+ cidn2*32*32 &
 					+ cidn3*32*32*32 &
 					+ cidn4*32*32*32*32 &
-					+ cidn5*32*32*32*32*32 
+					+ cidn5*32*32*32*32*32
 		cidb =  cidb0 &
 					+ cidb1*32 &
 					+ cidb2*32*32 &
 					+ cidb3*32*32*32 &
 					+ cidb4*32*32*32*32 &
-					+ cidb5*32*32*32*32*32 
+					+ cidb5*32*32*32*32*32
 		cidt =  cidt0 &
 					+ cidt1*32 &
 					+ cidt2*32*32 &
 					+ cidt3*32*32*32 &
 					+ cidt4*32*32*32*32 &
-					+ cidt5*32*32*32*32*32 
+					+ cidt5*32*32*32*32*32
 
 		cid(i-1, j, k) = cidw
 		cid(i+1, j, k) = cide
@@ -962,43 +969,43 @@ subroutine bstl_fill_holes_1( &
 					+ cidp2*32*32 &
 					+ cidp3*32*32*32 &
 					+ cidp4*32*32*32*32 &
-					+ cidp5*32*32*32*32*32 
+					+ cidp5*32*32*32*32*32
 		cidw =  cidw0 &
 					+ cidw1*32 &
 					+ cidw2*32*32 &
 					+ cidw3*32*32*32 &
 					+ cidw4*32*32*32*32 &
-					+ cidw5*32*32*32*32*32 
+					+ cidw5*32*32*32*32*32
 		cide =  cide0 &
 					+ cide1*32 &
 					+ cide2*32*32 &
 					+ cide3*32*32*32 &
 					+ cide4*32*32*32*32 &
-					+ cide5*32*32*32*32*32 
+					+ cide5*32*32*32*32*32
 		cids =  cids0 &
 					+ cids1*32 &
 					+ cids2*32*32 &
 					+ cids3*32*32*32 &
 					+ cids4*32*32*32*32 &
-					+ cids5*32*32*32*32*32 
+					+ cids5*32*32*32*32*32
 		cidn =  cidn0 &
 					+ cidn1*32 &
 					+ cidn2*32*32 &
 					+ cidn3*32*32*32 &
 					+ cidn4*32*32*32*32 &
-					+ cidn5*32*32*32*32*32 
+					+ cidn5*32*32*32*32*32
 		cidb =  cidb0 &
 					+ cidb1*32 &
 					+ cidb2*32*32 &
 					+ cidb3*32*32*32 &
 					+ cidb4*32*32*32*32 &
-					+ cidb5*32*32*32*32*32 
+					+ cidb5*32*32*32*32*32
 		cidt =  cidt0 &
 					+ cidt1*32 &
 					+ cidt2*32*32 &
 					+ cidt3*32*32*32 &
 					+ cidt4*32*32*32*32 &
-					+ cidt5*32*32*32*32*32 
+					+ cidt5*32*32*32*32*32
 
 		cid(i, j, k) = cidp
 		cid(i-1, j, k) = cidw
@@ -1042,8 +1049,8 @@ subroutine bstl_read_cut( &
 !$omp parallel private(i, j, k) &
 !$omp					 private(cut0, cut1, cut2, cut3, cut4, cut5) &
 !$omp					 private(bidp) &
-!$omp					 private(bidp0, bidp1, bidp2, bidp3, bidp4, bidp5) 
-!$omp do 
+!$omp					 private(bidp0, bidp1, bidp2, bidp3, bidp4, bidp5)
+!$omp do
 #else
 #endif
   do k=1, kx
@@ -1163,8 +1170,8 @@ subroutine bstl_voxelize( &
 !$omp					 private(cidb) &
 !$omp					 private(cidb0, cidb1, cidb2, cidb3, cidb4, cidb5) &
 !$omp					 private(cidt) &
-!$omp					 private(cidt0, cidt1, cidt2, cidt3, cidt4, cidt5) 
-!$omp do 
+!$omp					 private(cidt0, cidt1, cidt2, cidt3, cidt4, cidt5)
+!$omp do
 #else
 #endif
   do k=1, kx
@@ -1353,8 +1360,8 @@ subroutine bstl_cutoff( &
 !$omp					 private(cidb) &
 !$omp					 private(cidb0, cidb1, cidb2, cidb3, cidb4, cidb5) &
 !$omp					 private(cidt) &
-!$omp					 private(cidt0, cidt1, cidt2, cidt3, cidt4, cidt5) 
-!$omp do 
+!$omp					 private(cidt0, cidt1, cidt2, cidt3, cidt4, cidt5)
+!$omp do
 #else
 #endif
   do k=1, kx
@@ -1419,8 +1426,8 @@ subroutine bstl_symmetrize( &
 !$omp					 private(cidb) &
 !$omp					 private(cidb0, cidb1, cidb2, cidb3, cidb4, cidb5) &
 !$omp					 private(cidt) &
-!$omp					 private(cidt0, cidt1, cidt2, cidt3, cidt4, cidt5) 
-!$omp do 
+!$omp					 private(cidt0, cidt1, cidt2, cidt3, cidt4, cidt5)
+!$omp do
 #else
 #endif
   do k=1, kx
@@ -1477,27 +1484,27 @@ subroutine bstl_symmetrize( &
 
 
 		if( cidp0 /= 0 ) then
-			c1(i-1, j, k) = 1.0d0 - c0(i  , j, k) 
+			c1(i-1, j, k) = 1.0d0 - c0(i  , j, k)
 			cidw1 = cidp0
 		endif
 		if( cidp1 /= 0 ) then
-			c0(i+1, j, k) = 1.0d0 - c1(i  , j, k) 
+			c0(i+1, j, k) = 1.0d0 - c1(i  , j, k)
 			cide0 = cidp1
 		endif
 		if( cidp2 /= 0 ) then
-			c3(i, j-1, k) = 1.0d0 - c2(i, j  , k) 
+			c3(i, j-1, k) = 1.0d0 - c2(i, j  , k)
 			cids3 = cidp2
 		endif
 		if( cidp3 /= 0 ) then
-			c2(i, j+1, k) = 1.0d0 - c3(i, j  , k) 
+			c2(i, j+1, k) = 1.0d0 - c3(i, j  , k)
 			cidn2 = cidp3
 		endif
 		if( cidp4 /= 0 ) then
-			c5(i, j, k-1) = 1.0d0 - c4(i, j, k  ) 
+			c5(i, j, k-1) = 1.0d0 - c4(i, j, k  )
 			cidb5 = cidp4
 		endif
 		if( cidp5 /= 0 ) then
-			c4(i, j, k+1) = 1.0d0 - c5(i, j, k  ) 
+			c4(i, j, k+1) = 1.0d0 - c5(i, j, k  )
 			cidt4 = cidp5
 		endif
 
@@ -1608,7 +1615,7 @@ subroutine bstl_detect_zerocut( &
 !$omp					 private(cidt) &
 !$omp					 private(cidt0, cidt1, cidt2, cidt3, cidt4, cidt5) &
 !$omp					 private(cut_min) &
-!$omp					 private(cid_min) 
+!$omp					 private(cid_min)
 !$omp do reduction(+: n)
 #else
 #endif
@@ -1665,7 +1672,7 @@ subroutine bstl_detect_zerocut( &
 		cidt5 = cid5(i, j, k+1)
 
 
-		cut_min = 1.0d0	
+		cut_min = 1.0d0
 		cid_min = 0
 		if( cut_min > c0(i, j, k) ) then
 			cut_min = c0(i, j, k)
@@ -2277,4 +2284,3 @@ subroutine bstl_fill_holes_v2( &
 #else
 #endif
 end subroutine bstl_fill_holes_v2
-

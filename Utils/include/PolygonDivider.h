@@ -1,18 +1,24 @@
 /*
- * BCMTools
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
 ///
 /// @file PolygonDivider.h
 /// @brief ブロック分割判定クラス(PolygonDivider)
-/// 
+///
 
 #ifndef POLYGON_DIVIDER_H
 #define POLYGON_DIVIDER_H
@@ -66,7 +72,7 @@ public:
   ///  例えば，仮想セル領域を境界面探査領域に追加するには
   ///  「(double)仮想セル数/ブロック内分割数」を指定する．
   ///
-  PolygonDivider(const Vec3d& origin, double rootLength, const RootGrid* rootGrid, 
+  PolygonDivider(const Vec3d& origin, double rootLength, const RootGrid* rootGrid,
                  int minLevel, int maxLevel,
                  const PolylibNS::Polylib* polylib, std::string& polygonGroup,
                  bool polygonInsideOut,
@@ -105,7 +111,7 @@ public:
     Vec3f min(rmin.x, rmin.y, rmin.z);
     Vec3f max(rmax.x, rmax.y, rmax.z);
 
-    std::vector<PolylibNS::Triangle*>* polygonList 
+    std::vector<PolylibNS::Triangle*>* polygonList
                                        = polylib->search_polygons(polygonGroup, min, max, false);
     int nPolygon = polygonList->size();
     delete polygonList;

@@ -1,13 +1,19 @@
 /*
- * BCMTools
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
 #ifndef ILS3D_H
 #define ILS3D_H
@@ -253,7 +259,7 @@ PM_Stop(tm_JacobiSmoother);
 		double rr_global = 0.0;
 		allreduce_(&rr_global, &rr_local);
 /*
-#ifdef _REAL_IS_DOUBLE_		
+#ifdef _REAL_IS_DOUBLE_
 		comm.Allreduce(&rr_local, &rr_global, 1, MPI_DOUBLE_PRECISION, MPI_SUM);
 #else
 		comm.Allreduce(&rr_local, &rr_global, 1, MPI_FLOAT, MPI_SUM);
@@ -294,7 +300,7 @@ PM_Stop(tm_JacobiSmoother);
 		double xy_global = 0.0;
 		allreduce_(&xy_global, &xy_local);
 /*
-#ifdef _REAL_IS_DOUBLE_		
+#ifdef _REAL_IS_DOUBLE_
 		comm.Allreduce(&xy_local, &xy_global, 1, MPI_DOUBLE_PRECISION, MPI_SUM);
 #else
 		comm.Allreduce(&xy_local, &xy_global, 1, MPI_FLOAT, MPI_SUM);
@@ -420,7 +426,7 @@ public:
 			fill_(x, &v, sz, &vc);
 		}
 	}
-	
+
 	void Copy(
 						BlockManager& blockManager,
 						LocalScalar3D<real>* plsy,
@@ -492,7 +498,7 @@ public:
 		for(count=1; count<=countMax; ++count) {
 			Jacobi_Smoother(
 							blockManager,
-							plsx, 
+							plsx,
 							plsAp, plsAw, plsAe, plsAs, plsAn, plsAb, plsAt,
 							plsb,
 							plsx0,
@@ -861,7 +867,7 @@ public:
 		for(count=1; count<=countMax; ++count) {
 			Jacobi_Smoother_Mask(
 							blockManager,
-							plsx, 
+							plsx,
 							plsAp, plsAw, plsAe, plsAs, plsAn, plsAb, plsAt,
 							plsb,
 							plsx0,
@@ -1364,4 +1370,3 @@ PM_Stop(tm_JacobiSmoother);
 };
 
 #endif
-

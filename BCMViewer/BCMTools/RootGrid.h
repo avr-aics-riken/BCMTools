@@ -1,18 +1,24 @@
 /*
- * BCMViewer - BCM mesh viewer
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
 ///
 /// @file RootGrid.h
 /// @brief マルチルートOctree用のルートブロック配置管理クラス
-/// 
+///
 
 #ifndef ROOT_GRID_H
 #define ROOT_GRID_H
@@ -129,7 +135,7 @@ public:
   ///  @return ルートID
   ///
   int index2rootID(int ix, int iy, int iz) const { return ix + nx*iy + nx*ny*iz; }
-#if 0 
+#if 0
   /// 隣接するルートのIDを返す.
   ///
   ///  @param[in] rootID ルートID

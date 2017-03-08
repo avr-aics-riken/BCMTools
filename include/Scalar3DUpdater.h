@@ -1,13 +1,19 @@
 /*
- * BCMTools
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
 ///
 /// @file Scalar3DUpdater.h
@@ -201,7 +207,7 @@ private:
     linearInterpolate(j, ny, J, s);
     linearInterpolate(k, nz, K, t);
 
-    return (1.0-t)*( 
+    return (1.0-t)*(
                      (1.0-s)*( (1.0-r)*c(I  ,J  ,K  ) + r*c(I+1,J  ,K  ) )
                          + s*( (1.0-r)*c(I  ,J+1,K  ) + r*c(I+1,J+1,K  ) )
                     )
@@ -219,7 +225,7 @@ private:
     linearInterpolate(j, ny, J, s);
     linearInterpolate(k, nz, K, t);
 
-    return (1.0-t)*( 
+    return (1.0-t)*(
          (1.0-s)*( (1.0-r)*cData[cIndex(I  ,J  ,K  )] + r*cData[cIndex(I+1,J  ,K  )] )
              + s*( (1.0-r)*cData[cIndex(I  ,J+1,K  )] + r*cData[cIndex(I+1,J+1,K  )] )
         )
@@ -508,7 +514,7 @@ void copyFromCommBufferC2F(Face face, Subface subface)
   copyFromCommBuffer(face);
 }
 
- 
+
 
 void copyFromNeighborF2C_0(int nx, int ny, int nz, int vc,
                                                Face face, Subface subface,

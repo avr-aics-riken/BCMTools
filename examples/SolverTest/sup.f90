@@ -1,11 +1,18 @@
 !
+!##################################################################################
+!
 ! BCMTools
 !
-! Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+! Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
 ! All rights reserved.
 !
-! Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
+! Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
 ! All rights reserved.
+!
+! Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+! All rights reserved.
+!
+!##################################################################################
 !
 
 subroutine sup_get_intp_index(ic, r, i, n)
@@ -50,7 +57,7 @@ subroutine sup_copy_from_neighbor( &
 	do k=0, sz_c(3)-1
 	do j=0, sz_c(2)-1
 	do i=0, sz_c(1)-1
-		data_dst(i + i1_dst(1), j + i1_dst(2), k + i1_dst(3)) = data_src(i + i1_src(1), j + i1_src(2), k + i1_src(3)) 
+		data_dst(i + i1_dst(1), j + i1_dst(2), k + i1_dst(3)) = data_src(i + i1_src(1), j + i1_src(2), k + i1_src(3))
 	end do
 	end do
 	end do
@@ -89,7 +96,7 @@ subroutine sup_copy_from_neighbor_c2f( &
 !$omp          private(data_src_npp, data_src_pnp, data_src_ppn, data_src_ppp) &
 !$omp					 private(i0, j0, k0) &
 !$omp					 private(i1, j1, k1) &
-!$omp					 private(r, s, t) 
+!$omp					 private(r, s, t)
 !$omp do
 #else
 #endif
@@ -121,7 +128,7 @@ subroutine sup_copy_from_neighbor_c2f( &
 																															+         s*( (1.0 - r)*data_src_npn + r*data_src_ppn ) ) &
 																														+       t*( &
 																																(1.0 - s)*( (1.0 - r)*data_src_nnp + r*data_src_pnp ) &
-																															+         s*( (1.0 - r)*data_src_npp + r*data_src_ppp ) ) 
+																															+         s*( (1.0 - r)*data_src_npp + r*data_src_ppp ) )
 	end do
 	end do
 	end do
@@ -158,7 +165,7 @@ subroutine sup_copy_from_neighbor_f2c( &
 !$omp          private(data_src_nnn, data_src_pnn, data_src_npn, data_src_nnp) &
 !$omp          private(data_src_npp, data_src_pnp, data_src_ppn, data_src_ppp) &
 !$omp					 private(i0, j0, k0) &
-!$omp					 private(i1, j1, k1) 
+!$omp					 private(i1, j1, k1)
 !$omp do
 #else
 #endif
@@ -208,15 +215,15 @@ subroutine sup_copy_to_buffer( &
 	real, dimension(1-g:sz(1)+g, 1-g:sz(2)+g, 1-g:sz(3)+g)	:: data_src
 	integer, dimension(3)		:: i1_src
 #ifdef _BLOCK_IS_LARGE_
-!$omp parallel private(i, j, k) 
+!$omp parallel private(i, j, k)
 !$omp do
 #else
 #endif
 	do k=0, sz_c(3)-1
 	do j=0, sz_c(2)-1
 	do i=0, sz_c(1)-1
-!		buffer(i + sz_c(1)*(j + sz_c(2)*k)) = data_src(i + i1_src(1), j + i1_src(2), k + i1_src(3)) 
-		buffer(i, j, k) = data_src(i + i1_src(1), j + i1_src(2), k + i1_src(3)) 
+!		buffer(i + sz_c(1)*(j + sz_c(2)*k)) = data_src(i + i1_src(1), j + i1_src(2), k + i1_src(3))
+		buffer(i, j, k) = data_src(i + i1_src(1), j + i1_src(2), k + i1_src(3))
 	end do
 	end do
 	end do
@@ -253,7 +260,7 @@ subroutine sup_copy_to_buffer_c2f( &
 !$omp          private(data_src_npp, data_src_pnp, data_src_ppn, data_src_ppp) &
 !$omp					 private(i0, j0, k0) &
 !$omp					 private(i1, j1, k1) &
-!$omp					 private(r, s, t) 
+!$omp					 private(r, s, t)
 !$omp do
 #else
 #endif
@@ -285,7 +292,7 @@ subroutine sup_copy_to_buffer_c2f( &
 												+         s*( (1.0 - r)*data_src_npn + r*data_src_ppn ) ) &
 													+       t*( &
 													(1.0 - s)*( (1.0 - r)*data_src_nnp + r*data_src_pnp ) &
-												+         s*( (1.0 - r)*data_src_npp + r*data_src_ppp ) ) 
+												+         s*( (1.0 - r)*data_src_npp + r*data_src_ppp ) )
 	end do
 	end do
 	end do
@@ -320,7 +327,7 @@ subroutine sup_copy_to_buffer_f2c( &
 !$omp          private(data_src_nnn, data_src_pnn, data_src_npn, data_src_nnp) &
 !$omp          private(data_src_npp, data_src_pnp, data_src_ppn, data_src_ppp) &
 !$omp					 private(i0, j0, k0) &
-!$omp					 private(i1, j1, k1) 
+!$omp					 private(i1, j1, k1)
 !$omp do
 #else
 #endif
@@ -369,14 +376,14 @@ subroutine sup_copy_from_buffer( &
 	integer, dimension(3)		:: i1_dst
 	real, dimension(0:sz_c(1)-1, 0:sz_c(2)-1, 0:sz_c(3)-1)	:: buffer
 #ifdef _BLOCK_IS_LARGE_
-!$omp parallel private(i, j, k) 
+!$omp parallel private(i, j, k)
 !$omp do
 #else
 #endif
 	do k=0, sz_c(3)-1
 	do j=0, sz_c(2)-1
 	do i=0, sz_c(1)-1
-		data_dst(i + i1_dst(1), j + i1_dst(2), k + i1_dst(3)) = buffer(i, j, k) 
+		data_dst(i + i1_dst(1), j + i1_dst(2), k + i1_dst(3)) = buffer(i, j, k)
 	end do
 	end do
 	end do
@@ -386,4 +393,3 @@ subroutine sup_copy_from_buffer( &
 #else
 #endif
 end subroutine sup_copy_from_buffer
-

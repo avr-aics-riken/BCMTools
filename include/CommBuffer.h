@@ -1,13 +1,19 @@
 /*
- * BCMTools
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
 ///
 /// @file CommBuffer.h
@@ -17,9 +23,9 @@
 #ifndef COMM_BUFFER_H
 #define COMM_BUFFER_H
 
+#include "mpi.h"
 #include <map>
 #include <vector>
-#include "mpi.h"
 #include "PointerSetter.h"
 
 #ifdef BCMT_NAMESPACE
@@ -51,7 +57,7 @@ protected:
     Buffer() : size(0), data(0), dirty(true) {}
 
     /// デストラクタ.
-    ~Buffer() { 
+    ~Buffer() {
       delete[] data;
       for (int i = 0; i < pointerTable.size(); ++i) {
         pointerTable[i]->setPointer(0);
@@ -70,7 +76,7 @@ protected:
   MPI::Request* request;   ///< MPIリクエスト配列
 
 //public:
-protected: 
+protected:
 
   /// コンストラクタ.
   CommBuffer();
@@ -78,7 +84,7 @@ protected:
   /// デストラクタ.
   ~CommBuffer();
 
-public: 
+public:
 
   /// バッファにT型データ領域を登録.
   ///
@@ -196,4 +202,3 @@ public:
 #endif
 
 #endif // COM_BUFFER_H
-

@@ -1,13 +1,19 @@
 /*
- * BCMTools
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
 #ifndef __BLAS_H__
 #define __BLAS_H__
@@ -73,18 +79,18 @@ extern "C" {
 					real* b,
 					real* omega,
 					int* sz, int* g);
-	void calc_ax_( 
+	void calc_ax_(
 					real* Ax,
 					real* Ap, real* Aw, real* Ae, real* As, real* An, real* Ab, real* At,
 					real* x,
 					int* sz, int* g);
-	void calc_r_( 
+	void calc_r_(
 					real* r,
 					real* Ap, real* Aw, real* Ae, real* As, real* An, real* Ab, real* At,
 					real* x,
 					real* b,
 					int* sz, int* g);
-	void calc_r2_( 
+	void calc_r2_(
 					real* r,
 					real* Ap, real* Aw, real* Ae, real* As, real* An, real* Ab, real* At,
 					real* x,
@@ -104,7 +110,7 @@ extern "C" {
 					real *xy, real *y, real *x,
 					int* mask,
 					int *sz, int *g);
-	void calc_ax_mask_( 
+	void calc_ax_mask_(
 					real* Ax,
 					real* Ap, real* Aw, real* Ae, real* As, real* An, real* Ab, real* At,
 					real* x,
@@ -120,4 +126,3 @@ extern "C" {
 }
 
 #endif
-

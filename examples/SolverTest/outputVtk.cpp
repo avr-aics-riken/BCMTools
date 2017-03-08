@@ -1,13 +1,19 @@
 /*
- * BCMTools
- *
- * Copyright (C) 2011-2014 Institute of Industrial Science, The University of Tokyo.
- * All rights reserved.
- *
- * Copyright (c) 2012-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
+###################################################################################
+#
+# BCMTools
+#
+# Copyright (c) 2011-2014 Institute of Industrial Science, The University of Tokyo.
+# All rights reserved.
+#
+# Copyright (c) 2012-2016 Advanced Institute for Computational Science (AICS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2017 Research Institute for Information Technology (RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+*/
 
 #include "outputVtk.h"
 
@@ -34,29 +40,29 @@ void extractData(const Vec3f center, const double range[6],
                  VecPos& vecPosP, VecBid& vecBidP)
 {
   if (bid6[X_M] > 0) {
-    vecBidM.push_back(bid6[X_M]); 
+    vecBidM.push_back(bid6[X_M]);
     vecPosM.push_back(center + Vec3f::xaxis() * (-range[X_M]*pos6[X_M]));
   }
   if (bid6[X_P] > 0) {
-    vecBidP.push_back(bid6[X_P]); 
+    vecBidP.push_back(bid6[X_P]);
     vecPosP.push_back(center + Vec3f::xaxis() * (+range[X_P]*pos6[X_P]));
   }
 
   if (bid6[Y_M] > 0) {
-    vecBidM.push_back(bid6[Y_M]); 
+    vecBidM.push_back(bid6[Y_M]);
     vecPosM.push_back(center + Vec3f::yaxis() * (-range[Y_M]*pos6[Y_M]));
   }
   if (bid6[Y_P] > 0) {
-    vecBidP.push_back(bid6[Y_P]); 
+    vecBidP.push_back(bid6[Y_P]);
     vecPosP.push_back(center + Vec3f::yaxis() * (+range[Y_P]*pos6[Y_P]));
   }
 
   if (bid6[Z_M] > 0) {
-    vecBidM.push_back(bid6[Z_M]); 
+    vecBidM.push_back(bid6[Z_M]);
     vecPosM.push_back(center + Vec3f::zaxis() * (-range[Z_M]*pos6[Z_M]));
   }
   if (bid6[Z_P] > 0) {
-    vecBidP.push_back(bid6[Z_P]); 
+    vecBidP.push_back(bid6[Z_P]);
     vecPosP.push_back(center + Vec3f::zaxis() * (+range[Z_P]*pos6[Z_P]));
   }
 }
@@ -84,12 +90,12 @@ void outputData(const std::string& file, VecPos& vecPos, VecBid& vecBid)
 void outputVtk(const std::string& file, const int myrank, const GridAccessor* grid,
                const CutPosArray* cp, const CutBidArray* cb)
 {
-  int ista[3] = { 
+  int ista[3] = {
     cp->getStartX(),
     cp->getStartY(),
     cp->getStartZ(),
   };
-  size_t nlen[3] = { 
+  size_t nlen[3] = {
     cp->getSizeX(),
     cp->getSizeY(),
     cp->getSizeZ()
@@ -124,13 +130,13 @@ void outputVtk(const std::string& file, const int myrank, const GridAccessor* gr
   std::cout << std::endl;
   outputData(fileM, vecPosM, vecBidM);
   outputData(fileP, vecPosP, vecBidP);
-  
+
 }
 
 
 #ifdef CUTLIB_OCTREE
 
-void outputVtkLeafCell(const std::string& file, 
+void outputVtkLeafCell(const std::string& file,
                        SklTree* tree,
                        CutPosOctree* cp, CutBidOctree* cb)
 {
@@ -144,7 +150,7 @@ void outputVtkLeafCell(const std::string& file,
     cb->assignData(cell->GetData());
 
     float org[3], d[3];
-    
+
     cell->GetOrigin(org[0], org[1], org[2]);
     cell->GetPitch(d[0], d[1], d[2]);
     Vec3f center(org[0]+0.5*d[0], org[1]+0.5*d[1], org[2]+0.5*d[2]);
@@ -212,7 +218,7 @@ void extractDataTreeCell(SklCell* cell, CutPosOctree* cp, CutBidOctree* cb,
 }
 
 
-void outputVtkAllCell(const std::string& file, 
+void outputVtkAllCell(const std::string& file,
                        SklTree* tree, const int treeLevel,
                        CutPosOctree* cp, CutBidOctree* cb)
 {
