@@ -4,6 +4,11 @@
 ## REVISION HISTORY
 
 ---
+- 2017-03-08  Version 1.0.1
+  - bug fix : src/CMakeLists.txt
+  - add flag to switch float <=> double
+
+---
 - 2017-03-08  Version 1.0.0
   - cmake version
   - Tested

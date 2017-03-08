@@ -32,6 +32,8 @@
 #
 # -D enable_OPENMP={no|yes}
 #
+# -D real_type={float|double}
+#
 # -D enable_LARGE_BLOCK={no|yes}
 #
 
@@ -48,6 +50,7 @@ option (with_example "Compiling examples" "OFF")
 option (with_PL "Enable Polylib" "OFF")
 option (with_TP "Enable TextParser" "OFF")
 option (enable_LARGE_BLOCK "Optimizing block size" "OFF")
+option (real_type "Type of floating point" "float")
 
 
 #######
@@ -68,8 +71,8 @@ set (CMAKE_INSTALL_PREFIX "${INSTALL_DIR}")
 
 
 #######
-set(PROJECT_VERSION "1.0.0")
-set(LIB_REVISION "20170308_1200")
+set(PROJECT_VERSION "1.0.1")
+set(LIB_REVISION "20170308_1400")
 #######
 
 
@@ -97,7 +100,7 @@ if(enable_LARGE_BLOCK)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_BLOCK_IS_LARGE_")
 endif()
 
-
+precision()
 
 
 #######
@@ -117,12 +120,13 @@ if(enable_Fortran)
 endif()
 
 message(" ")
-message( STATUS "OpenMP support      : "      ${enable_OPENMP})
-message( STATUS "MPI support         : "      ${with_MPI})
-message( STATUS "TextParser support  : "      ${with_TP})
-message( STATUS "Polylib support     : "      ${with_PL})
-message( STATUS "Example             : "      ${with_example})
-message( STATUS "LARGE_BLOCK support : "      ${enable_LARGE_BLOCK})
+message( STATUS "Type of floating point: "      ${real_type})
+message( STATUS "OpenMP support        : "      ${enable_OPENMP})
+message( STATUS "MPI support           : "      ${with_MPI})
+message( STATUS "TextParser support    : "      ${with_TP})
+message( STATUS "Polylib support       : "      ${with_PL})
+message( STATUS "Example               : "      ${with_example})
+message( STATUS "LARGE_BLOCK support   : "      ${enable_LARGE_BLOCK})
 message(" ")
 
 if(CMAKE_CXX_COMPILER MATCHES ".*FCCpx$")

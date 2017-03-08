@@ -44,6 +44,7 @@ Readme.md         This document, including the description of build
 ### Build
 
 ~~~
+$ export CC=c_compiler CXX=c++_compiler F90=fortran_compiler FC=fortran_compiler
 $ export BCM_HOME=/hogehoge
 $ mkdir build
 $ cd build
@@ -77,17 +78,19 @@ $ sudo make install
 
 `-D enable_LARGE_BLOCK=` {no | yes}
 
->  Specify optimization of buffer size for accelerating file I/O performance. The default is no.
+>  Specify optimization of buffer size to accelerate file I/O performance. The default is no.
+>  BCMブロックが大きく（ブロック内セル数が多い），数が少ない場合に高速化が期待できる．BCMブロックが小さく，数が多い場合は，逆効果．
 
 `-D enable_OPENMP=` {no | yes}
 
 > Enable OpenMP directives.
 
+`-D real_type=` {float | double}
+
+>  Specify the type of floating point. If this option is omitted, the default is float.
 
 The default compiler options are described in `cmake/CompilerOptionSelector.cmake` file. See BUILD OPTION section in CMakeLists.txt in detail.
 
-### MACRO: _BLOCK_IS_LARGE_
-- BCMブロックが大きく（ブロック内セル数が多い），数が少ない場合に高速化が期待できる．BCMブロックが小さく，数が多い場合は，逆効果．
 
 
 ## Configure Examples
@@ -99,42 +102,42 @@ In following exsmples, assuming that TextParser and Polylib are installed under 
 ### INTEL/GNU compiler
 
 ~~~
-$ cmake -DINSTALL_DIR=${BCM_HOME}/BCMTools -Denable_OPENMP=yes -Dwith_MPI=yes -Dwith_example=yes -Dwith_TP=${BCM_HOME}/TextParser -Dwith_PL=${BCM_HOME}/Polylib  -Denable_LARGE_BLOCK=no ..
+$ cmake -DINSTALL_DIR=${BCM_HOME}/BCMTools -Denable_OPENMP=yes -Dwith_MPI=yes -Dwith_example=yes -Dreal_type=double -Dwith_TP=${BCM_HOME}/TextParser -Dwith_PL=${BCM_HOME}/Polylib  -Denable_LARGE_BLOCK=no ..
 ~~~
 
 
 ### FUJITSU compiler / FX10, FX100, K on login nodes (Cross compilation)
 
 ~~~
-$ cmake -DINSTALL_DIR=${CDM_HOME}/CDMlib \
+$ cmake -DINSTALL_DIR=${BCM_HOME}/BCMTools \
             -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain_fx10.cmake \
+            -Denable_OPENMP=yes \
             -Dwith_MPI=yes \
             -Dwith_example=no \
-            -Dwith_util=yes \
-            -Dwith_TP=${CDM_HOME}/TextParser \
-            -Dwith_CPM=${CDM_HOME}/CPMlib \
-            -Dwith_NetCDF=no \
-            -Denable_BUFFER_SIZE=no ..
+            -Dreal_type=double \
+            -Dwith_TP=${BCM_HOME}/TextParser \
+            -Dwith_PL=${BCM_HOME}/Polylib \
+            -Denable_LARGE_BLOCK=no ..
 
-$ cmake -DINSTALL_DIR=${CDM_HOME}/CDMlib \
+$ cmake -DINSTALL_DIR=${BCM_HOME}/BCMTools \
             -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain_fx100.cmake \
+            -Denable_OPENMP=yes \
             -Dwith_MPI=yes \
             -Dwith_example=no \
-            -Dwith_util=yes \
-            -Dwith_TP=${CDM_HOME}/TextParser \
-            -Dwith_CPM=${CDM_HOME}/CPMlib \
-            -Dwith_NetCDF=no \
-            -Denable_BUFFER_SIZE=no ..
+            -Dreal_type=double \
+            -Dwith_TP=${BCM_HOME}/TextParser \
+            -Dwith_PL=${BCM_HOME}/Polylib \
+            -Denable_LARGE_BLOCK=no ..
 
-$ cmake -DINSTALL_DIR=${CDM_HOME}/CDMlib \
+$ cmake -DINSTALL_DIR=${BCM_HOME}/BCMTools \
             -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain_K.cmake \
+            -Denable_OPENMP=yes \
             -Dwith_MPI=yes \
             -Dwith_example=no \
-            -Dwith_util=yes \
-            -Dwith_TP=${CDM_HOME}/TextParser \
-            -Dwith_CPM=${CDM_HOME}/CPMlib \
-            -Dwith_NetCDF=no \
-            -Denable_BUFFER_SIZE=no ..
+            -Dreal_type=double \
+            -Dwith_TP=${BCM_HOME}/TextParser \
+            -Dwith_PL=${BCM_HOME}/Polylib \
+            -Denable_LARGE_BLOCK=no ..
 ~~~
 
 

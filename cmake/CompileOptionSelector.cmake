@@ -115,3 +115,26 @@ macro(checkOpenMP)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
   endif()
 endmacro()
+
+
+macro(precision)
+  if(real_type STREQUAL "float")
+  else()
+    ADD_DEFINITIONS(-D_REAL_IS_DOUBLE_)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_REAL_IS_DOUBLE_")
+
+    if(CMAKE_Fortran_COMPILER MATCHES ".*frtpx$")
+      set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -CcdRR8")
+
+    elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+      set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fdefault-real-8")
+
+    elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
+      set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -r8")
+
+    elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "PGI")
+
+    endif()
+
+  ENDIF()
+endmacro()
