@@ -20,7 +20,7 @@
 #include "Timing.h"
 
 
-Solver::Solver(const Config& conf, const std::vector<double>& boundaryValue)
+Solver::Solver(const Config& conf, const std::vector<REAL_TYPE>& boundaryValue)
   : blockManager(BlockManager::getInstance()),
     comm(blockManager.getCommunicator()),
     vc(conf.vc),
@@ -34,13 +34,13 @@ Solver::Solver(const Config& conf, const std::vector<double>& boundaryValue)
   nz = size[2];
 
   // データクラス変数<f>の生成・登録
-  id_f = blockManager.setDataClass<Scalar3D<double>, Scalar3DUpdater<double> >(vc);
+  id_f = blockManager.setDataClass<Scalar3D<REAL_TYPE>, Scalar3DUpdater<REAL_TYPE> >(vc);
 
   // データクラス変数<f>の仮想セル同期準備
   blockManager.prepareForVCUpdate(id_f, tag_f, separateVCUpdate);
 
   // 作業用データクラス変数<work>
-  work = new Scalar3D<double>(size, vc);   // 未使用
+  work = new Scalar3D<REAL_TYPE>(size, vc);   // 未使用
 }
 
 
@@ -79,24 +79,24 @@ void Solver::run()
 //    BlockBase* block = blockManager.getBlock(id);
       Block* block = dynamic_cast<Block*>(blockManager.getBlock(id));
 
-      Scalar3D<double>* f = dynamic_cast<Scalar3D<double>*>(
+      Scalar3D<REAL_TYPE>* f = dynamic_cast<Scalar3D<REAL_TYPE>*>(
                                              block->getDataClass(id_f));
-      double* fData = f->getData();
+      REAL_TYPE* fData = f->getData();
       Index3DS fIndex = f->getIndex();
 
       const BoundaryInfo* boundaryInfo = block->getBoundaryInfo();
 
-      const Vec3d& cellSize = block->getCellSize();
-      double cx = 1.0 / (cellSize.x * cellSize.x);
-      double cy = 1.0 / (cellSize.y * cellSize.y);
-      double cz = 1.0 / (cellSize.z * cellSize.z);
+      const Vec3r& cellSize = block->getCellSize();
+      REAL_TYPE cx = 1.0 / (cellSize.x * cellSize.x);
+      REAL_TYPE cy = 1.0 / (cellSize.y * cellSize.y);
+      REAL_TYPE cz = 1.0 / (cellSize.z * cellSize.z);
 
-      double c = 2.0 * (cx + cy + cz);
+      REAL_TYPE c = 2.0 * (cx + cy + cz);
       cx = omega * cx / c;
       cy = omega * cy / c;
       cz = omega * cz / c;
 
-      double c0 = 1.0 - omega;
+      REAL_TYPE c0 = 1.0 - omega;
 
       TimingStart(SOR);
       for (int iInner = 0; iInner < nLoopInner; iInner++) {
@@ -130,8 +130,8 @@ void Solver::run()
 
 
 void Solver::calcSorInBlock(int nx, int ny, int nz,
-                            double* fData, Index3DS fIndex,
-                            double c0, double cx, double cy, double cz)
+                            REAL_TYPE* fData, Index3DS fIndex,
+                            REAL_TYPE c0, REAL_TYPE cx, REAL_TYPE cy, REAL_TYPE cz)
 {
   for (int c = 0; c < 2; c++) {
 
@@ -158,9 +158,9 @@ void Solver::setInitialCondition()
 {
   for (int id = 0; id < blockManager.getNumBlock(); ++id) {
     BlockBase* block = blockManager.getBlock(id);
-    Scalar3D<double>* f = dynamic_cast<Scalar3D<double>*>(
+    Scalar3D<REAL_TYPE>* f = dynamic_cast<Scalar3D<REAL_TYPE>*>(
                               block->getDataClass(id_f));
-    double* fData = f->getData();
+    REAL_TYPE* fData = f->getData();
     Index3DS fIndex = f->getIndex();
 
     setInitialConditionInBlock(nx, ny, nz, fData, fIndex, 0.0);
@@ -169,8 +169,8 @@ void Solver::setInitialCondition()
 
 
 void Solver::setInitialConditionInBlock(int nx, int ny, int nz,
-                                        double* fData, Index3DS fIndex,
-                                        double value)
+                                        REAL_TYPE* fData, Index3DS fIndex,
+                                        REAL_TYPE value)
 {
 #pragma loop noalias
   for (int k = 0; k < nz; ++k) {
@@ -188,9 +188,9 @@ void Solver::setBoundaryCondition()
   for (int id = 0; id < blockManager.getNumBlock(); ++id) {
     Block* block = dynamic_cast<Block*>(blockManager.getBlock(id));
     const BoundaryInfo* boundaryInfo = block->getBoundaryInfo();
-    Scalar3D<double>* f = dynamic_cast<Scalar3D<double>*>(
+    Scalar3D<REAL_TYPE>* f = dynamic_cast<Scalar3D<REAL_TYPE>*>(
                               block->getDataClass(id_f));
-    double* fData = f->getData();
+    REAL_TYPE* fData = f->getData();
     Index3DS fIndex = f->getIndex();
 
     setBoundaryConditionInBlock(nx, ny, nz, fData, fIndex, boundaryInfo);
@@ -199,7 +199,7 @@ void Solver::setBoundaryCondition()
 
 
 void Solver::setBoundaryConditionInBlock(int nx, int ny, int nz,
-                                         double* fData, Index3DS fIndex,
+                                         REAL_TYPE* fData, Index3DS fIndex,
                                          const BoundaryInfo* boundaryInfo)
 {
   for (int i = 0; i < NUM_FACE; ++i) {
@@ -207,13 +207,13 @@ void Solver::setBoundaryConditionInBlock(int nx, int ny, int nz,
     switch (boundaryInfo[face].getType()) {
       case BoundaryInfo::DIRICHLET:
         {
-        double v = boundaryValue[boundaryInfo[face].getID()];
+        REAL_TYPE v = boundaryValue[boundaryInfo[face].getID()];
         setDirichletBoundaryInBlock(nx, ny, nz, fData, fIndex, face, v);
         }
         break;
       case BoundaryInfo::NEUMANN:
       //{
-      //double v = boundaryValue[boundaryInfo[face].getID()];
+      //REAL_TYPE v = boundaryValue[boundaryInfo[face].getID()];
       //setNeumannBoundaryInBlock(nx, ny, nz, fData, fIndex, face, v);
       //}
       //break;
@@ -230,8 +230,8 @@ void Solver::setBoundaryConditionInBlock(int nx, int ny, int nz,
 
 
 void Solver::setDirichletBoundaryInBlock(int nx, int ny, int nz,
-                                         double* fData, Index3DS fIndex,
-                                         Face face, double value)
+                                         REAL_TYPE* fData, Index3DS fIndex,
+                                         Face face, REAL_TYPE value)
 {
   switch (face) {
     case X_M:
@@ -299,16 +299,16 @@ void Solver::checkResult(char type, bool verbose)
   if (comm.Get_rank() == 0) std::cout << std::endl;
   comm.Barrier();
 
-  double errorMax = 0.0;
+  REAL_TYPE errorMax = 0.0;
   for (int id = 0; id < blockManager.getNumBlock(); ++id) {
     BlockBase* block = blockManager.getBlock(id);
-    Vec3d origin = block->getOrigin();
-    Vec3d delta = block->getCellSize();
+    Vec3r origin = block->getOrigin();
+    Vec3r delta = block->getCellSize();
 
-    double errorMax_inBlock = 0.0;
-    Scalar3D<double>* f = dynamic_cast<Scalar3D<double>*>(
+    REAL_TYPE errorMax_inBlock = 0.0;
+    Scalar3D<REAL_TYPE>* f = dynamic_cast<Scalar3D<REAL_TYPE>*>(
                             block->getDataClass(id_f));
-    double* fData = f->getData();
+    REAL_TYPE* fData = f->getData();
     Index3DS fIndex = f->getIndex();
 
 #pragma loop noalias
@@ -316,7 +316,7 @@ void Solver::checkResult(char type, bool verbose)
       for (int j = 0; j < ny; ++j) {
         for (int i = 0; i < nx; ++i) {
 //        std::cout << Vec3i(i,j,k) << ": " << f(i,j,k) << std::endl;
-          double f0;
+          REAL_TYPE f0;
           if (type == 'x') {
             f0 = origin[0] + (i + 0.5) * delta[0];
           }
@@ -345,9 +345,19 @@ void Solver::checkResult(char type, bool verbose)
   }
 
   if (comm.Get_rank() == 0) {
-    comm.Reduce(MPI::IN_PLACE, &errorMax, 1, MPI::DOUBLE, MPI::MAX, 0);
+    if (sizeof(REAL_TYPE)==8) {
+      comm.Reduce(MPI::IN_PLACE, &errorMax, 1, MPI::DOUBLE, MPI::MAX, 0);
+    }
+    else {
+      comm.Reduce(MPI::IN_PLACE, &errorMax, 1, MPI::FLOAT, MPI::MAX, 0);
+    }
   } else {
-    comm.Reduce(&errorMax, &errorMax, 1, MPI::DOUBLE, MPI::MAX, 0);
+    if (sizeof(REAL_TYPE)==8) {
+      comm.Reduce(&errorMax, &errorMax, 1, MPI::DOUBLE, MPI::MAX, 0);
+    }
+    else {
+      comm.Reduce(&errorMax, &errorMax, 1, MPI::FLOAT, MPI::MAX, 0);
+    }
   }
 
   if (comm.Get_rank() == 0) {
@@ -361,9 +371,9 @@ void Solver::dumpDataClass(int dataClassID)
 {
   for (int id = 0; id < blockManager.getNumBlock(); ++id) {
     BlockBase* block = blockManager.getBlock(id);
-    Scalar3D<double>* f = dynamic_cast<Scalar3D<double>*>(
+    Scalar3D<REAL_TYPE>* f = dynamic_cast<Scalar3D<REAL_TYPE>*>(
                               block->getDataClass(id_f));
-    double* fData = f->getData();
+    REAL_TYPE* fData = f->getData();
     Index3DS fIndex = f->getIndex();
 
     std::cout << "Block " << comm.Get_rank() << "-" << id << std::endl;

@@ -118,8 +118,13 @@ endmacro()
 
 
 macro(precision)
-  if(real_type STREQUAL "float")
-  else()
+  if(real_type STREQUAL "OFF")
+    set(real_type "float")  # nothing, default is float
+
+  elseif(real_type STREQUAL "float")
+    # nothing to do
+
+  elseif(real_type STREQUAL "double")
     ADD_DEFINITIONS(-D_REAL_IS_DOUBLE_)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_REAL_IS_DOUBLE_")
 
@@ -136,5 +141,9 @@ macro(precision)
 
     endif()
 
+  else() # neither 'float' nor 'double'
+    message("@@@@@@@@@@@")
+    message("FATAL ERROR : Invalid floating type : ${real_type}")
+    message("@@@@@@@@@@@")
   ENDIF()
 endmacro()

@@ -339,8 +339,8 @@ private:
   ///
   void writeMesh(const std::string& name, const BlockBase* block) {
     const Vec3i& size = block->getSize();
-    const Vec3d& orig = block->getOrigin();
-    const Vec3d& pitch = block->getCellSize();
+    const Vec3r& orig = block->getOrigin();
+    const Vec3r& pitch = block->getCellSize();
 
 //  DBoptlist* optList = DBMakeOptlist(2);
     DBoptlist* optList = DBMakeOptlist(5);
@@ -358,13 +358,13 @@ private:
 
     Vec3i size0 = size + vc_m + vc_p;
     int dims[3] = { size0.x+1, size0.y+1, size0.z+1 };
- // double x[size0.x+1];
- // double y[size0.y+1];
- // double z[size0.z+1];
-    double* x = new double[size0.x+1];
-    double* y = new double[size0.y+1];
-    double* z = new double[size0.z+1];
-    double *coords[3] = {x, y, z };
+ // REAL_TYPE x[size0.x+1];
+ // REAL_TYPE y[size0.y+1];
+ // REAL_TYPE z[size0.z+1];
+    REAL_TYPE* x = new REAL_TYPE[size0.x+1];
+    REAL_TYPE* y = new REAL_TYPE[size0.y+1];
+    REAL_TYPE* z = new REAL_TYPE[size0.z+1];
+    REAL_TYPE *coords[3] = {x, y, z };
     for (int i = 0; i < size0.x+1; i++) { x[i] = orig.x + (i - vc_m.x) * pitch.x; }
     for (int j = 0; j < size0.y+1; j++) { y[j] = orig.y + (j - vc_m.y) * pitch.y; }
     for (int k = 0; k < size0.z+1; k++) { z[k] = orig.z + (k - vc_m.z) * pitch.z; }
@@ -385,13 +385,13 @@ private:
   ///  @param[in] block ブロック
   ///
   void writeBlockBoundary(const std::string& name, const BlockBase* block) {
-    const Vec3d& orig = block->getOrigin();
-    const Vec3d& blockSize = block->getBlockSize();
-    double x[2] = { orig.x, orig.x + blockSize.x };
-    double y[2] = { orig.y, orig.y + blockSize.y };
-    double z[2] = { orig.z, orig.z + blockSize.z };
+    const Vec3r& orig = block->getOrigin();
+    const Vec3r& blockSize = block->getBlockSize();
+    REAL_TYPE x[2] = { orig.x, orig.x + blockSize.x };
+    REAL_TYPE y[2] = { orig.y, orig.y + blockSize.y };
+    REAL_TYPE z[2] = { orig.z, orig.z + blockSize.z };
     int dims[3] = { 2, 2, 2 };
-    double *coords[3] = {x, y, z };
+    REAL_TYPE *coords[3] = {x, y, z };
     DBoptlist* optList = DBMakeOptlist(3);
     DBAddOption(optList, DBOPT_XLABEL, (void*)" ");
     DBAddOption(optList, DBOPT_YLABEL, (void*)" ");

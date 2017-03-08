@@ -130,7 +130,7 @@ public:
   ///  @param[in] node ノード
   ///  @return 原点位置
   ///
-  Vec3d getOrigin(const Node* node) const;
+  Vec3r getOrigin(const Node* node) const;
 
   /// 指定されたノードの隣接情報を計算.
   ///

@@ -28,6 +28,12 @@
 #
 # -D with_PL=installed_directory
 #
+# -D with_SILO={no|installed_directory}
+#
+# -D with_CUT={no|installed_directory}
+#
+# -D with_HDF5={no|installed_directory}
+#
 # -D with_example={no|yes}
 #
 # -D enable_OPENMP={no|yes}
@@ -49,8 +55,11 @@ option (enable_OPENMP "Enable OpenMP" "OFF")
 option (with_example "Compiling examples" "OFF")
 option (with_PL "Enable Polylib" "OFF")
 option (with_TP "Enable TextParser" "OFF")
+option (with_SILO "Enable SILO" "OFF")
+option (with_HDF5 "Enable HDF5" "OFF")
+option (with_CUT "Enable Cutlib" "OFF")
 option (enable_LARGE_BLOCK "Optimizing block size" "OFF")
-option (real_type "Type of floating point" "float")
+option (real_type "Type of floating point" "OFF")
 
 
 #######
@@ -71,8 +80,8 @@ set (CMAKE_INSTALL_PREFIX "${INSTALL_DIR}")
 
 
 #######
-set(PROJECT_VERSION "1.0.1")
-set(LIB_REVISION "20170308_1400")
+set(PROJECT_VERSION "1.0.2")
+set(LIB_REVISION "20170308_2100")
 #######
 
 
@@ -108,15 +117,15 @@ precision()
 #######
 
 message(" ")
-message( STATUS "Destination PATH: "               ${CMAKE_INSTALL_PREFIX})
-message( STATUS "CMAKE_C_COMPILER: "               ${CMAKE_C_COMPILER})
-message( STATUS "CMAKE_C_FLAGS: "                  ${CMAKE_C_FLAGS})
-message( STATUS "CMAKE_CXX_COMPILER: "             ${CMAKE_CXX_COMPILER})
-message( STATUS "CMAKE_CXX_FLAGS: "                ${CMAKE_CXX_FLAGS})
+message( STATUS "Destination PATH       : "      ${CMAKE_INSTALL_PREFIX})
+message( STATUS "CMAKE_C_COMPILER       : "      ${CMAKE_C_COMPILER})
+message( STATUS "CMAKE_C_FLAGS          : "      ${CMAKE_C_FLAGS})
+message( STATUS "CMAKE_CXX_COMPILER     : "      ${CMAKE_CXX_COMPILER})
+message( STATUS "CMAKE_CXX_FLAGS        : "      ${CMAKE_CXX_FLAGS})
 
 if(enable_Fortran)
-  message( STATUS "CMAKE_Fortran_COMPILER: "         ${CMAKE_Fortran_COMPILER})
-  message( STATUS "CMAKE_Fortran_FLAGS: "            ${CMAKE_Fortran_FLAGS})
+  message( STATUS "CMAKE_Fortran_COMPILER : "      ${CMAKE_Fortran_COMPILER})
+  message( STATUS "CMAKE_Fortran_FLAGS    : "      ${CMAKE_Fortran_FLAGS})
 endif()
 
 message(" ")
@@ -125,6 +134,9 @@ message( STATUS "OpenMP support        : "      ${enable_OPENMP})
 message( STATUS "MPI support           : "      ${with_MPI})
 message( STATUS "TextParser support    : "      ${with_TP})
 message( STATUS "Polylib support       : "      ${with_PL})
+message( STATUS "SILO support          : "      ${with_SILO})
+message( STATUS "HDF5 support          : "      ${with_HDF5})
+message( STATUS "Cutlib support        : "      ${with_CUT})
 message( STATUS "Example               : "      ${with_example})
 message( STATUS "LARGE_BLOCK support   : "      ${enable_LARGE_BLOCK})
 message(" ")
@@ -166,11 +178,39 @@ ENDIF()
 
 
 # Polylib
-IF(with_PL STREQUAL "no")
-ELSE()
+IF(with_PL)
   SET(PL_DIR "${with_PL}")
   SET(PL_INC "${PL_DIR}/include")
   SET(PL_LIB "${PL_DIR}/lib")
+ELSE()
+  MESSAGE("Error: can not find Polylib.")
+ENDIF()
+
+
+# Silo
+IF(with_SILO STREQUAL "no")
+ELSE()
+  SET(SILO_DIR "${with_SILO}")
+  SET(SILO_INC "${SILO_DIR}/include")
+  SET(SILO_LIB "${SILO_DIR}/lib")
+ENDIF()
+
+
+# Cutlib
+IF(with_CUT STREQUAL "no")
+ELSE()
+  SET(CT_DIR "${with_CUT}")
+  SET(CT_INC "${CT_DIR}/include")
+  SET(CT_LIB "${CT_DIR}/lib")
+ENDIF()
+
+
+# HDF5
+IF(with_HDF5 STREQUAL "no")
+ELSE()
+  SET(H5_DIR "${with_HDF5}")
+  SET(H5_INC "${H5_DIR}/include")
+  SET(H5_LIB "${H5_DIR}/lib")
 ENDIF()
 
 
@@ -214,6 +254,8 @@ CHECK_INCLUDE_FILES(unistd.h HAVE_UNISTD_H)
 #######
 
 add_subdirectory(src)
+
+#add_subdirectory(Utils)
 
 add_subdirectory(doc)
 

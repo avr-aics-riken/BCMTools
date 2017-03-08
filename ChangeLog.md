@@ -4,6 +4,13 @@
 ## REVISION HISTORY
 
 ---
+- 2017-03-08  Version 1.0.2
+  - build examples, add silo, cutlib
+  - modify implementation of 'real_type'
+  - watch DB_DOUBLE in SiloWriter.h
+  - convert from double to REAL_TYPE
+
+---
 - 2017-03-08  Version 1.0.1
   - bug fix : src/CMakeLists.txt
   - add flag to switch float <=> double

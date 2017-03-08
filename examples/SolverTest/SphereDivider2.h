@@ -40,16 +40,16 @@ class SphereDivider2 : public MultiRootDivider {
   const int minLevel;  ///< 最小分割レベル
   const int maxLevel;  ///< 最大分割レベル
 
-  const double ox;  ///< 球中心座標
-  const double oy;  ///< 球中心座標
-  const double oz;  ///< 球中心座標
-  const double r;   ///< 球半径
-	const double dr;  ///< 球半径差
+  const REAL_TYPE ox;  ///< 球中心座標
+  const REAL_TYPE oy;  ///< 球中心座標
+  const REAL_TYPE oz;  ///< 球中心座標
+  const REAL_TYPE r;   ///< 球半径
+	const REAL_TYPE dr;  ///< 球半径差
 
-  const double r2;  ///< r^2
+  const REAL_TYPE r2;  ///< r^2
 	const bool hollow;
 
-  Vec3d margin;  ///< 追加マージン
+  Vec3r margin;  ///< 追加マージン
 
 public:
 
@@ -66,19 +66,19 @@ public:
   ///  追加マージン幅の最大分割レベルブロック辺長に対する比率を
   ///  extraMarginRatioに指定する．
   ///  例えば，仮想セル領域を境界面探査領域に追加するには
-  ///  「(double)仮想セル数/ブロック内分割数」を指定する．
+  ///  「(REAL_TYPE)仮想セル数/ブロック内分割数」を指定する．
   ///
   SphereDivider2(const RootGrid* rootGrid, int minLevel, int maxLevel,
-                double ox, double oy, double oz, double r, double dr,
+                REAL_TYPE ox, REAL_TYPE oy, REAL_TYPE oz, REAL_TYPE r, REAL_TYPE dr,
 								bool hollow,
-                double extraMarginRatio = 0.0)
-    : MultiRootDivider(Vec3d(0.0,0.0,0.0), 1.0, rootGrid),
+                REAL_TYPE extraMarginRatio = 0.0)
+    : MultiRootDivider(Vec3r(0.0,0.0,0.0), 1.0, rootGrid),
       minLevel(minLevel), maxLevel(maxLevel),
       ox(ox), oy(oy), oz(oz), r(r), dr(dr), r2(r*r), hollow(hollow) {
     assert(minLevel >= 0);
     assert(maxLevel >= minLevel);
 
-    margin = Vec3d(extraMarginRatio / (1 << maxLevel));
+    margin = Vec3r(extraMarginRatio / (1 << maxLevel));
   }
 
   /// デストラクタ.
@@ -96,8 +96,8 @@ public:
 
     BoundingBox region = defineSearchRegion(pedigree, maxLevel);
 
-    Vec3d min = region.getMin() - margin;
-    Vec3d max = region.getMax() + margin;
+    Vec3r min = region.getMin() - margin;
+    Vec3r max = region.getMax() + margin;
 
   //std::cout << "(x0,y0,z0) = " << min << std::endl;
   //std::cout << "(x1,y1,z1) = " << max << std::endl;
@@ -122,19 +122,19 @@ private:
   ///
   /// 矩形領域内で球中心から最も遠い点を求め，その距離と球半径を比較する.
   ///
-  bool checkInner(double x0, double y0, double z0,
-                  double x1, double y1, double z1) {
+  bool checkInner(REAL_TYPE x0, REAL_TYPE y0, REAL_TYPE z0,
+                  REAL_TYPE x1, REAL_TYPE y1, REAL_TYPE z1) {
 
-    double x = std::max(fabs(x0-ox), fabs(x1-ox));
-    double r2max = x * x;
-		double r2 = (r - 0.5*dr)*(r - 0.5*dr);
+    REAL_TYPE x = std::max(fabs(x0-ox), fabs(x1-ox));
+    REAL_TYPE r2max = x * x;
+		REAL_TYPE r2 = (r - 0.5*dr)*(r - 0.5*dr);
     if (r2max >= r2) return false;
 
-    double y = std::max(fabs(y0-oy), fabs(y1-oy));
+    REAL_TYPE y = std::max(fabs(y0-oy), fabs(y1-oy));
     r2max += y * y;
     if (r2max >= r2) return false;
 
-    double z = std::max(fabs(z0-oz), fabs(z1-oz));
+    REAL_TYPE z = std::max(fabs(z0-oz), fabs(z1-oz));
     r2max += z * z;
     if (r2max >= r2) return false;
 
@@ -146,23 +146,23 @@ private:
   ///
   /// 矩形領域内で球中心に最も近い点を求め，その距離と球半径を比較する.
   ///
-  bool checkOuter(double x0, double y0, double z0,
-                  double x1, double y1, double z1) {
+  bool checkOuter(REAL_TYPE x0, REAL_TYPE y0, REAL_TYPE z0,
+                  REAL_TYPE x1, REAL_TYPE y1, REAL_TYPE z1) {
 
-		double r2 = (r + 1.0*dr)*(r + 1.0*dr);
-    double x = 0.0;
+		REAL_TYPE r2 = (r + 1.0*dr)*(r + 1.0*dr);
+    REAL_TYPE x = 0.0;
     if      (ox < x0) x = x0 - ox;
     else if (ox > x1) x = ox - x1;
-    double r2min = x * x;
+    REAL_TYPE r2min = x * x;
     if (r2min >= r2) return true;
 
-    double y = 0.0;
+    REAL_TYPE y = 0.0;
     if      (oy < y0) y = y0 - oy;
     else if (oy > y1) y = oy - y1;
     r2min += y * y;
     if (r2min >= r2) return true;
 
-    double z = 0.0;
+    REAL_TYPE z = 0.0;
     if      (oz < z0) z = z0 - oz;
     else if (oz > z1) z = oz - z1;
     r2min += z * z;

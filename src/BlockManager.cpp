@@ -187,11 +187,11 @@ void BlockManager::printBlockLayoutInfo()
 
   if (myrank == 0) {
     std::cout << "  Number of total blocks / node" << std::endl;
-    double ave = (double)numBlockSum / nprocs;
+    REAL_TYPE ave = (REAL_TYPE)numBlockSum / nprocs;
     std::cout << "    ave: " << ave << std::endl;
     std::cout << "    min: " << numBlockMin << std::endl;
     std::cout << "    max: " << numBlockMax << std::endl;
-    std::cout << "     sd: " << sqrt((double)numBlock2Sum/nprocs - ave*ave)<< std::endl;
+    std::cout << "     sd: " << sqrt((REAL_TYPE)numBlock2Sum/nprocs - ave*ave)<< std::endl;
   }
 
 
@@ -277,12 +277,12 @@ void BlockManager::printBlockLayoutInfo()
 
   if (myrank == 0) {
     std::cout << "  Number of total inter-node faces / node" << std::endl;
-    double ave
-      = (double)(nFaceInterSum[LD_M1] + nFaceInterSum[LD_0] + nFaceInterSum[LD_P1]) / nprocs;
+    REAL_TYPE ave
+      = (REAL_TYPE)(nFaceInterSum[LD_M1] + nFaceInterSum[LD_0] + nFaceInterSum[LD_P1]) / nprocs;
     std::cout << "    ave: " << ave << std::endl;
     std::cout << "    min: " << nFaceInterTotalMin << std::endl;
     std::cout << "    max: " << nFaceInterTotalMax << std::endl;
-    std::cout << "     sd: " << sqrt((double)nFaceInterTotal2Sum/nprocs - ave*ave) << std::endl;
+    std::cout << "     sd: " << sqrt((REAL_TYPE)nFaceInterTotal2Sum/nprocs - ave*ave) << std::endl;
   }
 }
 
@@ -364,11 +364,11 @@ void BlockManager::printBlockLayoutInfo(const char* filename)
 
   if (myrank == 0) {
     ofs << "  Number of total blocks / node" << std::endl;
-    double ave = (double)numBlockSum / nprocs;
+    REAL_TYPE ave = (REAL_TYPE)numBlockSum / nprocs;
     ofs << "    ave: " << ave << std::endl;
     ofs << "    min: " << numBlockMin << std::endl;
     ofs << "    max: " << numBlockMax << std::endl;
-    ofs << "     sd: " << sqrt((double)numBlock2Sum/nprocs - ave*ave)<< std::endl;
+    ofs << "     sd: " << sqrt((REAL_TYPE)numBlock2Sum/nprocs - ave*ave)<< std::endl;
   }
 
 
@@ -454,12 +454,12 @@ void BlockManager::printBlockLayoutInfo(const char* filename)
 
   if (myrank == 0) {
     ofs << "  Number of total inter-node faces / node" << std::endl;
-    double ave
-      = (double)(nFaceInterSum[LD_M1] + nFaceInterSum[LD_0] + nFaceInterSum[LD_P1]) / nprocs;
+    REAL_TYPE ave
+      = (REAL_TYPE)(nFaceInterSum[LD_M1] + nFaceInterSum[LD_0] + nFaceInterSum[LD_P1]) / nprocs;
     ofs << "    ave: " << ave << std::endl;
     ofs << "    min: " << nFaceInterTotalMin << std::endl;
     ofs << "    max: " << nFaceInterTotalMax << std::endl;
-    ofs << "     sd: " << sqrt((double)nFaceInterTotal2Sum/nprocs - ave*ave) << std::endl;
+    ofs << "     sd: " << sqrt((REAL_TYPE)nFaceInterTotal2Sum/nprocs - ave*ave) << std::endl;
   }
 
 	if( myrank == 0 ) {

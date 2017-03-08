@@ -36,9 +36,9 @@ void LocalScalar3D<real>::CalcStats(BlockManager& blockManager) {
 	for (int id = 0; id < blockManager.getNumBlock(); ++id) {
 		BlockBase* block = blockManager.getBlock(id);
 		::Vec3i size = block->getSize();
-		::Vec3d origin = block->getOrigin();
-		::Vec3d blockSize = block->getBlockSize();
-		::Vec3d cellSize = block->getCellSize();
+		::Vec3r origin = block->getOrigin();
+		::Vec3r blockSize = block->getBlockSize();
+		::Vec3r cellSize = block->getCellSize();
 
 		int sz[3] = {size.x, size.y, size.z};
 		int g[1] = {vc};
@@ -97,9 +97,9 @@ void LocalScalar3D<real>::Dump(BlockManager& blockManager, const int step, const
 		BlockBase* block = blockManager.getBlock(id);
 
 		::Vec3i size = block->getSize();
-		Vec3d origin = block->getOrigin();
-		Vec3d blockSize = block->getBlockSize();
-		Vec3d cellSize = block->getCellSize();
+		Vec3r origin = block->getOrigin();
+		Vec3r blockSize = block->getBlockSize();
+		Vec3r cellSize = block->getCellSize();
 		int level = block->getLevel();
 
 		ostringstream ossFileName;
@@ -153,9 +153,9 @@ void LocalScalar3D<real>::Load(BlockManager& blockManager, const int step, const
 		BlockBase* block = blockManager.getBlock(id);
 
 		::Vec3i size = block->getSize();
-		Vec3d origin = block->getOrigin();
-		Vec3d blockSize = block->getBlockSize();
-		Vec3d cellSize = block->getCellSize();
+		Vec3r origin = block->getOrigin();
+		Vec3r blockSize = block->getBlockSize();
+		Vec3r cellSize = block->getCellSize();
 		int level = block->getLevel();
 
 		ostringstream ossFileName;
@@ -372,9 +372,9 @@ void LocalScalar3D<real>::Dump3(BlockManager& blockManager, const int step, cons
 		BlockBase* block = blockManager.getBlock(id);
 
 		::Vec3i size = block->getSize();
-		Vec3d origin = block->getOrigin();
-		Vec3d blockSize = block->getBlockSize();
-		Vec3d cellSize = block->getCellSize();
+		Vec3r origin = block->getOrigin();
+		Vec3r blockSize = block->getBlockSize();
+		Vec3r cellSize = block->getCellSize();
 		int level = block->getLevel();
 
 		ostringstream ossFileName;

@@ -304,8 +304,8 @@ int main(int argc, char *argv[])
 	gridBcm->DeleteSlicePlane(GridBCM::AXIS_X);
 	gridBcm->DeleteSlicePlane(GridBCM::AXIS_Y);
 
-	const Vec3d org = gridBcm->GetGlobalOrigin();
-	const Vec3d rgn = gridBcm->GetGlobalRegion();
+	const Vec3r org = gridBcm->GetGlobalOrigin();
+	const Vec3r rgn = gridBcm->GetGlobalRegion();
 
 	BBox box( vec3<float>(org.x, org.y, org.z), vec3<float>(rgn.x, rgn.y, rgn.z) );
 

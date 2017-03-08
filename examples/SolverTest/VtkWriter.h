@@ -76,8 +76,8 @@ public:
 								const char* label, int step, int rank, int block,
 								int NX, int NY, int NZ,
 								int vc,
-								double ox, double oy, double oz,
-								double dx) {
+								REAL_TYPE ox, REAL_TYPE oy, REAL_TYPE oz,
+								REAL_TYPE dx) {
 		ostringstream ossFileName;
 		ossFileName << "./VTK/";
 		ossFileName.width(10);
@@ -206,8 +206,8 @@ public:
 								const char* label, int step, int rank, int block,
 								int NX, int NY, int NZ,
 								int vc,
-								double ox, double oy, double oz,
-								double dx) {
+								REAL_TYPE ox, REAL_TYPE oy, REAL_TYPE oz,
+								REAL_TYPE dx) {
 		ostringstream ossFileName;
 		ossFileName << "./VTK/";
 		ossFileName << "data-";
@@ -390,8 +390,8 @@ public:
 								const char* label, int step, int rank, int block,
 								int NX, int NY, int NZ,
 								int vc,
-								double ox, double oy, double oz,
-								double dx) {
+								REAL_TYPE ox, REAL_TYPE oy, REAL_TYPE oz,
+								REAL_TYPE dx) {
 		ostringstream ossFileName;
 		ossFileName << "./VTK/";
 		ossFileName.width(10);
@@ -553,8 +553,8 @@ public:
 								const char* label, int step, int rank, int block,
 								int NX, int NY, int NZ,
 								int vc,
-								double ox, double oy, double oz,
-								double dx) {
+								REAL_TYPE ox, REAL_TYPE oy, REAL_TYPE oz,
+								REAL_TYPE dx) {
 		ostringstream ossFileName;
 		ossFileName << "./VTK/";
 		ossFileName.width(10);
@@ -739,8 +739,8 @@ public:
 						RootGrid* rootGrid,
 						BCMOctree* tree,
 						Partition* partition,
-						Vec3d rootOrigin,
-						double rootLength) {
+						Vec3r rootOrigin,
+						REAL_TYPE rootLength) {
 		ostringstream ossFileNameTime;
 		ossFileNameTime << "./VTK/";
 		mkdir(ossFileNameTime.str().c_str(), 0755);
@@ -758,9 +758,9 @@ public:
     for (int id = 0; id < blockManager.getNumBlock(); ++id) {
       BlockBase* block = blockManager.getBlock(id);
 			::Vec3i size = block->getSize();
-			Vec3d origin = block->getOrigin();
-			Vec3d blockSize = block->getBlockSize();
-			Vec3d cellSize = block->getCellSize();
+			Vec3r origin = block->getOrigin();
+			Vec3r blockSize = block->getBlockSize();
+			Vec3r cellSize = block->getCellSize();
 			int level = block->getLevel();
 
       Scalar3D<T>* s = dynamic_cast<Scalar3D<T>*>(block->getDataClass(dataClassID));
@@ -803,10 +803,10 @@ public:
 			for (int iRank = 0; iRank < comm.Get_size(); iRank++) {
 				for (int id = partition->getStart(iRank); id < partition->getEnd(iRank); id++) {
 					Node* node = leafNodeArray[id];
-//					Vec3d origin = tree->getOrigin(node) * rootLength + rootOrigin;
-					Vec3d origin = tree->getOrigin(node) * rootLength;
-					Vec3d blockSize = node->getBlockSize() * rootLength;
-					Vec3d cellSize;
+//					Vec3r origin = tree->getOrigin(node) * rootLength + rootOrigin;
+					Vec3r origin = tree->getOrigin(node) * rootLength;
+					Vec3r blockSize = node->getBlockSize() * rootLength;
+					Vec3r cellSize;
 					cellSize.x = blockSize.x / size.x;
 					cellSize.y = blockSize.y / size.y;
 					cellSize.z = blockSize.z / size.z;
@@ -848,15 +848,15 @@ public:
 					int ly = size.y*(1 << level);
 					int lz = size.z*(1 << level);
 
-					Vec3d origin2 = tree->getOrigin(node);
+					Vec3r origin2 = tree->getOrigin(node);
 
-					double nx0 = (origin2.x)*lx;
-					double ny0 = (origin2.y)*ly;
-					double nz0 = (origin2.z)*lz;
+					REAL_TYPE nx0 = (origin2.x)*lx;
+					REAL_TYPE ny0 = (origin2.y)*ly;
+					REAL_TYPE nz0 = (origin2.z)*lz;
 
-					double nx1 = nx0 + size.x - 1;
-					double ny1 = ny0 + size.y - 1;
-					double nz1 = nz0 + size.z - 1;
+					REAL_TYPE nx1 = nx0 + size.x - 1;
+					REAL_TYPE ny1 = ny0 + size.y - 1;
+					REAL_TYPE nz1 = nz0 + size.z - 1;
 
 					ofs << "<DataSet group=\"";
 					ofs << level;
@@ -916,9 +916,9 @@ public:
     for (int id = 0; id < blockManager.getNumBlock(); ++id) {
       BlockBase* block = blockManager.getBlock(id);
 			::Vec3i size = block->getSize();
-			Vec3d origin = block->getOrigin();
-			Vec3d blockSize = block->getBlockSize();
-			Vec3d cellSize = block->getCellSize();
+			Vec3r origin = block->getOrigin();
+			Vec3r blockSize = block->getBlockSize();
+			Vec3r cellSize = block->getCellSize();
 			int level = block->getLevel();
 
       Scalar3D<T>* sp = dynamic_cast<Scalar3D<T>*>(block->getDataClass(dataClassID_P));
@@ -977,9 +977,9 @@ public:
 			for (int id = 0; id < blockManager.getNumBlock(); ++id) {
 				BlockBase* block = blockManager.getBlock(id);
 				::Vec3i size = block->getSize();
-				Vec3d origin = block->getOrigin();
-				Vec3d blockSize = block->getBlockSize();
-				Vec3d cellSize = block->getCellSize();
+				Vec3r origin = block->getOrigin();
+				Vec3r blockSize = block->getBlockSize();
+				Vec3r cellSize = block->getCellSize();
 				int level = block->getLevel();
 
 				ostringstream ossFileName2;
@@ -1056,8 +1056,8 @@ public:
 						RootGrid* rootGrid,
 						BCMOctree* tree,
 						Partition* partition,
-						Vec3d rootOrigin,
-						double rootLength) {
+						Vec3r rootOrigin,
+						REAL_TYPE rootLength) {
 		ostringstream ossFileNameTime;
 		ossFileNameTime << "./VTK/";
 		mkdir(ossFileNameTime.str().c_str(), 0755);
@@ -1079,9 +1079,9 @@ public:
     for (int id = 0; id < blockManager.getNumBlock(); ++id) {
       BlockBase* block = blockManager.getBlock(id);
 			::Vec3i size = block->getSize();
-			Vec3d origin = block->getOrigin();
-			Vec3d blockSize = block->getBlockSize();
-			Vec3d cellSize = block->getCellSize();
+			Vec3r origin = block->getOrigin();
+			Vec3r blockSize = block->getBlockSize();
+			Vec3r cellSize = block->getCellSize();
 			int level = block->getLevel();
 
       Scalar3D<T>* sp = dynamic_cast<Scalar3D<T>*>(block->getDataClass(dataClassID_P));
@@ -1134,10 +1134,10 @@ public:
 			for (int iRank = 0; iRank < comm.Get_size(); iRank++) {
 				for (int id = partition->getStart(iRank); id < partition->getEnd(iRank); id++) {
 					Node* node = leafNodeArray[id];
-//					Vec3d origin = tree->getOrigin(node) * rootLength + rootOrigin;
-					Vec3d origin = tree->getOrigin(node) * rootLength;
-					Vec3d blockSize = node->getBlockSize() * rootLength;
-					Vec3d cellSize;
+//					Vec3r origin = tree->getOrigin(node) * rootLength + rootOrigin;
+					Vec3r origin = tree->getOrigin(node) * rootLength;
+					Vec3r blockSize = node->getBlockSize() * rootLength;
+					Vec3r cellSize;
 					cellSize.x = blockSize.x / size.x;
 					cellSize.y = blockSize.y / size.y;
 					cellSize.z = blockSize.z / size.z;
@@ -1179,15 +1179,15 @@ public:
 					int ly = size.y*(1 << level);
 					int lz = size.z*(1 << level);
 
-					Vec3d origin2 = tree->getOrigin(node);
+					Vec3r origin2 = tree->getOrigin(node);
 
-					double nx0 = (origin2.x)*lx;
-					double ny0 = (origin2.y)*ly;
-					double nz0 = (origin2.z)*lz;
+					REAL_TYPE nx0 = (origin2.x)*lx;
+					REAL_TYPE ny0 = (origin2.y)*ly;
+					REAL_TYPE nz0 = (origin2.z)*lz;
 
-					double nx1 = nx0 + size.x - 1;
-					double ny1 = ny0 + size.y - 1;
-					double nz1 = nz0 + size.z - 1;
+					REAL_TYPE nx1 = nx0 + size.x - 1;
+					REAL_TYPE ny1 = ny0 + size.y - 1;
+					REAL_TYPE nz1 = nz0 + size.z - 1;
 
 					ofs << "<DataSet group=\"";
 					ofs << level;
@@ -1231,8 +1231,8 @@ public:
 						RootGrid* rootGrid,
 						BCMOctree* tree,
 						Partition* partition,
-						Vec3d rootOrigin,
-						double rootLength) {
+						Vec3r rootOrigin,
+						REAL_TYPE rootLength) {
 		ostringstream ossFileNameTime;
 		ossFileNameTime << "./VTK/";
 		mkdir(ossFileNameTime.str().c_str(), 0755);
@@ -1254,9 +1254,9 @@ public:
     for (int id = 0; id < blockManager.getNumBlock(); ++id) {
       BlockBase* block = blockManager.getBlock(id);
 			::Vec3i size = block->getSize();
-			Vec3d origin = block->getOrigin();
-			Vec3d blockSize = block->getBlockSize();
-			Vec3d cellSize = block->getCellSize();
+			Vec3r origin = block->getOrigin();
+			Vec3r blockSize = block->getBlockSize();
+			Vec3r cellSize = block->getCellSize();
 			int level = block->getLevel();
 
       Scalar3D<T>* sp = dynamic_cast<Scalar3D<T>*>(block->getDataClass(dataClassID_P));
@@ -1300,7 +1300,7 @@ public:
 			std::vector<Node*>& leafNodeArray = tree->getLeafNodeArray();
 			int lmax = difflevel+1;
 			for(int n=0; n<lmax; n++) {
-				double dx = rootLength/(1 << n);
+				REAL_TYPE dx = rootLength/(1 << n);
 				ofs << "\t<Block level=\"";
 				ofs << n;
 				ofs << "\" spacing=\"";
@@ -1314,9 +1314,9 @@ public:
 				for (int iRank = 0; iRank < comm.Get_size(); iRank++) {
 					for (int id = partition->getStart(iRank); id < partition->getEnd(iRank); id++) {
 						Node* node = leafNodeArray[id];
-						Vec3d origin = tree->getOrigin(node) * rootLength;
-						Vec3d blockSize = node->getBlockSize() * rootLength;
-						Vec3d cellSize;
+						Vec3r origin = tree->getOrigin(node) * rootLength;
+						Vec3r blockSize = node->getBlockSize() * rootLength;
+						Vec3r cellSize;
 						cellSize.x = blockSize.x / size.x;
 						cellSize.y = blockSize.y / size.y;
 						cellSize.z = blockSize.z / size.z;
@@ -1352,15 +1352,15 @@ public:
 						int ly = size.y*(1 << level);
 						int lz = size.z*(1 << level);
 
-						Vec3d origin2 = tree->getOrigin(node);
+						Vec3r origin2 = tree->getOrigin(node);
 
-						double nx0 = (origin2.x)*lx;
-						double ny0 = (origin2.y)*ly;
-						double nz0 = (origin2.z)*lz;
+						REAL_TYPE nx0 = (origin2.x)*lx;
+						REAL_TYPE ny0 = (origin2.y)*ly;
+						REAL_TYPE nz0 = (origin2.z)*lz;
 
-						double nx1 = nx0 + size.x - 1;
-						double ny1 = ny0 + size.y - 1;
-						double nz1 = nz0 + size.z - 1;
+						REAL_TYPE nx1 = nx0 + size.x - 1;
+						REAL_TYPE ny1 = ny0 + size.y - 1;
+						REAL_TYPE nz1 = nz0 + size.z - 1;
 
 						if( level == n ) {
 							ofs << "\t\t<DataSet index=\"";
@@ -1404,8 +1404,8 @@ public:
 						RootGrid* rootGrid,
 						BCMOctree* tree,
 						Partition* partition,
-						Vec3d rootOrigin,
-						double rootLength) {
+						Vec3r rootOrigin,
+						REAL_TYPE rootLength) {
     const ::Vec3i& size = blockManager.getSize();
     int myrank = comm.Get_rank();
 
@@ -1428,7 +1428,7 @@ public:
 			std::vector<Node*>& leafNodeArray = tree->getLeafNodeArray();
 			int lmax = difflevel+1;
 			for(int n=0; n<lmax; n++) {
-				double dx = rootLength/(1 << n);
+				REAL_TYPE dx = rootLength/(1 << n);
 				ofs << "\t<Block level=\"";
 				ofs << n;
 				ofs << "\" spacing=\"";
@@ -1442,9 +1442,9 @@ public:
 				for (int iRank = 0; iRank < comm.Get_size(); iRank++) {
 					for (int id = partition->getStart(iRank); id < partition->getEnd(iRank); id++) {
 						Node* node = leafNodeArray[id];
-						Vec3d origin = tree->getOrigin(node) * rootLength;
-						Vec3d blockSize = node->getBlockSize() * rootLength;
-						Vec3d cellSize;
+						Vec3r origin = tree->getOrigin(node) * rootLength;
+						Vec3r blockSize = node->getBlockSize() * rootLength;
+						Vec3r cellSize;
 						cellSize.x = blockSize.x / size.x;
 						cellSize.y = blockSize.y / size.y;
 						cellSize.z = blockSize.z / size.z;
@@ -1480,15 +1480,15 @@ public:
 						int ly = size.y*(1 << level);
 						int lz = size.z*(1 << level);
 
-						Vec3d origin2 = tree->getOrigin(node);
+						Vec3r origin2 = tree->getOrigin(node);
 
-						double nx0 = (origin2.x)*lx;
-						double ny0 = (origin2.y)*ly;
-						double nz0 = (origin2.z)*lz;
+						REAL_TYPE nx0 = (origin2.x)*lx;
+						REAL_TYPE ny0 = (origin2.y)*ly;
+						REAL_TYPE nz0 = (origin2.z)*lz;
 
-						double nx1 = nx0 + size.x - 1;
-						double ny1 = ny0 + size.y - 1;
-						double nz1 = nz0 + size.z - 1;
+						REAL_TYPE nx1 = nx0 + size.x - 1;
+						REAL_TYPE ny1 = ny0 + size.y - 1;
+						REAL_TYPE nz1 = nz0 + size.z - 1;
 
 						if( level == n ) {
 							ofs << "\t\t<DataSet index=\"";

@@ -24,8 +24,8 @@ extern "C" {
 	void bc_x3_poiseuille_u_(
 					real *x, real *xc
 				, int *sz, int *g
-				, double *center
-				, double *org, double *blockSize, double *cellSize);
+				, REAL_TYPE *center
+				, REAL_TYPE *org, REAL_TYPE *blockSize, REAL_TYPE *cellSize);
 
 	void bc_aw_poiseuille_u_(
 					real* Ap,
@@ -33,14 +33,14 @@ extern "C" {
 					real* b,
 					real* xc,
 					int* sz, int* g,
-					double *center,
-					double *org, double *blockSize, double *cellSize);
+					REAL_TYPE *center,
+					REAL_TYPE *org, REAL_TYPE *blockSize, REAL_TYPE *cellSize);
 
 	void bc_x3_poiseuille_p_(
 					real *x, real *xc
 				, int *sz, int *g
-				, double *center
-				, double *org, double *blockSize, double *cellSize);
+				, REAL_TYPE *center
+				, REAL_TYPE *org, REAL_TYPE *blockSize, REAL_TYPE *cellSize);
 
 	void bc_aw_poiseuille_p_(
 					real* Ap,
@@ -48,8 +48,8 @@ extern "C" {
 					real* b,
 					real* xc,
 					int* sz, int* g,
-					double *center,
-					double *org, double *blockSize, double *cellSize);
+					REAL_TYPE *center,
+					REAL_TYPE *org, REAL_TYPE *blockSize, REAL_TYPE *cellSize);
 }
 
 #endif

@@ -45,7 +45,7 @@ class BBDivider : public MultiRootDivider {
 
   const std::vector<BoundingBoxSpec>& sphericalBoxList;
 
-  double extraMarginRatio;  ///< 追加マージン幅の最大分割ブロック辺長に対する比
+  REAL_TYPE extraMarginRatio;  ///< 追加マージン幅の最大分割ブロック辺長に対する比
 
 public:
 
@@ -64,14 +64,14 @@ public:
   ///  追加マージン幅の最大分割レベルブロック辺長に対する比率を
   ///  extraMarginRatioに指定する．
   ///  例えば，仮想セル領域を境界面探査領域に追加するには
-  ///  「(double)仮想セル数/ブロック内分割数」を指定する．
+  ///  「(REAL_TYPE)仮想セル数/ブロック内分割数」を指定する．
   ///
-  BBDivider(const Vec3d& origin, double rootLength, const RootGrid* rootGrid,
+  BBDivider(const Vec3r& origin, REAL_TYPE rootLength, const RootGrid* rootGrid,
                  int minLevel, const PolylibNS::BCMPolylib* pl,
                  const std::vector<PolygonGroupSpec>& polygonGroupList,
                  const std::vector<BoundingBoxSpec>& boundingBoxList,
                  const std::vector<BoundingBoxSpec>& sphericalBoxList,
-                 double extraMarginRatio = 0.0)
+                 REAL_TYPE extraMarginRatio = 0.0)
     : MultiRootDivider(origin, rootLength, rootGrid),
       minLevel(minLevel), pl(pl),
       polygonGroupList(polygonGroupList), boundingBoxList(boundingBoxList), sphericalBoxList(sphericalBoxList),
@@ -177,26 +177,26 @@ public:
 	}
 
 	bool checkInner(BoundingBox &box, BoundingBox &rgn) {
-		double x0 = rgn.getMin().x;
-		double y0 = rgn.getMin().y;
-		double z0 = rgn.getMin().z;
-		double x1 = rgn.getMax().x;
-		double y1 = rgn.getMax().y;
-		double z1 = rgn.getMax().z;
-		double ox = 0.5*(box.getMin().x + box.getMax().x);
-		double oy = 0.5*(box.getMin().y + box.getMax().y);
-		double oz = 0.5*(box.getMin().z + box.getMax().z);
-		double r = 0.5*(box.getMax().x - box.getMin().x);
-    double x = std::max(fabs(x0-ox), fabs(x1-ox));
-    double r2max = x * x;
-		double r2 = r*r;
+		REAL_TYPE x0 = rgn.getMin().x;
+		REAL_TYPE y0 = rgn.getMin().y;
+		REAL_TYPE z0 = rgn.getMin().z;
+		REAL_TYPE x1 = rgn.getMax().x;
+		REAL_TYPE y1 = rgn.getMax().y;
+		REAL_TYPE z1 = rgn.getMax().z;
+		REAL_TYPE ox = 0.5*(box.getMin().x + box.getMax().x);
+		REAL_TYPE oy = 0.5*(box.getMin().y + box.getMax().y);
+		REAL_TYPE oz = 0.5*(box.getMin().z + box.getMax().z);
+		REAL_TYPE r = 0.5*(box.getMax().x - box.getMin().x);
+    REAL_TYPE x = std::max(fabs(x0-ox), fabs(x1-ox));
+    REAL_TYPE r2max = x * x;
+		REAL_TYPE r2 = r*r;
     if (r2max >= r2) return false;
 
-    double y = std::max(fabs(y0-oy), fabs(y1-oy));
+    REAL_TYPE y = std::max(fabs(y0-oy), fabs(y1-oy));
     r2max += y * y;
     if (r2max >= r2) return false;
 
-    double z = std::max(fabs(z0-oz), fabs(z1-oz));
+    REAL_TYPE z = std::max(fabs(z0-oz), fabs(z1-oz));
     r2max += z * z;
     if (r2max >= r2) return false;
 
@@ -204,30 +204,30 @@ public:
 	}
 
 	bool checkOuter(BoundingBox &box, BoundingBox &rgn) {
-		double x0 = rgn.getMin().x;
-		double y0 = rgn.getMin().y;
-		double z0 = rgn.getMin().z;
-		double x1 = rgn.getMax().x;
-		double y1 = rgn.getMax().y;
-		double z1 = rgn.getMax().z;
-		double ox = 0.5*(box.getMin().x + box.getMax().x);
-		double oy = 0.5*(box.getMin().y + box.getMax().y);
-		double oz = 0.5*(box.getMin().z + box.getMax().z);
-		double r = 0.5*(box.getMax().x - box.getMin().x);
-		double r2 = r*r;
-    double x = 0.0;
+		REAL_TYPE x0 = rgn.getMin().x;
+		REAL_TYPE y0 = rgn.getMin().y;
+		REAL_TYPE z0 = rgn.getMin().z;
+		REAL_TYPE x1 = rgn.getMax().x;
+		REAL_TYPE y1 = rgn.getMax().y;
+		REAL_TYPE z1 = rgn.getMax().z;
+		REAL_TYPE ox = 0.5*(box.getMin().x + box.getMax().x);
+		REAL_TYPE oy = 0.5*(box.getMin().y + box.getMax().y);
+		REAL_TYPE oz = 0.5*(box.getMin().z + box.getMax().z);
+		REAL_TYPE r = 0.5*(box.getMax().x - box.getMin().x);
+		REAL_TYPE r2 = r*r;
+    REAL_TYPE x = 0.0;
     if      (ox < x0) x = x0 - ox;
     else if (ox > x1) x = ox - x1;
-    double r2min = x * x;
+    REAL_TYPE r2min = x * x;
     if (r2min >= r2) return true;
 
-    double y = 0.0;
+    REAL_TYPE y = 0.0;
     if      (oy < y0) y = y0 - oy;
     else if (oy > y1) y = oy - y1;
     r2min += y * y;
     if (r2min >= r2) return true;
 
-    double z = 0.0;
+    REAL_TYPE z = 0.0;
     if      (oz < z0) z = z0 - oz;
     else if (oz > z1) z = oz - z1;
     r2min += z * z;

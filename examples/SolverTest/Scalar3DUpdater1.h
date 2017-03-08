@@ -203,7 +203,7 @@ private:
   /// レベルL→L+1の線形補間 (粗c(I,J,K) → 細f(i,j,k)).
   T interpolateC2F(const Scalar3D<T>& c, int i, int j, int k) {
     int I, J, K;
-    double r, s, t;
+    REAL_TYPE r, s, t;
     linearInterpolate(i, nx, I, r);
     linearInterpolate(j, ny, J, s);
     linearInterpolate(k, nz, K, t);
@@ -221,7 +221,7 @@ private:
   /// レベルL→L+1の線形補間 (粗c(I,J,K) → 細f(i,j,k)).
   T interpolateC2F(const T* cData, const Index3DS& cIndex, int i, int j, int k) {
     int I, J, K;
-    double r, s, t;
+    REAL_TYPE r, s, t;
     linearInterpolate(i, nx, I, r);
     linearInterpolate(j, ny, J, s);
     linearInterpolate(k, nz, K, t);
@@ -240,10 +240,10 @@ private:
   ///
   ///  @note 端点では，内挿ではなく外挿
   ///
-  void linearInterpolate(int i, int n, int& I, double& r) {
+  void linearInterpolate(int i, int n, int& I, REAL_TYPE& r) {
 #if 1
     I = std::min(std::max(i/2 - 1 + i%2, 0), n - 2);
-    r = -0.25 + 0.5 * i - double(I);
+    r = -0.25 + 0.5 * i - REAL_TYPE(I);
 #else
     if (i == 0) {
       // 外挿

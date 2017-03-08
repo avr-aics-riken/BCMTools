@@ -80,7 +80,7 @@ class PolygonBBoxDivider : public MultiRootDivider {
   /// <バウンディングボックス, 分割レベル>ペアのリスト
   const std::vector<BoundingBoxSpec>& boundingBoxList;
 
-  double extraMarginRatio;  ///< 追加マージン幅の最大分割ブロック辺長に対する比
+  REAL_TYPE extraMarginRatio;  ///< 追加マージン幅の最大分割ブロック辺長に対する比
 
 public:
 
@@ -99,13 +99,13 @@ public:
   ///  追加マージン幅の最大分割レベルブロック辺長に対する比率を
   ///  extraMarginRatioに指定する．
   ///  例えば，仮想セル領域を境界面探査領域に追加するには
-  ///  「(double)仮想セル数/ブロック内分割数」を指定する．
+  ///  「(REAL_TYPE)仮想セル数/ブロック内分割数」を指定する．
   ///
-  PolygonBBoxDivider(const Vec3d& origin, double rootLength, const RootGrid* rootGrid,
+  PolygonBBoxDivider(const Vec3r& origin, REAL_TYPE rootLength, const RootGrid* rootGrid,
                  int minLevel, const PolylibNS::BCMPolylib* pl,
                  const std::vector<PolygonGroupSpec>& polygonGroupList,
                  const std::vector<BoundingBoxSpec>& boundingBoxList,
-                 double extraMarginRatio = 0.0)
+                 REAL_TYPE extraMarginRatio = 0.0)
     : MultiRootDivider(origin, rootLength, rootGrid),
       minLevel(minLevel), pl(pl),
       polygonGroupList(polygonGroupList), boundingBoxList(boundingBoxList),

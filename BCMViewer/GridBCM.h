@@ -68,8 +68,8 @@ public:
 		if( axis == AXIS_X || axis == AXIS_Y || axis == AXIS_Z ) m_active = axis;
 	}
 
-	const Vec3d& GetGlobalOrigin() const { return m_globalOrigin; }
-	const Vec3d& GetGlobalRegion() const { return m_globalRegion; }
+	const Vec3r& GetGlobalOrigin() const { return m_globalOrigin; }
+	const Vec3r& GetGlobalRegion() const { return m_globalRegion; }
 
 	size_t GetCellCount(const AXIS axis){
 		if( axis == AXIS_X ){ return m_maxCellCount[0]; }
@@ -107,8 +107,8 @@ private:
 	size_t m_maxCellCount[3];
 
 	// Domain
-	Vec3d m_globalOrigin;
-	Vec3d m_globalRegion;
+	Vec3r m_globalOrigin;
+	Vec3r m_globalRegion;
 
 	// Octree
 	BCMFileIO::PartitionMapper *m_pmapper;

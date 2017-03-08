@@ -39,12 +39,12 @@ class Solver {
 
   const int vc;
 
-  const std::vector<double>& boundaryValue;
+  const std::vector<REAL_TYPE>& boundaryValue;
 
   int nLoopInner;
   int nLoopOuter;
 
-  double omega;
+  REAL_TYPE omega;
 
   bool separateVCUpdate;
 
@@ -56,11 +56,11 @@ class Solver {
   int id_f;
   static const int tag_f = 100;
 
-  Scalar3D<double>* work;
+  Scalar3D<REAL_TYPE>* work;
 
 public:
 
-  Solver(const Config& conf, const std::vector<double>& boundaryValue);
+  Solver(const Config& conf, const std::vector<REAL_TYPE>& boundaryValue);
 
   ~Solver();
 
@@ -77,25 +77,25 @@ private:
   void setBoundaryCondition();
 
   void calcSorInBlock(int nx, int ny, int nz,
-                      double* fData, const double* sData, Index3DS fIndex,
-                      double omega,
-                      double c0, double cx, double cy, double cz);
+                      REAL_TYPE* fData, const REAL_TYPE* sData, Index3DS fIndex,
+                      REAL_TYPE omega,
+                      REAL_TYPE c0, REAL_TYPE cx, REAL_TYPE cy, REAL_TYPE cz);
 
   void setInitialConditionInBlock(int nx, int ny, int nz,
-                                  double* fData, Index3DS fIndex,
-                                  double value);
+                                  REAL_TYPE* fData, Index3DS fIndex,
+                                  REAL_TYPE value);
 
   void setBoundaryConditionInBlock(int nx, int ny, int nz,
-                                   double* fData, Index3DS fIndex,
+                                   REAL_TYPE* fData, Index3DS fIndex,
                                    const BoundaryInfo* boundaryInfo);
 
   void setDirichletBoundaryInBlock(int nx, int ny, int nz,
-                                  double* fData, Index3DS fIndex,
-                                  Face face, double value);
+                                  REAL_TYPE* fData, Index3DS fIndex,
+                                  Face face, REAL_TYPE value);
 
   void setSource(int nx, int ny, int nz,
-                       double* sData, Index3DS sIndex,
-                       const Vec3d& orig, const Vec3d& delta);
+                       REAL_TYPE* sData, Index3DS sIndex,
+                       const Vec3r& orig, const Vec3r& delta);
 
   void dumpDataClass(int dataClassID);
 

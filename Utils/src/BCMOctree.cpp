@@ -405,7 +405,7 @@ void BCMOctree::randomShuffle()
 
 
 /// 指定されたノードの原点位置を取得.
-Vec3d BCMOctree::getOrigin(const Node* node) const
+Vec3r BCMOctree::getOrigin(const Node* node) const
 {
   const Pedigree& pedigree = node->getPedigree();
   int rootID = pedigree.getRootID();
@@ -413,9 +413,9 @@ Vec3d BCMOctree::getOrigin(const Node* node) const
   int iy = rootGrid->rootID2indexY(rootID);
   int iz = rootGrid->rootID2indexZ(rootID);
   int upperBound = pedigree.getUpperBound();
-  return Vec3d(ix + (double)pedigree.getX()/upperBound,
-               iy + (double)pedigree.getY()/upperBound,
-               iz + (double)pedigree.getZ()/upperBound);
+  return Vec3r(ix + (REAL_TYPE)pedigree.getX()/upperBound,
+               iy + (REAL_TYPE)pedigree.getY()/upperBound,
+               iz + (REAL_TYPE)pedigree.getZ()/upperBound);
 }
 
 

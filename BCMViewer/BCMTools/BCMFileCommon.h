@@ -59,8 +59,8 @@ namespace BCMFileIO {
 	struct OctHeader
 	{
 		unsigned int identifier;   ///< エンディアン識別子
-		double       org[3];       ///< 原点座標
-		double       rgn[3];       ///< 領域サイズ
+		REAL_TYPE       org[3];       ///< 原点座標
+		REAL_TYPE       rgn[3];       ///< 領域サイズ
 		unsigned int rootDims[3];  ///< ルート分割数
 		unsigned int maxLevel;     ///< Octree最大分割レベル
 		uint64_t     numLeaf;      ///< リーフノード数
@@ -134,9 +134,9 @@ namespace BCMFileIO {
 	struct IdxUnit
 	{
 		std::string length;    ///< 長さ単位 (NonDimensional, m, cm, mm)
-		double      L0_scale;  ///< 規格化に用いたスケール (単位:指定単位)
+		REAL_TYPE      L0_scale;  ///< 規格化に用いたスケール (単位:指定単位)
 		std::string velocity;  ///< 時間単位 (NonDimensional, Dimensional)
-		double      V0_scale;  ///< 規格化に用いた時間スケール (単位:Dimensionalの場合m/s)
+		REAL_TYPE      V0_scale;  ///< 規格化に用いた時間スケール (単位:Dimensionalの場合m/s)
 	};
 
 	/// インデックスファイル用プロセス情報

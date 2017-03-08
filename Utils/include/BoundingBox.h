@@ -32,8 +32,8 @@ using namespace Vec3class;
 /// バウンディングボックスクラス.
 class BoundingBox {
 
-  Vec3d min;  ///< 最小位置
-  Vec3d max;  ///< 最大位置
+  Vec3r min;  ///< 最小位置
+  Vec3r max;  ///< 最大位置
 
 public:
 
@@ -46,25 +46,25 @@ public:
     : min(bb.min), max(bb.max) {}
 
   /// コンストラクタ(値設定).
-  BoundingBox(const Vec3d& min, const Vec3d& max)
+  BoundingBox(const Vec3r& min, const Vec3r& max)
     : min(min), max(max) {}
 
   /// コンストラクタ(値設定).
-  BoundingBox(double minX, double minY, double minZ,
-              double maxX, double maxY, double maxZ)
+  BoundingBox(REAL_TYPE minX, REAL_TYPE minY, REAL_TYPE minZ,
+              REAL_TYPE maxX, REAL_TYPE maxY, REAL_TYPE maxZ)
     : min(minX, minY, minZ), max(maxX, maxY, maxZ) {}
 
   /// デストラクタ.
   ~BoundingBox() {}
 
   /// 最小位置設定.
-  void setMin(const Vec3d& min) { this->min = min; }
+  void setMin(const Vec3r& min) { this->min = min; }
 
   /// 最大位置設定.
-  void setMax(const Vec3d& max) { this->max = max; }
+  void setMax(const Vec3r& max) { this->max = max; }
 
   /// 点を追加してバウンディングボックスを更新.
-  void addPoint(const Vec3d& p) {
+  void addPoint(const Vec3r& p) {
     min.x = std::min(min.x, p.x);
     min.y = std::min(min.y, p.y);
     min.z = std::min(min.z, p.z);
@@ -75,27 +75,27 @@ public:
 
   /// 直方体領域を指定してバウンディングボックスを更新.
   void addBox(const BoundingBox& box) {
-    const Vec3d& boxMin = box.getMin();
+    const Vec3r& boxMin = box.getMin();
     min.x = std::min(min.x, boxMin.x);
     min.y = std::min(min.y, boxMin.y);
     min.z = std::min(min.z, boxMin.z);
-    const Vec3d& boxMax = box.getMax();
+    const Vec3r& boxMax = box.getMax();
     max.x = std::max(max.x, boxMax.x);
     max.y = std::max(max.y, boxMax.y);
     max.z = std::max(max.z, boxMax.z);
   }
 
   /// 指定長だけバウンディングボックスを拡張.
-  void setMargin(double margin) {
-    min -= Vec3d(margin);
-    max += Vec3d(margin);
+  void setMargin(REAL_TYPE margin) {
+    min -= Vec3r(margin);
+    max += Vec3r(margin);
   }
 
   /// 最小位置を取得.
-  const Vec3d& getMin() const { return min; }
+  const Vec3r& getMin() const { return min; }
 
   /// 最大位置を取得.
-  const Vec3d& getMax() const { return max; }
+  const Vec3r& getMax() const { return max; }
 
   /// 他のバウンディングボックスとの交わりがあるか確認.
   bool intersects(const BoundingBox& bbox) const {

@@ -123,9 +123,9 @@ public:
   ///
   ///  @return ブロックサイズ
   ///
-  Vec3d getBlockSize() const {
+  Vec3r getBlockSize() const {
     int upperBound = pedigree.getUpperBound();
-    return Vec3d(1.0/upperBound, 1.0/upperBound, 1.0/upperBound);
+    return Vec3r(1.0/upperBound, 1.0/upperBound, 1.0/upperBound);
   }
 
   /// 親ノードを取得.

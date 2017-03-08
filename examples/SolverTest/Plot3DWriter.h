@@ -79,8 +79,8 @@ public:
 						RootGrid* rootGrid,
 						BCMOctree* tree,
 						Partition* partition,
-						Vec3d rootOrigin,
-						double rootLength) {
+						Vec3r rootOrigin,
+						REAL_TYPE rootLength) {
 		ostringstream ossFileNameTime;
 		ossFileNameTime << "./PLOT3D/";
 		mkdir(ossFileNameTime.str().c_str(), 0755);
@@ -136,11 +136,11 @@ public:
     for (int id = 0; id < blockManager.getNumBlock(); ++id) {
       BlockBase* block = blockManager.getBlock(id);
 			::Vec3i size = block->getSize();
-			Vec3d origin = block->getOrigin();
-			Vec3d blockSize = block->getBlockSize();
-			Vec3d cellSize = block->getCellSize();
+			Vec3r origin = block->getOrigin();
+			Vec3r blockSize = block->getBlockSize();
+			Vec3r cellSize = block->getCellSize();
 			int level = block->getLevel();
-			double dx = cellSize.x;
+			REAL_TYPE dx = cellSize.x;
 
       Scalar3D<int>* sblank = dynamic_cast<Scalar3D<int>*>(block->getDataClass(dataClassID_Blank));
       int* sDataBlank = sblank->getData();
@@ -187,8 +187,8 @@ public:
 						RootGrid* rootGrid,
 						BCMOctree* tree,
 						Partition* partition,
-						Vec3d rootOrigin,
-						double rootLength) {
+						Vec3r rootOrigin,
+						REAL_TYPE rootLength) {
 		ostringstream ossFileNameTime;
 		ossFileNameTime << "./PLOT3D/";
 		mkdir(ossFileNameTime.str().c_str(), 0755);
@@ -244,11 +244,11 @@ public:
     for (int id = 0; id < blockManager.getNumBlock(); ++id) {
       BlockBase* block = blockManager.getBlock(id);
 			::Vec3i size = block->getSize();
-			Vec3d origin = block->getOrigin();
-			Vec3d blockSize = block->getBlockSize();
-			Vec3d cellSize = block->getCellSize();
+			Vec3r origin = block->getOrigin();
+			Vec3r blockSize = block->getBlockSize();
+			Vec3r cellSize = block->getCellSize();
 			int level = block->getLevel();
-			double dx = cellSize.x;
+			REAL_TYPE dx = cellSize.x;
 
       Scalar3D<int>* sblank = dynamic_cast<Scalar3D<int>*>(block->getDataClass(dataClassID_Blank));
       int* sDataBlank = sblank->getData();
@@ -299,8 +299,8 @@ public:
 						RootGrid* rootGrid,
 						BCMOctree* tree,
 						Partition* partition,
-						Vec3d rootOrigin,
-						double rootLength) {
+						Vec3r rootOrigin,
+						REAL_TYPE rootLength) {
 		ostringstream ossFileNameTime;
 		ossFileNameTime << "./PLOT3D/";
 		mkdir(ossFileNameTime.str().c_str(), 0755);
@@ -370,11 +370,11 @@ public:
     for (int id = 0; id < blockManager.getNumBlock(); ++id) {
       BlockBase* block = blockManager.getBlock(id);
 			::Vec3i size = block->getSize();
-			Vec3d origin = block->getOrigin();
-			Vec3d blockSize = block->getBlockSize();
-			Vec3d cellSize = block->getCellSize();
+			Vec3r origin = block->getOrigin();
+			Vec3r blockSize = block->getBlockSize();
+			Vec3r cellSize = block->getCellSize();
 			int level = block->getLevel();
-			double dx = cellSize.x;
+			REAL_TYPE dx = cellSize.x;
 
       Scalar3D<T>* sp = dynamic_cast<Scalar3D<T>*>(block->getDataClass(dataClassID_P));
       T* sDataP = sp->getData();
@@ -431,8 +431,8 @@ public:
 						RootGrid* rootGrid,
 						BCMOctree* tree,
 						Partition* partition,
-						Vec3d rootOrigin,
-						double rootLength) {
+						Vec3r rootOrigin,
+						REAL_TYPE rootLength) {
 		ostringstream ossFileNameTime;
 		ossFileNameTime << "./PLOT3D/";
 		mkdir(ossFileNameTime.str().c_str(), 0755);
@@ -492,11 +492,11 @@ public:
     for (int id = 0; id < blockManager.getNumBlock(); ++id) {
       BlockBase* block = blockManager.getBlock(id);
 			::Vec3i size = block->getSize();
-			Vec3d origin = block->getOrigin();
-			Vec3d blockSize = block->getBlockSize();
-			Vec3d cellSize = block->getCellSize();
+			Vec3r origin = block->getOrigin();
+			Vec3r blockSize = block->getBlockSize();
+			Vec3r cellSize = block->getCellSize();
 			int level = block->getLevel();
-			double dx = cellSize.x;
+			REAL_TYPE dx = cellSize.x;
 
       Scalar3D<T>* sp = dynamic_cast<Scalar3D<T>*>(block->getDataClass(dataClassID_P));
       T* sDataP = sp->getData();
@@ -549,8 +549,8 @@ public:
 						RootGrid* rootGrid,
 						BCMOctree* tree,
 						Partition* partition,
-						Vec3d rootOrigin,
-						double rootLength) {
+						Vec3r rootOrigin,
+						REAL_TYPE rootLength) {
 		ostringstream ossFileNameTime;
 		ossFileNameTime << "./PLOT3D/";
 		mkdir(ossFileNameTime.str().c_str(), 0755);
@@ -610,11 +610,11 @@ public:
     for (int id = 0; id < blockManager.getNumBlock(); ++id) {
       BlockBase* block = blockManager.getBlock(id);
 			::Vec3i size = block->getSize();
-			Vec3d origin = block->getOrigin();
-			Vec3d blockSize = block->getBlockSize();
-			Vec3d cellSize = block->getCellSize();
+			Vec3r origin = block->getOrigin();
+			Vec3r blockSize = block->getBlockSize();
+			Vec3r cellSize = block->getCellSize();
 			int level = block->getLevel();
-			double dx = cellSize.x;
+			REAL_TYPE dx = cellSize.x;
 
       Scalar3D<T>* sp = dynamic_cast<Scalar3D<T>*>(block->getDataClass(dataClassID_P));
       T* sDataP = sp->getData();

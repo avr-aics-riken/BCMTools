@@ -30,8 +30,8 @@ class Config : public ConfigBase {
 
 public:
 
-  Vec3d origin;        ///< 原点座標
-  double rootLength;   ///< ルートノードボックスの辺長
+  Vec3r origin;        ///< 原点座標
+  REAL_TYPE rootLength;   ///< ルートノードボックスの辺長
   Vec3i rootN;         ///< ルートノード配置
 
   int minLevel;  ///< 最小分割レベル
@@ -52,8 +52,8 @@ private:
 
   void parse() {
 
-    origin = read<Vec3d>("origin", Vec3d(0, 0, 0));
-    rootLength = read<double>("rootLength", 1.0);
+    origin = read<Vec3r>("origin", Vec3r(0, 0, 0));
+    rootLength = read<REAL_TYPE>("rootLength", 1.0);
     rootN = read<Vec3i>("rootGrid", Vec3i(1, 1, 1));
 
     minLevel = read<int>("minLevel", 0);

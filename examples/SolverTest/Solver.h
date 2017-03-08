@@ -339,10 +339,10 @@ private:
 		SiloWriter writer(ossFileName.str(), "mesh", false);
 
 		writer.writeDomain("block_mesh", "domain");
-		writer.writeScalar<double>(plsP0->GetID(), "p");
-		writer.writeScalar<double>(plsUX0->GetID(), "ux");
-		writer.writeScalar<double>(plsUY0->GetID(), "uy");
-		writer.writeScalar<double>(plsUZ0->GetID(), "uz");
+		writer.writeScalar<REAL_TYPE>(plsP0->GetID(), "p");
+		writer.writeScalar<REAL_TYPE>(plsUX0->GetID(), "ux");
+		writer.writeScalar<REAL_TYPE>(plsUY0->GetID(), "uy");
+		writer.writeScalar<REAL_TYPE>(plsUZ0->GetID(), "uz");
 	}
 */
 
@@ -363,8 +363,8 @@ private:
 						BCMOctree* tree,
 						Partition* partition,
 						Config& conf) {
-		Vec3d origin = conf.origin;
-		Vec3d region(conf.rootLength * conf.rootN.x,
+		Vec3r origin = conf.origin;
+		Vec3r region(conf.rootLength * conf.rootN.x,
 									conf.rootLength * conf.rootN.y,
 									conf.rootLength * conf.rootN.z);
 		psaver = new BCMFileIO::BCMFileSaver(origin, region, tree, "BCM_OUT");

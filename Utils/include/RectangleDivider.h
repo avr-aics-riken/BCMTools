@@ -40,14 +40,14 @@ class RectangleDivider : public MultiRootDivider {
   const int minLevel;  ///< 最小分割レベル
   const int maxLevel;  ///< 最大分割レベル
 
-	const double rx0;
-	const double ry0;
-	const double rz0;
-	const double rx1;
-	const double ry1;
-	const double rz1;
+	const REAL_TYPE rx0;
+	const REAL_TYPE ry0;
+	const REAL_TYPE rz0;
+	const REAL_TYPE rx1;
+	const REAL_TYPE ry1;
+	const REAL_TYPE rz1;
 
-  Vec3d margin;  ///< 追加マージン
+  Vec3r margin;  ///< 追加マージン
 
 public:
 
@@ -63,18 +63,18 @@ public:
   ///  追加マージン幅の最大分割レベルブロック辺長に対する比率を
   ///  extraMarginRatioに指定する．
   ///  例えば，仮想セル領域を境界面探査領域に追加するには
-  ///  「(double)仮想セル数/ブロック内分割数」を指定する．
+  ///  「(REAL_TYPE)仮想セル数/ブロック内分割数」を指定する．
   ///
   RectangleDivider(const RootGrid* rootGrid, int minLevel, int maxLevel,
-								double rx0, double ry0, double rz0, double rx1, double ry1, double rz1,
-                double extraMarginRatio = 0.0)
-    : MultiRootDivider(Vec3d(0.0,0.0,0.0), 1.0, rootGrid),
+								REAL_TYPE rx0, REAL_TYPE ry0, REAL_TYPE rz0, REAL_TYPE rx1, REAL_TYPE ry1, REAL_TYPE rz1,
+                REAL_TYPE extraMarginRatio = 0.0)
+    : MultiRootDivider(Vec3r(0.0,0.0,0.0), 1.0, rootGrid),
       minLevel(minLevel), maxLevel(maxLevel),
       rx0(rx0), ry0(ry0), rz0(rz0), rx1(rx1), ry1(ry1), rz1(rz1) {
     assert(minLevel >= 0);
     assert(maxLevel >= minLevel);
 
-    margin = Vec3d(extraMarginRatio / (1 << maxLevel));
+    margin = Vec3r(extraMarginRatio / (1 << maxLevel));
   }
 
   /// デストラクタ.
@@ -92,8 +92,8 @@ public:
 
     BoundingBox region = defineSearchRegion(pedigree, maxLevel);
 
-    Vec3d min = region.getMin() - margin;
-    Vec3d max = region.getMax() + margin;
+    Vec3r min = region.getMin() - margin;
+    Vec3r max = region.getMax() + margin;
 
   //std::cout << "(x0,y0,z0) = " << min << std::endl;
   //std::cout << "(x1,y1,z1) = " << max << std::endl;
@@ -115,8 +115,8 @@ private:
   ///
   /// 矩形領域内で球中心に最も近い点を求め，その距離と球半径を比較する.
   ///
-  bool checkOuter(double x0, double y0, double z0,
-                  double x1, double y1, double z1) {
+  bool checkOuter(REAL_TYPE x0, REAL_TYPE y0, REAL_TYPE z0,
+                  REAL_TYPE x1, REAL_TYPE y1, REAL_TYPE z1) {
 
 		if( x0 > rx1 ) {
 			return true;

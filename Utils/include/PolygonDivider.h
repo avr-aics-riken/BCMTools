@@ -50,7 +50,7 @@ class PolygonDivider : public MultiRootDivider {
 
   bool polygonInsideOut;  ///< 境界面の表裏反転フラグ
 
-  Vec3d margin;  ///< 追加マージン
+  Vec3r margin;  ///< 追加マージン
 
 public:
 
@@ -70,20 +70,20 @@ public:
   ///  追加マージン幅の最大分割レベルブロック辺長に対する比率を
   ///  extraMarginRatioに指定する．
   ///  例えば，仮想セル領域を境界面探査領域に追加するには
-  ///  「(double)仮想セル数/ブロック内分割数」を指定する．
+  ///  「(REAL_TYPE)仮想セル数/ブロック内分割数」を指定する．
   ///
-  PolygonDivider(const Vec3d& origin, double rootLength, const RootGrid* rootGrid,
+  PolygonDivider(const Vec3r& origin, REAL_TYPE rootLength, const RootGrid* rootGrid,
                  int minLevel, int maxLevel,
                  const PolylibNS::Polylib* polylib, std::string& polygonGroup,
                  bool polygonInsideOut,
-                 double extraMarginRatio = 0.0)
+                 REAL_TYPE extraMarginRatio = 0.0)
     : MultiRootDivider(origin, rootLength, rootGrid),
       minLevel(minLevel), maxLevel(maxLevel), polylib(polylib),
       polygonGroup(polygonGroup), polygonInsideOut(polygonInsideOut) {
     assert(minLevel >= 0);
     assert(maxLevel >= minLevel);
 
-    margin = Vec3d(extraMarginRatio / (1 << maxLevel));
+    margin = Vec3r(extraMarginRatio / (1 << maxLevel));
   }
 
   /// デストラクタ.
@@ -102,8 +102,8 @@ public:
 
     BoundingBox region = defineSearchRegion(pedigree, maxLevel);
 
-    Vec3d rmin = region.getMin() - margin;
-    Vec3d rmax = region.getMax() + margin;
+    Vec3r rmin = region.getMin() - margin;
+    Vec3r rmax = region.getMax() + margin;
 
   //std::cout << "(x0,y0,z0) = " << rmin << std::endl;
   //std::cout << "(x1,y1,z1) = " << rmax << std::endl;

@@ -125,7 +125,7 @@ int main(int argc, char** argv)
   delete partition;
   delete boundaryConditionSetter;
 
-  std::vector<double> boundaryValue(1);
+  std::vector<REAL_TYPE> boundaryValue(1);
   boundaryValue[0] = 0.0;
 
   Solver solver(conf, boundaryValue);

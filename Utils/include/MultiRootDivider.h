@@ -29,8 +29,8 @@
 /// ブロック分割判定クラス(マルチルート用派生クラス).
 class MultiRootDivider : public Divider {
 
-  const Vec3d& origin;      ///< 最初のルートブロックの原点位置
-  const double rootLength;  ///< ルートブロックの辺長
+  const Vec3r& origin;      ///< 最初のルートブロックの原点位置
+  const REAL_TYPE rootLength;  ///< ルートブロックの辺長
 
   const RootGrid* rootGrid; ///< ルートブロック配置情報
 
@@ -42,7 +42,7 @@ public:
   ///  @param[in] rootLength ルートブロックの辺長
   ///  @param[in] rootGrid ルートブロック配置情報
   ///
-  MultiRootDivider(const Vec3d& origin, double rootLength,
+  MultiRootDivider(const Vec3r& origin, REAL_TYPE rootLength,
                    const RootGrid* rootGrid)
     : origin(origin), rootLength(rootLength), rootGrid(rootGrid) {
   }
@@ -67,19 +67,19 @@ protected:
     int iz = rootGrid->rootID2indexZ(rootID);
 
     int max0 = pedigree.getUpperBound() - 1;  // 2^level - 1
-    double d = 1.0 / (max0 + 1);  // ブロックサイズ
+    REAL_TYPE d = 1.0 / (max0 + 1);  // ブロックサイズ
 
-    double x0 = ix + px * d;
-    double y0 = iy + py * d;
-    double z0 = iz + pz * d;
-    double x1 = ix + (px + 1) * d;
-    double y1 = iy + (py + 1) * d;
-    double z1 = iz + (pz + 1) * d;
+    REAL_TYPE x0 = ix + px * d;
+    REAL_TYPE y0 = iy + py * d;
+    REAL_TYPE z0 = iz + pz * d;
+    REAL_TYPE x1 = ix + (px + 1) * d;
+    REAL_TYPE y1 = iy + (py + 1) * d;
+    REAL_TYPE z1 = iz + (pz + 1) * d;
 
     // リップル効果対策用のマージン設定
     if (level < maxLevel) {
       int n = 1 << (maxLevel - level - 1);
-      double dd = d * (double)(n - 1) / n;
+      REAL_TYPE dd = d * (REAL_TYPE)(n - 1) / n;
       if (!(px == 0 && rootGrid->isOuterBoundary(rootID, X_M))) x0 -= dd;
       if (!(py == 0 && rootGrid->isOuterBoundary(rootID, Y_M))) y0 -= dd;
       if (!(pz == 0 && rootGrid->isOuterBoundary(rootID, Z_M))) z0 -= dd;

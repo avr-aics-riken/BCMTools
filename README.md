@@ -66,11 +66,23 @@ $ sudo make install
 
 `-D with_TP =` *TextParser_directory*
 
-> IBuilding examples, specify the directory path that TextParser is installed.
+> Building examples, specify the directory path that TextParser is installed.
 
 `-D with_PL=` *Polylib_directory*
 
 > Specify the directory path that Polylib is installed.
+
+`-D with_SILO =` { no | *Silo_directory* }
+
+> Building examples, specify the directory path that Silo is installed.
+
+`-D with_CUT =` { no | *Cutlib_directory* }
+
+> Building examples, specify the directory path that Cutlib is installed.
+
+`-D with_HDF5 =` { no | *HDF5_directory* }
+
+> Building examples, specify the directory path that HDF5 is installed.
 
 `-D with_example=` {no | yes}
 
@@ -102,7 +114,7 @@ In following exsmples, assuming that TextParser and Polylib are installed under 
 ### INTEL/GNU compiler
 
 ~~~
-$ cmake -DINSTALL_DIR=${BCM_HOME}/BCMTools -Denable_OPENMP=yes -Dwith_MPI=yes -Dwith_example=yes -Dreal_type=double -Dwith_TP=${BCM_HOME}/TextParser -Dwith_PL=${BCM_HOME}/Polylib  -Denable_LARGE_BLOCK=no ..
+$ cmake -DINSTALL_DIR=${BCM_HOME}/BCMTools -Dreal_type=double -Denable_OPENMP=yes -Dwith_MPI=yes -Dwith_example=yes -Dwith_TP=${BCM_HOME}/TextParser -Dwith_PL=${BCM_HOME}/Polylib -Denable_LARGE_BLOCK=no -Dwith_SILO=no -Dwith_CUT=no -Dwith_HDF5=no ..
 ~~~
 
 
@@ -111,33 +123,42 @@ $ cmake -DINSTALL_DIR=${BCM_HOME}/BCMTools -Denable_OPENMP=yes -Dwith_MPI=yes -D
 ~~~
 $ cmake -DINSTALL_DIR=${BCM_HOME}/BCMTools \
             -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain_fx10.cmake \
+            -Dreal_type=double \
             -Denable_OPENMP=yes \
             -Dwith_MPI=yes \
             -Dwith_example=no \
-            -Dreal_type=double \
             -Dwith_TP=${BCM_HOME}/TextParser \
             -Dwith_PL=${BCM_HOME}/Polylib \
-            -Denable_LARGE_BLOCK=no ..
+            -Denable_LARGE_BLOCK=no \
+            -Dwith_SILO=no \
+            -Dwith_CUT=no \
+            -Dwith_HDF5=no ..
 
 $ cmake -DINSTALL_DIR=${BCM_HOME}/BCMTools \
             -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain_fx100.cmake \
+            -Dreal_type=double \
             -Denable_OPENMP=yes \
             -Dwith_MPI=yes \
             -Dwith_example=no \
-            -Dreal_type=double \
             -Dwith_TP=${BCM_HOME}/TextParser \
             -Dwith_PL=${BCM_HOME}/Polylib \
-            -Denable_LARGE_BLOCK=no ..
+            -Denable_LARGE_BLOCK=no \
+            -Dwith_SILO=no \
+            -Dwith_CUT=no \
+            -Dwith_HDF5=no ..
 
 $ cmake -DINSTALL_DIR=${BCM_HOME}/BCMTools \
             -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain_K.cmake \
+            -Dreal_type=double \
             -Denable_OPENMP=yes \
             -Dwith_MPI=yes \
             -Dwith_example=no \
-            -Dreal_type=double \
             -Dwith_TP=${BCM_HOME}/TextParser \
             -Dwith_PL=${BCM_HOME}/Polylib \
-            -Denable_LARGE_BLOCK=no ..
+            -Denable_LARGE_BLOCK=no \
+            -Dwith_SILO=no \
+            -Dwith_CUT=no \
+            -Dwith_HDF5=no ..
 ~~~
 
 

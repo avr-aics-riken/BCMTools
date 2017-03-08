@@ -81,7 +81,7 @@ int main(int argc, char** argv)
                                               rootGrid, conf.minLevel, pl,
                                               conf.polygonGroupList,
                                               conf.boundingBoxList,
-                                              (double)conf.vc/conf.size);
+                                              (REAL_TYPE)conf.vc/conf.size);
 
     BCMOctree::Ordering ordering;
     if (conf.ordering == "Z") {
