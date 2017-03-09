@@ -72,6 +72,18 @@ $ sudo make install
 
 > Specify the directory path that Polylib is installed.
 
+`-D with_SILO=` *silo_directory*
+
+> Specify the directory path that Cutlib is installed, if required.
+
+`-D with_CUT=` *Cutlib_directory*
+
+> Specify the directory path that Cutlib is installed, if required.
+
+`-D with_HDF5=` *HDF5_directory*
+
+> Specify the directory path that HDF5 is installed, if required.
+
 `-D with_example=` {no | yes}
 
 >  This option turns on compiling sample codes. The default is no.

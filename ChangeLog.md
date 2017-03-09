@@ -4,6 +4,10 @@
 ## REVISION HISTORY
 
 ---
+- 2017-03-09  Version 1.0.3
+  - build libBCMconfig.a
+
+---
 - 2017-03-09  Version 1.0.2
   - modify implementation of 'real_type'
   - build examples, add silo, cutlib, and hdf5
