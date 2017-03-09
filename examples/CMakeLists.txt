@@ -27,7 +27,6 @@ include_directories(
 
 link_directories(
       ${PROJECT_BINARY_DIR}/src
-      ${PROJECT_BINARY_DIR}/Utils
       ${CT_LIB}
       ${PL_LIB}
       ${TP_LIB}
@@ -35,6 +34,10 @@ link_directories(
       ${H5_LIB}
 )
 
+
+file(COPY ${PROJECT_SOURCE_DIR}/examples/STL_DATA/
+     DESTINATION ${PROJECT_BINARY_DIR}/examples/STL_DATA
+     FILES_MATCHING PATTERN "*.stl")
 
 
 #### Sample1 : Mesh Generation
@@ -56,3 +59,19 @@ if(with_MPI)
 else()
 #  target_link_libraries(mesh-gen -lPOLY -lTP)
 endif()
+
+configure_file(${PROJECT_SOURCE_DIR}/examples/ParallelMeshGeneration/sphere.conf
+               ${PROJECT_BINARY_DIR}/examples/ParallelMeshGeneration/sphere.conf
+               COPYONLY)
+
+configure_file(${PROJECT_SOURCE_DIR}/examples/ParallelMeshGeneration/sphere.tpp
+               ${PROJECT_BINARY_DIR}/examples/ParallelMeshGeneration/sphere.tpp
+               COPYONLY)
+
+configure_file(${PROJECT_SOURCE_DIR}/examples/ParallelMeshGeneration/test.conf
+               ${PROJECT_BINARY_DIR}/examples/ParallelMeshGeneration/test.conf
+               COPYONLY)
+
+configure_file(${PROJECT_SOURCE_DIR}/examples/ParallelMeshGeneration/test.tpp
+               ${PROJECT_BINARY_DIR}/examples/ParallelMeshGeneration/test.tpp
+               COPYONLY)

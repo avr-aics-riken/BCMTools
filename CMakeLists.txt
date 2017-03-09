@@ -81,7 +81,7 @@ set (CMAKE_INSTALL_PREFIX "${INSTALL_DIR}")
 
 #######
 set(PROJECT_VERSION "1.0.2")
-set(LIB_REVISION "20170308_2100")
+set(LIB_REVISION "20170309_1400")
 #######
 
 
@@ -254,8 +254,6 @@ CHECK_INCLUDE_FILES(unistd.h HAVE_UNISTD_H)
 #######
 
 add_subdirectory(src)
-
-#add_subdirectory(Utils)
 
 add_subdirectory(doc)
 

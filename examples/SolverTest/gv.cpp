@@ -20,10 +20,10 @@
 void PrintLog(int myrank, int level, const char* format, ...) {
 }
 
-REAL_TYPE RandomUniform() {
+double RandomUniform() {
 	return 0.0;
 }
 
-REAL_TYPE RandomNormal(REAL_TYPE mu, REAL_TYPE sigma) {
+double RandomNormal(double mu, double sigma) {
 	return 0.0;
 }

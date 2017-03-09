@@ -33,8 +33,8 @@ Solver::Solver(const Config& conf)
   nz = size[2];
 
   // データクラス変数<f>の生成・登録
-  id_s = blockManager.setDataClass<Scalar3D<REAL_TYPE> >(vc);
-  id_v = blockManager.setDataClass<Vector3D<REAL_TYPE> >(vc);
+  id_s = blockManager.setDataClass<Scalar3D<double> >(vc);
+  id_v = blockManager.setDataClass<Vector3D<double> >(vc);
 }
 
 
@@ -48,25 +48,25 @@ void Solver::initialize()
   for (int id = 0; id < blockManager.getNumBlock(); ++id) {
     BlockBase* block = blockManager.getBlock(id);
 
-    Scalar3D<REAL_TYPE>* s
-        = dynamic_cast<Scalar3D<REAL_TYPE>*>(block->getDataClass(id_s));
-    REAL_TYPE* sData = s->getData();
+    Scalar3D<double>* s
+        = dynamic_cast<Scalar3D<double>*>(block->getDataClass(id_s));
+    double* sData = s->getData();
     Index3DS sIndex = s->getIndex();
 
-    Vector3D<REAL_TYPE>* v
-        = dynamic_cast<Vector3D<REAL_TYPE>*>(block->getDataClass(id_v));
-    REAL_TYPE* vData = v->getData();
+    Vector3D<double>* v
+        = dynamic_cast<Vector3D<double>*>(block->getDataClass(id_v));
+    double* vData = v->getData();
     Index3DV vIndex = v->getIndex();
 
-    const Vec3r& orig = block->getOrigin();
-    const Vec3r& pitch = block->getCellSize();
+    const Vec3d& orig = block->getOrigin();
+    const Vec3d& pitch = block->getCellSize();
 
     for (int k = -vc; k < nz+vc; k++) {
       for (int j = -vc; j < ny+vc; j++) {
         for (int i = -vc; i < nx+vc; i++) {
-          REAL_TYPE x = orig.x + (i + 0.5) * pitch.x;
-          REAL_TYPE y = orig.y + (j + 0.5) * pitch.y;
-          REAL_TYPE z = orig.z + (k + 0.5) * pitch.z;
+          double x = orig.x + (i + 0.5) * pitch.x;
+          double y = orig.y + (j + 0.5) * pitch.y;
+          double z = orig.z + (k + 0.5) * pitch.z;
           sData[sIndex(i,j,k)] = sqrt(x*x + y*y + z*z);
           vData[vIndex(i,j,k)+0] = x;
           vData[vIndex(i,j,k)+1] = y;
@@ -86,7 +86,7 @@ void Solver::run()
 
   writer.writeDomain("block_mesh", "domain");
 
-  writer.writeScalar<REAL_TYPE>(id_s, "scalar");
+  writer.writeScalar<double>(id_s, "scalar");
 
-  writer.writeVector<REAL_TYPE>(id_v, "vector");
+  writer.writeVector<double>(id_v, "vector");
 }

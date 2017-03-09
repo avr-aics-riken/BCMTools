@@ -38,12 +38,12 @@ public:
   std::string ordering;  ///< オーダリング方法
 
   char type;             ///< 固定境界の向き
-  REAL_TYPE b0, b1;         ///< 境界値
+  double b0, b1;         ///< 境界値
 
   int nLoopInner;
   int nLoopOuter;
 
-  REAL_TYPE omega;
+  double omega;
 
   bool separate;         ///< 方向毎仮想セル同期フラグ
 
@@ -63,13 +63,13 @@ private:
 
     type = read<char>("type");
 
-    b0 = read<REAL_TYPE>("b0", 0.0);
-    b1 = read<REAL_TYPE>("b1", 1.0);
+    b0 = read<double>("b0", 0.0);
+    b1 = read<double>("b1", 1.0);
 
     nLoopInner = read<int>("nLoopInner");
     nLoopOuter = read<int>("nLoopOuter");
 
-    omega = read<REAL_TYPE>("omega", 1.0);
+    omega = read<double>("omega", 1.0);
 
     separate = read<bool>("separateVCUpdate", false);
 

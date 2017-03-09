@@ -39,12 +39,12 @@ class Solver {
 
   const int vc;
 
-  const std::vector<REAL_TYPE>& boundaryValue;
+  const std::vector<double>& boundaryValue;
 
   int nLoopInner;
   int nLoopOuter;
 
-  REAL_TYPE omega;
+  double omega;
 
   bool separateVCUpdate;
 
@@ -54,11 +54,11 @@ class Solver {
   int id_f;
   static const int tag_f = 100;
 
-  Scalar3D<REAL_TYPE>* work;
+  Scalar3D<double>* work;
 
 public:
 
-  Solver(const Config& conf, const std::vector<REAL_TYPE>& boundaryValue);
+  Solver(const Config& conf, const std::vector<double>& boundaryValue);
 
   ~Solver();
 
@@ -75,20 +75,20 @@ private:
   void setBoundaryCondition();
 
   void calcSorInBlock(int nx, int ny, int nz,
-                      REAL_TYPE* fData, Index3DS fIndex,
-                      REAL_TYPE c0, REAL_TYPE cx, REAL_TYPE cy, REAL_TYPE cz);
+                      double* fData, Index3DS fIndex,
+                      double c0, double cx, double cy, double cz);
 
   void setInitialConditionInBlock(int nx, int ny, int nz,
-                                  REAL_TYPE* fData, Index3DS fIndex,
-                                  REAL_TYPE value);
+                                  double* fData, Index3DS fIndex,
+                                  double value);
 
   void setBoundaryConditionInBlock(int nx, int ny, int nz,
-                                   REAL_TYPE* fData, Index3DS fIndex,
+                                   double* fData, Index3DS fIndex,
                                    const BoundaryInfo* boundaryInfo);
 
   void setDirichletBoundaryInBlock(int nx, int ny, int nz,
-                                  REAL_TYPE* fData, Index3DS fIndex,
-                                  Face face, REAL_TYPE value);
+                                  double* fData, Index3DS fIndex,
+                                  Face face, double value);
 
   void dumpDataClass(int dataClassID);
 

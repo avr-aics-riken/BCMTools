@@ -30,23 +30,23 @@
 class BlockBoundingBox {
 
   const BCMOctree* tree;
-  const Vec3r& rootOrigin;
-  REAL_TYPE rootLength;
+  const Vec3d& rootOrigin;
+  double rootLength;
   const Vec3i& size;
   int vc;
 
 public:
 
   BlockBoundingBox(const BCMOctree* tree,
-                   const Vec3r& rootOrigin, REAL_TYPE rootLength, const Vec3i& size,
+                   const Vec3d& rootOrigin, double rootLength, const Vec3i& size,
                    int vc)
     : tree(tree), rootOrigin(rootOrigin), rootLength(rootLength), size(size), vc(vc)
   {}
 
   BoundingBox getBoundingBox(const Node* node) const {
-    Vec3r origin = tree->getOrigin(node) * rootLength + rootOrigin;
-    Vec3r blockSize = node->getBlockSize() * rootLength;
-    Vec3r margin((blockSize.x/size.x)*vc,
+    Vec3d origin = tree->getOrigin(node) * rootLength + rootOrigin;
+    Vec3d blockSize = node->getBlockSize() * rootLength;
+    Vec3d margin((blockSize.x/size.x)*vc,
                  (blockSize.y/size.y)*vc,
                  (blockSize.z/size.z)*vc);
     return BoundingBox(origin-margin, origin+blockSize+margin);

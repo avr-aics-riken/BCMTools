@@ -40,7 +40,7 @@ public:
   int nLoopInner;
   int nLoopOuter;
 
-  REAL_TYPE omega;
+  double omega;
 
   bool separate;         ///< 方向毎仮想セル同期フラグ
 
@@ -61,7 +61,7 @@ private:
     nLoopInner = read<int>("nLoopInner");
     nLoopOuter = read<int>("nLoopOuter");
 
-    omega = read<REAL_TYPE>("omega", 1.0);
+    omega = read<double>("omega", 1.0);
 
     separate = read<bool>("separateVCUpdate", false);
 

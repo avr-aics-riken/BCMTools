@@ -40,8 +40,8 @@ public:
 
   std::string ordering;  ///< オーダリング方法
 
-  REAL_TYPE cx, cy, cz;
-  REAL_TYPE r;
+  double cx, cy, cz;
+  double r;
 
   int size;   ///< ブロック内セル分割数
   std::string output;  ///< 結果出力ファイル
@@ -51,10 +51,10 @@ public:
 private:
 
   void parse() {
-    Vec3r sphereCenter;
-    Vec3r cylinderCenter;
-    REAL_TYPE sphereRadius;
-    REAL_TYPE cylinderRadius;
+    Vec3d sphereCenter;
+    Vec3d cylinderCenter;
+    double sphereRadius;
+    double cylinderRadius;
 
     rootN = read<Vec3i>("rootGrid", Vec3i(1, 1, 1));
 
@@ -68,11 +68,11 @@ private:
 
     verbose = read<bool>("verbose", false);
 
-    sphereCenter = read<Vec3r>("sphereCenter", Vec3r(0.5, 0.5, 0.5));
-    sphereRadius = read<REAL_TYPE>("sphereRadius", 0.25);
+    sphereCenter = read<Vec3d>("sphereCenter", Vec3d(0.5, 0.5, 0.5));
+    sphereRadius = read<double>("sphereRadius", 0.25);
 
-    cylinderCenter = read<Vec3r>("cylinderCenter", Vec3r(0.5, 0.5, 0.0));
-    cylinderRadius = read<REAL_TYPE>("cylinderRadius", 0.4);
+    cylinderCenter = read<Vec3d>("cylinderCenter", Vec3d(0.5, 0.5, 0.0));
+    cylinderRadius = read<double>("cylinderRadius", 0.4);
 
     cx = cy = cz = r = 0.0;
     if (treeType == "sphere") {
@@ -128,7 +128,7 @@ public:
     std::cout << "  max level:          " << maxLevel << std::endl;
     std::cout << "  tree type:          " << treeType;
     if (treeType == "sphere") {
-      std::cout << " [c=" << Vec3r(cx, cy, cz) << ", r=" << r << "]";
+      std::cout << " [c=" << Vec3d(cx, cy, cz) << ", r=" << r << "]";
     }
     if (treeType == "cylinder") {
       std::cout << " [c=(" << cx << ", " << cy << "), r=" << r << "]";

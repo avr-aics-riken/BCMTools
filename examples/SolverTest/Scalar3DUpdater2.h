@@ -192,14 +192,14 @@ private:
     int i = 2 * I;
     int j = 2 * J;
     int k = 2 * K;
-		if( (REAL_TYPE)(fData[fIndex(i  ,j  ,k  )]) > 0.5 &&
-				(REAL_TYPE)(fData[fIndex(i+1,j  ,k  )]) > 0.5 &&
-				(REAL_TYPE)(fData[fIndex(i  ,j+1,k  )]) > 0.5 &&
-				(REAL_TYPE)(fData[fIndex(i  ,j  ,k+1)]) > 0.5 &&
-				(REAL_TYPE)(fData[fIndex(i  ,j+1,k+1)]) > 0.5 &&
-				(REAL_TYPE)(fData[fIndex(i+1,j  ,k+1)]) > 0.5 &&
-				(REAL_TYPE)(fData[fIndex(i+1,j+1,k  )]) > 0.5 &&
-				(REAL_TYPE)(fData[fIndex(i+1,j+1,k+1)]) > 0.5 ) {
+		if( (double)(fData[fIndex(i  ,j  ,k  )]) > 0.5 &&
+				(double)(fData[fIndex(i+1,j  ,k  )]) > 0.5 &&
+				(double)(fData[fIndex(i  ,j+1,k  )]) > 0.5 &&
+				(double)(fData[fIndex(i  ,j  ,k+1)]) > 0.5 &&
+				(double)(fData[fIndex(i  ,j+1,k+1)]) > 0.5 &&
+				(double)(fData[fIndex(i+1,j  ,k+1)]) > 0.5 &&
+				(double)(fData[fIndex(i+1,j+1,k  )]) > 0.5 &&
+				(double)(fData[fIndex(i+1,j+1,k+1)]) > 0.5 ) {
 			return 1;
 		}
 		return 0;
@@ -215,7 +215,7 @@ private:
   /// レベルL→L+1の線形補間 (粗c(I,J,K) → 細f(i,j,k)).
   T interpolateC2F(const Scalar3D<T>& c, int i, int j, int k) {
     int I, J, K;
-    REAL_TYPE r, s, t;
+    double r, s, t;
     linearInterpolate(i, nx, I, r);
     linearInterpolate(j, ny, J, s);
     linearInterpolate(k, nz, K, t);
@@ -234,12 +234,12 @@ private:
   /// レベルL→L+1の線形補間 (粗c(I,J,K) → 細f(i,j,k)).
   T interpolateC2F(const T* cData, const Index3DS& cIndex, int i, int j, int k) {
     int I, J, K;
-    REAL_TYPE r, s, t;
+    double r, s, t;
     linearInterpolate(i, nx, I, r);
     linearInterpolate(j, ny, J, s);
     linearInterpolate(k, nz, K, t);
 
-		if( (REAL_TYPE)(cData[cIndex(I  ,J  ,K  )]) > 0.5 ) {
+		if( (double)(cData[cIndex(I  ,J  ,K  )]) > 0.5 ) {
 			return 1;
 		}
 		return 0;
@@ -258,11 +258,11 @@ private:
   ///
   ///  @note 端点では，内挿ではなく外挿
   ///
-  void linearInterpolate(int i, int n, int& I, REAL_TYPE& r) {
+  void linearInterpolate(int i, int n, int& I, double& r) {
 #if 1
 //    I = std::min(std::max(i/2 - 1 + i%2, 0), n - 2);
     I = i/2 - 1 + i%2;
-    r = -0.25 + 0.5 * i - REAL_TYPE(I);
+    r = -0.25 + 0.5 * i - double(I);
 #else
     if (i == 0) {
       // 外挿

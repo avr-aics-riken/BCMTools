@@ -67,20 +67,20 @@ private:
   void setBoundaryCondition();
 
   void calcSorInBlock(int nx, int ny, int nz,
-                      REAL_TYPE* fData, Index3DS fIndex,
-                      REAL_TYPE c0, REAL_TYPE cx, REAL_TYPE cy, REAL_TYPE cz);
+                      double* fData, Index3DS fIndex,
+                      double c0, double cx, double cy, double cz);
 
   void setInitialConditionInBlock(int nx, int ny, int nz,
-                                  REAL_TYPE* fData, Index3DS fIndex,
-                                  REAL_TYPE value);
+                                  double* fData, Index3DS fIndex,
+                                  double value);
 
   void setBoundaryConditionInBlock(int nx, int ny, int nz,
-                                   REAL_TYPE* fData, Index3DS fIndex,
+                                   double* fData, Index3DS fIndex,
                                    const BoundaryInfo* boundaryInfo);
 
   void setDirichletBoundaryInBlock(int nx, int ny, int nz,
-                                  REAL_TYPE* fData, Index3DS fIndex,
-                                  Face face, REAL_TYPE value);
+                                  double* fData, Index3DS fIndex,
+                                  Face face, double value);
 
   void dumpDataClass(int dataClassID);
 

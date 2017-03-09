@@ -31,14 +31,14 @@ class BlockBoundingBox {
 
   const BCMOctree* tree;
   const Vec3r& rootOrigin;
-  REAL_TYPE rootLength;
+  double rootLength;
   const Vec3i& size;
   int vc;
 
 public:
 
   BlockBoundingBox(const BCMOctree* tree,
-                   const Vec3r& rootOrigin, REAL_TYPE rootLength, const Vec3i& size,
+                   const Vec3r& rootOrigin, double rootLength, const Vec3i& size,
                    int vc)
     : tree(tree), rootOrigin(rootOrigin), rootLength(rootLength), size(size), vc(vc)
   {}

@@ -34,7 +34,7 @@ const char* Header1 = "# vtk DataFile Version 3.0\nCutlib test\nASCII\nDATASET P
 const char* Header2 = "SCALARS bid int 1\nLOOKUP_TABLE defalut\n";
 
 
-void extractData(const Vec3f center, const REAL_TYPE range[6],
+void extractData(const Vec3f center, const double range[6],
                  const float pos6[6], const BidType bid6[6],
                  VecPos& vecPosM, VecBid& vecBidM,
                  VecPos& vecPosP, VecBid& vecBidP)
@@ -112,8 +112,8 @@ void outputVtk(const std::string& file, const int myrank, const GridAccessor* gr
         cp->getPos(i, j, k, pos6);
         cb->getBid(i, j, k, bid6);
 
-        REAL_TYPE center_d[3];
-        REAL_TYPE range_d[6];
+        double center_d[3];
+        double range_d[6];
         grid->getSearchRange(i, j, k, center_d, range_d);
 
         Vec3f center(center_d[0], center_d[1], center_d[2]);
@@ -155,7 +155,7 @@ void outputVtkLeafCell(const std::string& file,
     cell->GetPitch(d[0], d[1], d[2]);
     Vec3f center(org[0]+0.5*d[0], org[1]+0.5*d[1], org[2]+0.5*d[2]);
 
-    REAL_TYPE range_d[6];
+    double range_d[6];
     range_d[X_M] = range_d[X_P] = d[0];
     range_d[Y_M] = range_d[Y_P] = d[1];
     range_d[Z_M] = range_d[Z_P] = d[2];
@@ -196,7 +196,7 @@ void extractDataTreeCell(SklCell* cell, CutPosOctree* cp, CutBidOctree* cb,
   cell->GetPitch(d[0], d[1], d[2]);
   Vec3f center(org[0]+0.5*d[0], org[1]+0.5*d[1], org[2]+0.5*d[2]);
 
-  REAL_TYPE range_d[6];
+  double range_d[6];
   range_d[X_M] = range_d[X_P] = d[0];
   range_d[Y_M] = range_d[Y_P] = d[1];
   range_d[Z_M] = range_d[Z_P] = d[2];

@@ -1,4 +1,4 @@
-Vec3r/*
+/*
 ###################################################################################
 #
 # BCMTools
@@ -46,9 +46,9 @@ public:
 
 private:
 	int  size[3];
-	REAL_TYPE origin[3];
-	REAL_TYPE blockSize[3];
-	REAL_TYPE cellSize[3];
+	double origin[3];
+	double blockSize[3];
+	double cellSize[3];
 	int  vc;
 	T*   blockData;
 	int* blockBoundaryType;
@@ -66,9 +66,9 @@ public:
 
 	void InitBoundaryCondition(
 					::Vec3i size,
-					::Vec3r origin,
-					::Vec3r blockSize,
-					::Vec3r cellSize,
+					::Vec3d origin,
+					::Vec3d blockSize,
+					::Vec3d cellSize,
 					int vc,
 					T* blockData,
 					int* boundaryType,

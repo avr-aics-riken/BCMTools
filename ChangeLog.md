@@ -4,11 +4,19 @@
 ## REVISION HISTORY
 
 ---
-- 2017-03-08  Version 1.0.2
-  - build examples, add silo, cutlib
+- 2017-03-09  Version 1.0.2
   - modify implementation of 'real_type'
-  - watch DB_DOUBLE in SiloWriter.h
-  - convert from double to REAL_TYPE
+  - build examples, add silo, cutlib, and hdf5
+  - Change Vec3d >> Vec3r
+    - include/BCMPolylib.h, BlockBase.h
+    - src/BCMPolylib.cpp
+    - examples/ParallelMeshGeneration/BlockBoundingBox.h, Config.h, main.cpp, SiloWriter.h
+    - Utils/*.h, *.cpp except SiloWriter.h
+  - double >> REAL_TYPE
+    - examples/ParallelMeshGeneration/Config.h, main.cpp
+    - Utils/*.h, *.cpp except SiloWriter.h
+    -include/*.h
+    - src/BlockManager.cpp (cout realted)
 
 ---
 - 2017-03-08  Version 1.0.1
