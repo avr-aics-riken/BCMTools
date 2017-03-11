@@ -4,8 +4,14 @@
 ## REVISION HISTORY
 
 ---
+- 2017-03-11  Version 1.0.4
+  - Merge pull request #13 from syoyo/filename-case-sensitive
+
+
+---
 - 2017-03-09  Version 1.0.3
   - build libBCMconfig.a
+
 
 ---
 - 2017-03-09  Version 1.0.2
@@ -22,10 +28,12 @@
     -include/*.h
     - src/BlockManager.cpp (cout realted)
 
+
 ---
 - 2017-03-08  Version 1.0.1
   - bug fix : src/CMakeLists.txt
   - add flag to switch float <=> double
+
 
 ---
 - 2017-03-08  Version 1.0.0
@@ -45,6 +53,7 @@
 - 2014-05-30  Version 0.9.6
   - update request pulls #6 - #12
 
+ 
 ---
 - 2014-03-23  Version 0.9.5
   - update Vec3.h
