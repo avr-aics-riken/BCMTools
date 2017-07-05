@@ -3,6 +3,11 @@
 
 ## REVISION HISTORY
 
+
+---
+- 2017-07-06  Version 1.0.5
+  - modify Toolchain_K.cmake
+
 ---
 - 2017-03-11  Version 1.0.4
   - Merge pull request #13 from syoyo/filename-case-sensitive
@@ -53,7 +58,7 @@
 - 2014-05-30  Version 0.9.6
   - update request pulls #6 - #12
 
- 
+
 ---
 - 2014-03-23  Version 0.9.5
   - update Vec3.h
